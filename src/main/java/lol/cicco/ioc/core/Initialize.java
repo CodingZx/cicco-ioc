@@ -59,7 +59,6 @@ public class Initialize {
             } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
                 throw new BeanInitializeException("["+type.toString()+"] 没有默认构造函数....", e);
             }
-            log.debug("[{}] 注册至IOC...", type.toString());
             injectQueue.add(definition);
         }
 
