@@ -1,6 +1,7 @@
 package lol.cicco.ioc.core;
 
 import lol.cicco.ioc.annotation.Registration;
+import lol.cicco.ioc.core.exception.BeanDefinitionStoreException;
 import lol.cicco.ioc.core.scanner.ClassMeta;
 import lol.cicco.ioc.core.scanner.FileClassScanner;
 import lol.cicco.ioc.core.scanner.JarClassScanner;
@@ -37,7 +38,7 @@ public class ClassPathScanner {
                 }
             }
         } catch (IOException e) {
-            throw new BeanDefinitionStoreException("I/O failure during classpath scanning...", e);
+            throw new BeanDefinitionStoreException("扫描Class时出现异常..", e);
         }
 
         List<BeanDefinition> beanDefinitions = new LinkedList<>();

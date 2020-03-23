@@ -1,4 +1,4 @@
-package lol.cicco.ioc.core;
+package lol.cicco.ioc.core.exception;
 
 public class BeanDefinitionStoreException extends RuntimeException {
 

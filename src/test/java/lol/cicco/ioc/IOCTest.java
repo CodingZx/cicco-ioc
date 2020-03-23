@@ -1,14 +1,14 @@
 package lol.cicco.ioc;
 
+import lol.cicco.ioc.bean.TestBean;
 import lol.cicco.ioc.bean.TestBean2;
+import lol.cicco.ioc.core.IOC;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class IOCTest {
 
     static {
-        IOC.initialize("lol.cicco");
+        IOC.initialize().scanBasePackages("lol.cicco").scanBasePackageClasses(TestBean.class).done();
     }
 
     @Test
