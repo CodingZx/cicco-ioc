@@ -2,10 +2,7 @@ package lol.cicco.ioc.core;
 
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.exception.BeanDefinitionStoreException;
-import lol.cicco.ioc.core.scanner.ClassMeta;
-import lol.cicco.ioc.core.scanner.FileClassScanner;
-import lol.cicco.ioc.core.scanner.JarClassScanner;
-import lol.cicco.ioc.core.scanner.ScannerConstants;
+import lol.cicco.ioc.core.scanner.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -22,19 +19,26 @@ public class ClassPathScanner {
             path = path.substring(1);
         }
         path = path.replace(".", "/");
-        List<ClassMeta> allBeans = new LinkedList<>();
+        List<ClassMeta> allClasses = new LinkedList<>();
         try {
             Enumeration<URL> urls = classLoader.getResources(path);
             while (urls.hasMoreElements()) {
                 URL url = urls.nextElement();
 
+                BeanScanner scanner = null;
                 switch (url.getProtocol()) {
                     case ScannerConstants.URL_PROTOCOL_JAR:
-                        allBeans.addAll(new JarClassScanner().doScan(url));
+                        scanner = JarClassScanner.getInstance();
                         break;
                     case ScannerConstants.URL_PROTOCOL_FILE:
-                        allBeans.addAll(new FileClassScanner().doScan(url));
+                        scanner = FileClassScanner.getInstance();
                         break;
+                }
+
+                if(scanner != null) {
+                    allClasses.addAll(scanner.doScan(url));
+                } else {
+                    log.warn("未找到对应BeanScanner, urlProtocol为:{}", url.getProtocol());
                 }
             }
         } catch (IOException e) {
@@ -42,7 +46,7 @@ public class ClassPathScanner {
         }
 
         List<BeanDefinition> beanDefinitions = new LinkedList<>();
-        for (ClassMeta meta : allBeans) {
+        for (ClassMeta meta : allClasses) {
             try {
                 Class<?> cls = classLoader.loadClass(meta.getClassName());
                 if (!isRegistrationBean(cls)) {

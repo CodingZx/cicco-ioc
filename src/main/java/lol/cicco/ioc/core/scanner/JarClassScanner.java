@@ -14,6 +14,14 @@ import java.util.zip.ZipException;
 @Slf4j
 public class JarClassScanner implements BeanScanner {
 
+    private JarClassScanner(){}
+
+    private static final JarClassScanner scanner = new JarClassScanner();
+
+    public static JarClassScanner getInstance(){
+        return scanner;
+    }
+
     @Override
     public List<ClassMeta> doScan(URL url) throws IOException {
         List<ClassMeta> allClass = new LinkedList<>();

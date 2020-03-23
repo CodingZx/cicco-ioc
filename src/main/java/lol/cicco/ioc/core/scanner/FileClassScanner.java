@@ -1,15 +1,26 @@
 package lol.cicco.ioc.core.scanner;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.File;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
+@Slf4j
 public class FileClassScanner implements BeanScanner {
+
+    private static final FileClassScanner scanner = new FileClassScanner();
+
+    private FileClassScanner(){}
 
     @Override
     public List<ClassMeta> doScan(URL url) {
         return addClassesFromFilePath(url.getPath());
+    }
+
+    public static BeanScanner getInstance() {
+        return scanner;
     }
 
     private List<ClassMeta> addClassesFromFilePath(String path) {

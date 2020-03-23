@@ -67,6 +67,8 @@ public class Initialize {
             BeanDefinition definition = injectQueue.poll();
             Object bean = container.getBeanByType(definition.getBeanType());
 
+            log.debug("执行注入, 当前目标:{}", definition.getBeanType().toString());
+
             Field[] fields = definition.getBeanType().getDeclaredFields();
             for(Field field : fields) {
                 if(field.getAnnotationsByType(Inject.class) == null) {

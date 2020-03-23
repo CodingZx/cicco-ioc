@@ -2,15 +2,18 @@ package lol.cicco.ioc.core;
 
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.exception.BeanNotFountException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class BeanContainer {
 
     private static final Map<Class<?>, Object> typeBeans = new HashMap<>();
 
     void registerBean(BeanDefinition definition, Object object) {
+        log.debug("Bean[{}]注册至Container...", definition.getBeanType().toString());
         typeBeans.put(definition.getBeanType(), object);
     }
 
