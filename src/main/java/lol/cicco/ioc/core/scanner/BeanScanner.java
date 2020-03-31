@@ -7,8 +7,8 @@ import java.util.List;
 public interface BeanScanner {
 
     /**
-     * 扫描URL下所有注册至IOC的Bean
+     * 扫描URL下所有对应后缀文件
      */
-    List<ClassMeta> doScan(URL url) throws IOException;
+    List<ResourceMeta> doScan(URL url, String suffix) throws IOException;
 
 }

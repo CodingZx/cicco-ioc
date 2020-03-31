@@ -2,23 +2,21 @@ package lol.cicco.ioc.core;
 
 import lol.cicco.ioc.core.exception.BeanInitializeException;
 
-import java.util.Set;
-
 public final class IOC {
 
     private IOC() {
         throw new IllegalAccessError();
     }
+    private static IOCContainer iocContainer;
 
-    private static BeanContainer container;
-
-    static void initializeDone(Set<BeanDefinition> beanDefinitions) {
+    static void initializeDone(Initialize initialize) {
         synchronized (IOC.class) {
-            if(IOC.container != null) {
+            if(iocContainer != null) {
                 throw new BeanInitializeException("不能重复初始化IOC...");
             }
             // 初始化Container...
-            IOC.container = BeanContainer.create(beanDefinitions);
+            IOC.iocContainer = IOCContainer.create(initialize);
+
         }
     }
 
@@ -27,8 +25,10 @@ public final class IOC {
     }
 
     public static <T> T getBeanByType(Class<T> beanCls){
-        return container.getBeanByType(beanCls);
+        return iocContainer.getBeanByType(beanCls);
     }
 
-
+    public static String getProperty(String key, String defaultValue) {
+        return iocContainer.getProperty(key, defaultValue);
+    }
 }

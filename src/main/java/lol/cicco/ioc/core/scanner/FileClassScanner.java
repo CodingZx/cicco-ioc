@@ -15,30 +15,30 @@ public class FileClassScanner implements BeanScanner {
     private FileClassScanner(){}
 
     @Override
-    public List<ClassMeta> doScan(URL url) {
-        return addClassesFromFilePath(url.getPath());
+    public List<ResourceMeta> doScan(URL url, String suffix) {
+        return addFileFromPath(url.getPath(), suffix);
     }
 
     public static BeanScanner getInstance() {
         return scanner;
     }
 
-    private List<ClassMeta> addClassesFromFilePath(String path) {
-        List<ClassMeta> classMetas = new LinkedList<>();
+    private List<ResourceMeta> addFileFromPath(String path, String suffix) {
+        List<ResourceMeta> resourceMetas = new LinkedList<>();
 
         File file = new File(path);
         File[] childFiles = file.listFiles();
         if (childFiles == null) {
-            return classMetas;
+            return resourceMetas;
         }
         for (File childFile : childFiles) {
             if (childFile.isDirectory()) {
                 // 搜索子目录
-                classMetas.addAll(addClassesFromFilePath(childFile.getPath()));
+                resourceMetas.addAll(addFileFromPath(childFile.getPath(), suffix));
             } else {
                 String childFilePath = childFile.getPath();
 
-                if (childFilePath.endsWith(ScannerConstants.CLASS_FILE_SUFFIX)) {
+                if (childFilePath.endsWith(suffix)) {
                     int classesStartIdx = 0;
 
                     String classDir = File.separator + "classes" + File.separator;
@@ -54,12 +54,11 @@ public class FileClassScanner implements BeanScanner {
                         }
                     }
 
-                    childFilePath = childFilePath.substring(classesStartIdx, childFilePath.lastIndexOf(ScannerConstants.CLASS_FILE_SUFFIX));
-                    childFilePath = childFilePath.replace(File.separator, ".");
-                    classMetas.add(ClassMeta.of(childFilePath));
+                    childFilePath = childFilePath.substring(classesStartIdx).replace(File.separator, ".");
+                    resourceMetas.add(ResourceMeta.of(childFilePath));
                 }
             }
         }
-        return classMetas;
+        return resourceMetas;
     }
 }

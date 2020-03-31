@@ -2,7 +2,10 @@ package lol.cicco.ioc.core;
 
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.exception.BeanDefinitionStoreException;
-import lol.cicco.ioc.core.scanner.*;
+import lol.cicco.ioc.core.scanner.BeanScanner;
+import lol.cicco.ioc.core.scanner.FileClassScanner;
+import lol.cicco.ioc.core.scanner.JarClassScanner;
+import lol.cicco.ioc.core.scanner.ResourceMeta;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -19,7 +22,7 @@ public class ClassPathScanner {
             path = path.substring(1);
         }
         path = path.replace(".", "/");
-        List<ClassMeta> allClasses = new LinkedList<>();
+        List<ResourceMeta> allClasses = new LinkedList<>();
         try {
             Enumeration<URL> urls = classLoader.getResources(path);
             while (urls.hasMoreElements()) {
@@ -27,16 +30,16 @@ public class ClassPathScanner {
 
                 BeanScanner scanner = null;
                 switch (url.getProtocol()) {
-                    case ScannerConstants.URL_PROTOCOL_JAR:
+                    case CiccoConstants.URL_PROTOCOL_JAR:
                         scanner = JarClassScanner.getInstance();
                         break;
-                    case ScannerConstants.URL_PROTOCOL_FILE:
+                    case CiccoConstants.URL_PROTOCOL_FILE:
                         scanner = FileClassScanner.getInstance();
                         break;
                 }
 
                 if(scanner != null) {
-                    allClasses.addAll(scanner.doScan(url));
+                    allClasses.addAll(scanner.doScan(url, CiccoConstants.CLASS_FILE_SUFFIX));
                 } else {
                     log.warn("未找到对应BeanScanner, urlProtocol为:{}", url.getProtocol());
                 }
@@ -46,9 +49,10 @@ public class ClassPathScanner {
         }
 
         List<BeanDefinition> beanDefinitions = new LinkedList<>();
-        for (ClassMeta meta : allClasses) {
+        for (ResourceMeta meta : allClasses) {
             try {
-                Class<?> cls = classLoader.loadClass(meta.getClassName());
+                String className = meta.getFileName();
+                Class<?> cls = Class.forName(className.substring(0, className.lastIndexOf(CiccoConstants.CLASS_FILE_SUFFIX)), false, classLoader);
                 if (!isRegistrationBean(cls)) {
                     // 未托管至IOC
                     continue;

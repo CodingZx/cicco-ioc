@@ -23,8 +23,8 @@ public class JarClassScanner implements BeanScanner {
     }
 
     @Override
-    public List<ClassMeta> doScan(URL url) throws IOException {
-        List<ClassMeta> allClass = new LinkedList<>();
+    public List<ResourceMeta> doScan(URL url, String suffix) throws IOException {
+        List<ResourceMeta> allResources = new LinkedList<>();
         String[] jarInfo = url.getFile().split("!");
         String jarFilePath = jarInfo[0].substring(jarInfo[0].indexOf("/"));
         String packagePath = jarInfo[1].substring(1);
@@ -34,17 +34,17 @@ public class JarClassScanner implements BeanScanner {
                 JarEntry jarEntry = entries.nextElement();
                 String entryName = jarEntry.getName();
                 // 扫描Class文件
-                if (entryName.endsWith(ScannerConstants.CLASS_FILE_SUFFIX)) {
+                if (entryName.endsWith(suffix)) {
                     if (entryName.startsWith(packagePath)) {
                         // 将对应文件路径替换为class全称
                         entryName = entryName.replace("/", ".").substring(0, entryName.lastIndexOf("."));
-                        allClass.add(ClassMeta.of(entryName));
+                        allResources.add(ResourceMeta.of(entryName));
                     }
                 }
             }
         } catch (ZipException e) {
             log.warn("Skipping invalid jar classpath entry [{}]", url);
         }
-        return allClass;
+        return allResources;
     }
 }

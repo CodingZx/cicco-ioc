@@ -1,6 +1,6 @@
-package lol.cicco.ioc.core.scanner;
+package lol.cicco.ioc.core;
 
-public final class ScannerConstants {
+public final class CiccoConstants {
 
     public static final String URL_PROTOCOL_FILE = "file";
 
@@ -8,7 +8,7 @@ public final class ScannerConstants {
 
     public static final String CLASS_FILE_SUFFIX = ".class";
 
-    private ScannerConstants(){
+    private CiccoConstants(){
         throw new IllegalAccessError();
     }
 }

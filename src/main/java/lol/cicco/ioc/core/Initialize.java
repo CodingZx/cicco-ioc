@@ -10,13 +10,11 @@ import java.util.Set;
 public class Initialize {
 
     private Set<String> scanPackages;
-    private ClassPathScanner scanner;
-    private Set<BeanDefinition> beanDefinitions;
+    private Set<String> loadProperties;
 
     public Initialize() {
         scanPackages = new LinkedHashSet<>();
-        scanner = new ClassPathScanner();
-        beanDefinitions = new LinkedHashSet<>();
+        loadProperties = new LinkedHashSet<>();
     }
 
     public Initialize scanBasePackages(String... packages) {
@@ -31,13 +29,28 @@ public class Initialize {
         return this;
     }
 
-    public void done() {
-        // 执行扫描
-        for(String pkg : scanPackages) {
-            beanDefinitions.addAll(scanner.doScan(pkg, Initialize.class.getClassLoader()));
+    public Initialize loadProperties(String... propertyNames) {
+        for(String propertyName : propertyNames) {
+            propertyName = propertyName.trim();
+            if(propertyName.startsWith("/")) {
+                loadProperties.add(propertyName);
+            } else {
+                loadProperties.add("/" + propertyName);
+            }
         }
+        return this;
+    }
 
+    public void done() {
         // 初始化完成
-        IOC.initializeDone(beanDefinitions);
+        IOC.initializeDone(this);
+    }
+
+    Set<String> getScanPackages() {
+        return this.scanPackages;
+    }
+
+    Set<String> getLoadProperties(){
+        return this.loadProperties;
     }
 }
