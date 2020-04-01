@@ -2,6 +2,7 @@ package lol.cicco.ioc.core;
 
 import lol.cicco.ioc.core.binder.BindHandler;
 import lol.cicco.ioc.core.binder.BinderProcessor;
+import lol.cicco.ioc.core.exception.BeanDefinitionStoreException;
 import lol.cicco.ioc.core.exception.BeanInitializeException;
 
 public final class IOC {
@@ -31,10 +32,18 @@ public final class IOC {
     }
 
     public static <T> T getBeanByType(Class<T> beanCls){
+        checkContainer();
         return iocContainer.getBeanByType(beanCls);
     }
 
     public static String getProperty(String key, String defaultValue) {
+        checkContainer();
         return iocContainer.getProperty(key, defaultValue);
+    }
+
+    private static void checkContainer(){
+        if(iocContainer == null) {
+            throw new BeanDefinitionStoreException("IOC容器未初始化..");
+        }
     }
 }

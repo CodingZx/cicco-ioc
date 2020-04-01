@@ -2,3 +2,9 @@ a.text = aa
 b.text = bb
 c.text = cc
 b.num = 10
+
+
+binder.year = 2020
+binder.month = 12
+binder.year.month = 2020-12
+binder.month.day = --12-31

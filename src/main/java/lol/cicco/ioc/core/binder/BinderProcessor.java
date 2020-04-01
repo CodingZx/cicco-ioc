@@ -6,9 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -34,6 +32,11 @@ public final class BinderProcessor {
         registerHandler(new Java8TimeBindHandler(LocalDate.class));
         registerHandler(new Java8TimeBindHandler(LocalDateTime.class));
         registerHandler(new Java8TimeBindHandler(LocalTime.class));
+        registerHandler(new Java8TimeBindHandler(Year.class));
+        registerHandler(new Java8TimeBindHandler(Month.class));
+        registerHandler(new Java8TimeBindHandler(MonthDay.class));
+        registerHandler(new Java8TimeBindHandler(YearMonth.class));
+        registerHandler(new UUIDBindHandler());
     }
 
     public static BinderProcessor getInstance() {

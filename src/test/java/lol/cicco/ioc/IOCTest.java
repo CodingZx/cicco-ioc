@@ -1,10 +1,13 @@
 package lol.cicco.ioc;
 
+import lol.cicco.ioc.bean.BinderBean;
 import lol.cicco.ioc.bean.TestBean;
 import lol.cicco.ioc.bean.TestBean2;
 import lol.cicco.ioc.core.IOC;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.time.MonthDay;
 
 public class IOCTest {
 
@@ -15,7 +18,8 @@ public class IOCTest {
                 .loadProperties("app.prop")
                 .loadProperties("prop/app1.prop")
                 .loadProperties("prop/app2.prop")
-                .done();
+                .done()
+        ;
     }
 
     @Test
@@ -25,6 +29,13 @@ public class IOCTest {
 
         Assert.assertEquals("a", IOC.getProperty("a.text", "b"));
         testBean2.printShowText();
+    }
+
+    @Test
+    public void binder(){
+        BinderBean binderBean = IOC.getBeanByType(BinderBean.class);
+
+        binderBean.print();
     }
 
 }
