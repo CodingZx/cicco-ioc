@@ -1,10 +1,9 @@
 package lol.cicco.ioc.core;
 
+import lol.cicco.ioc.core.binder.BindHandler;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 public class Initialize {
@@ -12,9 +11,12 @@ public class Initialize {
     private Set<String> scanPackages;
     private Set<String> loadProperties;
 
+    private List<BindHandler<?>> bindHandlers;
+
     public Initialize() {
         scanPackages = new LinkedHashSet<>();
         loadProperties = new LinkedHashSet<>();
+        bindHandlers = new LinkedList<>();
     }
 
     public Initialize scanBasePackages(String... packages) {
@@ -41,6 +43,11 @@ public class Initialize {
         return this;
     }
 
+    public Initialize registerBindHandler(BindHandler<?> bindHandler) {
+        bindHandlers.add(bindHandler);
+        return this;
+    }
+
     public void done() {
         // 初始化完成
         IOC.initializeDone(this);
@@ -52,5 +59,9 @@ public class Initialize {
 
     Set<String> getLoadProperties(){
         return this.loadProperties;
+    }
+
+    List<BindHandler<?>> getBindHandlers(){
+        return this.bindHandlers;
     }
 }

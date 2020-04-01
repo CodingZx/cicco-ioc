@@ -1,3 +1,4 @@
 a.text = aa
 b.text = bb
 c.text = cc
+b.num = 10

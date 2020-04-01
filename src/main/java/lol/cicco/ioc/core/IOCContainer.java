@@ -3,9 +3,10 @@ package lol.cicco.ioc.core;
 import lol.cicco.ioc.annotation.Binder;
 import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.annotation.Registration;
+import lol.cicco.ioc.core.binder.BinderProcessor;
 import lol.cicco.ioc.core.exception.BeanInitializeException;
 import lol.cicco.ioc.core.exception.BeanNotFountException;
-import lol.cicco.ioc.core.exception.PropertyNotFoundException;
+import lol.cicco.ioc.core.exception.PropertyBindException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -109,11 +110,13 @@ class IOCContainer {
                     Binder binder = (Binder)injectAnnotation;
                     String propertyValue = propValues.get(binder.value());
                     if(propertyValue == null){
-                        throw new PropertyNotFoundException("Property ["+binder.value()+"] 未配置, 请检查对应配置文件...");
+                        throw new PropertyBindException("Property ["+binder.value()+"] 未配置, 请检查对应配置文件...");
                     }
-                    if(field.getType() == String.class) {
-                        field.set(bean, propertyValue);
-                    }
+
+                    System.out.println(field.getType());
+
+                    // 注入
+                    field.set(bean, BinderProcessor.getInstance().covertValue(binder.value(), propertyValue, field.getGenericType()));
                 }
             }
         }
