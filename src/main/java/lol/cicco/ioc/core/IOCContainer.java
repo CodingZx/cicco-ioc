@@ -3,6 +3,7 @@ package lol.cicco.ioc.core;
 import lol.cicco.ioc.annotation.Binder;
 import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.annotation.Registration;
+import lol.cicco.ioc.core.binder.BindHandler;
 import lol.cicco.ioc.core.binder.BinderProcessor;
 import lol.cicco.ioc.core.exception.BeanInitializeException;
 import lol.cicco.ioc.core.exception.BeanNotFountException;
@@ -30,6 +31,8 @@ class IOCContainer {
     }
 
     static IOCContainer create(Initialize initialize) {
+        setBindHandler(initialize.getBindHandlers());
+
         IOCContainer container = new IOCContainer();
 
         Set<BeanDefinition> beanDefinitions = container.doScan(initialize);
@@ -38,6 +41,14 @@ class IOCContainer {
         // 注入
         container.inject(beanDefinitions);
         return container;
+    }
+
+    private static void setBindHandler(List<BindHandler<?>> bindHandlers){
+        // 注册BinderHandler
+        BinderProcessor binder = BinderProcessor.getInstance();
+        for(BindHandler<?> handler : bindHandlers){
+            binder.registerHandler(handler);
+        }
     }
 
     @SneakyThrows

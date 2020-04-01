@@ -3,10 +3,7 @@ package lol.cicco.ioc.bean;
 import lol.cicco.ioc.annotation.Binder;
 import lol.cicco.ioc.annotation.Registration;
 
-import java.time.Month;
-import java.time.MonthDay;
-import java.time.Year;
-import java.time.YearMonth;
+import java.time.*;
 
 @Registration
 public class BinderBean {
@@ -20,10 +17,14 @@ public class BinderBean {
     @Binder("binder.month.day")
     private MonthDay monthDay;
 
+    @Binder("binder.localdatetime")
+    private LocalDateTime localDateTime;
+
     public void print(){
         System.out.println("year:"+year);
         System.out.println("month:"+month);
         System.out.println("yearMonth:"+yearMonth);
         System.out.println("monthDay:"+monthDay);
+        System.out.println("localDateTime:"+localDateTime);
     }
 }

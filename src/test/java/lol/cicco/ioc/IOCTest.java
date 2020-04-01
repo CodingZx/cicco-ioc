@@ -4,10 +4,9 @@ import lol.cicco.ioc.bean.BinderBean;
 import lol.cicco.ioc.bean.TestBean;
 import lol.cicco.ioc.bean.TestBean2;
 import lol.cicco.ioc.core.IOC;
+import lol.cicco.ioc.core.LocalDateTimeBinderHandler;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.time.MonthDay;
 
 public class IOCTest {
 
@@ -18,6 +17,7 @@ public class IOCTest {
                 .loadProperties("app.prop")
                 .loadProperties("prop/app1.prop")
                 .loadProperties("prop/app2.prop")
+                .registerBindHandler(new LocalDateTimeBinderHandler())
                 .done()
         ;
     }
