@@ -112,10 +112,7 @@ class IOCContainer {
                     if(propertyValue == null){
                         throw new PropertyBindException("Property ["+binder.value()+"] 未配置, 请检查对应配置文件...");
                     }
-
-                    System.out.println(field.getType());
-
-                    // 注入
+                    // 执行属性注入
                     field.set(bean, BinderProcessor.getInstance().covertValue(binder.value(), propertyValue, field.getGenericType()));
                 }
             }
