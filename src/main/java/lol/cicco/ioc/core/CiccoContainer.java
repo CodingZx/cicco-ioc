@@ -35,7 +35,11 @@ class CiccoContainer {
 
         CiccoContainer container = new CiccoContainer();
 
-        Set<BeanDefinition> beanDefinitions = container.doScan(initialize);
+        // 加载属性信息
+        container.loadProperties(initialize.getLoadProperties());
+
+        // 扫描注册Bean
+        Set<BeanDefinition> beanDefinitions = container.doScanBeans(initialize.getScanPackages());
         // 注册
         container.register(beanDefinitions);
         // 注入
@@ -51,15 +55,19 @@ class CiccoContainer {
         }
     }
 
-    @SneakyThrows
-    private Set<BeanDefinition> doScan(Initialize initialize) {
+    private Set<BeanDefinition> doScanBeans(Set<String> scanPackages) {
         ClassPathScanner scanner = new ClassPathScanner();
         Set<BeanDefinition> beanDefinitions = new LinkedHashSet<>();
-        for (String pkg : initialize.getScanPackages()) {
+        for (String pkg : scanPackages) {
             beanDefinitions.addAll(scanner.doScan(pkg, Initialize.class.getClassLoader()));
         }
+        return beanDefinitions;
+    }
+
+    @SneakyThrows
+    private void loadProperties(Set<String> loadProperties) {
         // 加载对应配置
-        for (String propertyName : initialize.getLoadProperties()) {
+        for (String propertyName : loadProperties) {
             var inputStream = CiccoContainer.class.getResourceAsStream(propertyName);
             if (inputStream == null) {
                 log.warn("[{}] 未找到对应文件....", propertyName);
@@ -72,7 +80,6 @@ class CiccoContainer {
                 }
             }
         }
-        return beanDefinitions;
     }
 
     private void register(Set<BeanDefinition> definitions) {
