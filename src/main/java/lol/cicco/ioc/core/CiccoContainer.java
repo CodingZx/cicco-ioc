@@ -125,8 +125,15 @@ class CiccoContainer {
                 }
 
                 if (injectAnnotation.annotationType() == Inject.class) {
-                    Object injectObj = this.getBeanByType(field.getType());
-                    field.set(bean, injectObj);
+                    Inject inject = (Inject) injectAnnotation;
+                    if(inject.required()) {
+                        field.set(bean, getBeanByType(field.getType()));
+                    } else {
+                        Object injectObject = getNullableBean(field.getType());
+                        if(injectObject != null) {
+                            field.set(bean, getBeanByType(field.getType()));
+                        }
+                    }
                 }
                 if (injectAnnotation.annotationType() == Binder.class) {
                     Binder binder = (Binder) injectAnnotation;
@@ -154,12 +161,18 @@ class CiccoContainer {
     }
 
     public <T> T getBeanByType(Class<T> beanCls) {
-        String beanName = typeBeans.get(beanCls);
-
-        if (beanName == null) {
+        T obj = getNullableBean(beanCls);
+        if (obj == null) {
             throw new BeanNotFountException("[" + beanCls.toString() + "] 未注册至IOC, 请检查[" + Registration.class + "]注解与初始化配置.");
         }
+        return obj;
+    }
 
+    <T> T getNullableBean(Class<?> beanCls) {
+        String beanName = typeBeans.get(beanCls);
+        if(beanName == null) {
+            return null;
+        }
         return (T)nameBeans.get(beanName);
     }
 

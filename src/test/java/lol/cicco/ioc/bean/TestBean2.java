@@ -15,6 +15,9 @@ public class TestBean2 {
     @Binder("b.num")
     private int b;
 
+    @Inject(required = false)
+    private NoRegisterClass cls;
+
     public void print(){
         System.out.println("testBean is "+testBean);
     }
@@ -22,5 +25,9 @@ public class TestBean2 {
     public void printShowText(){
         System.out.println(showAText);
         System.out.println("b:"+b);
+    }
+
+    public boolean noRegisterClassIsNull(){
+        return cls == null;
     }
 }

@@ -33,6 +33,8 @@ public class IOCTest {
 
         Assert.assertEquals("a", IOC.getProperty("a.text", "b"));
         testBean2.printShowText();
+
+        Assert.assertTrue(testBean2.noRegisterClassIsNull());
     }
 
     @Test

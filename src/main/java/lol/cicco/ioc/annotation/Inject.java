@@ -9,4 +9,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface Inject {
+
+    /**
+     * 依赖是否必须
+     */
+    boolean required() default true;
 }
