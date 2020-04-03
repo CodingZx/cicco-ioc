@@ -12,4 +12,9 @@ public class BeanDefinition {
      */
     private Class<?> beanType;
 
+    /**
+     * Bean名称
+     */
+    private String beanName;
+
 }

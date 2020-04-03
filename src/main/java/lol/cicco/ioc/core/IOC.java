@@ -30,6 +30,11 @@ public final class IOC {
         return ciccoContainer.getBeanByType(beanCls);
     }
 
+    public static <T> T getBeanByName(String beanName) {
+        checkContainer();
+        return ciccoContainer.getBeanByName(beanName);
+    }
+
     public static String getProperty(String key, String defaultValue) {
         checkContainer();
         return ciccoContainer.getProperty(key, defaultValue);

@@ -27,6 +27,10 @@ public class IOCTest {
         TestBean2 testBean2 = IOC.getBeanByType(TestBean2.class);
         testBean2.print();
 
+        TestBean2 testBean2ByName = IOC.getBeanByName("testBean2");
+        Assert.assertEquals(testBean2, testBean2ByName);
+
+
         Assert.assertEquals("a", IOC.getProperty("a.text", "b"));
         testBean2.printShowText();
     }

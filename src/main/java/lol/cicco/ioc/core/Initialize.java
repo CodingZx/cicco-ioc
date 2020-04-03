@@ -31,6 +31,7 @@ public class Initialize {
         return this;
     }
 
+
     public Initialize loadProperties(String... propertyNames) {
         for(String propertyName : propertyNames) {
             propertyName = propertyName.trim();
@@ -42,6 +43,7 @@ public class Initialize {
         }
         return this;
     }
+
 
     public Initialize registerBindHandler(BindHandler<?> bindHandler) {
         bindHandlers.add(bindHandler);

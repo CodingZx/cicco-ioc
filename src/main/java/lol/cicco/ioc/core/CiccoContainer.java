@@ -5,6 +5,7 @@ import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.binder.BindHandler;
 import lol.cicco.ioc.core.binder.BinderProcessor;
+import lol.cicco.ioc.core.exception.BeanDefinitionStoreException;
 import lol.cicco.ioc.core.exception.BeanInitializeException;
 import lol.cicco.ioc.core.exception.BeanNotFountException;
 import lol.cicco.ioc.core.exception.PropertyBindException;
@@ -23,11 +24,13 @@ class CiccoContainer {
     private final Map<String, String> propValues;
 
     // Bean
-    private final Map<Class<?>, Object> typeBeans;
+    private final Map<Class<?>, String> typeBeans;
+    private final Map<String, Object> nameBeans;
 
     private CiccoContainer() {
         typeBeans = new LinkedHashMap<>();
         propValues = new LinkedHashMap<>();
+        nameBeans = new LinkedHashMap<>();
     }
 
     static CiccoContainer create(Initialize initialize) {
@@ -71,13 +74,13 @@ class CiccoContainer {
             var inputStream = CiccoContainer.class.getResourceAsStream(propertyName);
             if (inputStream == null) {
                 log.warn("[{}] 未找到对应文件....", propertyName);
-            } else {
-                Properties properties = new Properties();
-                properties.load(inputStream);
-                for (var key : properties.keySet()) {
-                    var value = properties.getProperty(key.toString());
-                    propValues.put(key.toString(), value);
-                }
+                continue;
+            }
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            for (var key : properties.keySet()) {
+                var value = properties.getProperty(key.toString());
+                propValues.put(key.toString(), value);
             }
         }
     }
@@ -86,17 +89,18 @@ class CiccoContainer {
         for (BeanDefinition definition : definitions) {
             Class<?> type = definition.getBeanType();
 
-            // 被重复扫描
-            if (typeBeans.containsKey(type)) {
-                log.debug("[{}] 已经被注册至IOC.. 跳过..", type.toString());
-                continue;
+            // 被重复注册
+            if (nameBeans.containsKey(definition.getBeanName())) {
+                throw new BeanDefinitionStoreException("BeanName["+definition.getBeanName()+"], Class["+definition.getBeanType().getTypeName()+"] 已经被注册至IOC..");
             }
 
             try {
                 Constructor<?> defConstructor = type.getConstructor();
                 Object obj = defConstructor.newInstance();
                 log.debug("Bean[{}]注册至Container...", definition.getBeanType().toString());
-                typeBeans.put(definition.getBeanType(), obj);
+
+                nameBeans.put(definition.getBeanName(), obj);
+                typeBeans.put(definition.getBeanType(), definition.getBeanName());
             } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
                 throw new BeanInitializeException("[" + type.toString() + "] 没有默认构造函数....", e);
             }
@@ -150,10 +154,19 @@ class CiccoContainer {
     }
 
     public <T> T getBeanByType(Class<T> beanCls) {
-        T obj = (T) typeBeans.get(beanCls);
+        String beanName = typeBeans.get(beanCls);
 
-        if (obj == null) {
+        if (beanName == null) {
             throw new BeanNotFountException("[" + beanCls.toString() + "] 未注册至IOC, 请检查[" + Registration.class + "]注解与初始化配置.");
+        }
+
+        return (T)nameBeans.get(beanName);
+    }
+
+    public <T> T getBeanByName(String beanName) {
+        T obj = (T) nameBeans.get(beanName);
+        if (obj == null) {
+            throw new BeanNotFountException("[" + beanName + "] 未注册至IOC, 请检查[" + Registration.class + "]注解与初始化配置.");
         }
         return obj;
     }

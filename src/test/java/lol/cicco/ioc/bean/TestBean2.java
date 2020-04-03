@@ -4,7 +4,7 @@ import lol.cicco.ioc.annotation.Binder;
 import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.annotation.Registration;
 
-@Registration
+@Registration(name = "testBean2")
 public class TestBean2 {
     @Inject
     private TestBean testBean;

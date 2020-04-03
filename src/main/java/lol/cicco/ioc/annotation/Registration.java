@@ -10,4 +10,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(TYPE)
 public @interface Registration {
 
+    /**
+     * 定义BeanName, 若为"" 则采用ClassName
+     */
+    String name() default "";
 }

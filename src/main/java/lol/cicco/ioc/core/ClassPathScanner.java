@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public class ClassPathScanner {
@@ -53,7 +54,9 @@ public class ClassPathScanner {
             try {
                 String className = meta.getFileName();
                 Class<?> cls = Class.forName(className.substring(0, className.lastIndexOf(CiccoConstants.CLASS_FILE_SUFFIX)), false, classLoader);
-                if (!isRegistrationBean(cls)) {
+
+                Optional<String> beanNameOptional = getBeanName(cls);
+                if (beanNameOptional.isEmpty()) {
                     // 未托管至IOC
                     continue;
                 }
@@ -64,6 +67,7 @@ public class ClassPathScanner {
 
                 BeanDefinition definition = new BeanDefinition();
                 definition.setBeanType(cls);
+                definition.setBeanName(beanNameOptional.get());
 
                 beanDefinitions.add(definition);
             } catch (ClassNotFoundException e) {
@@ -73,7 +77,15 @@ public class ClassPathScanner {
         return beanDefinitions;
     }
 
-    private boolean isRegistrationBean(Class<?> cls) {
-        return cls.getAnnotation(Registration.class) != null;
+    private Optional<String> getBeanName(Class<?> cls) {
+        Registration registration = cls.getAnnotation(Registration.class);
+        if(registration == null) {
+            return Optional.empty();
+        }
+        // 不能为空
+        if("".equals(registration.name().trim())) {
+            return Optional.of(cls.getSimpleName());
+        }
+        return Optional.of(registration.name());
     }
 }
