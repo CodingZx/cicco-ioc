@@ -10,3 +10,6 @@ binder.year.month = 2020-12
 binder.month.day = --12-31
 
 binder.localdatetime = 2020-04-01_00:00:00
+
+
+test.enum = THREE

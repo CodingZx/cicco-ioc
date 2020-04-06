@@ -3,6 +3,7 @@ package lol.cicco.ioc.bean;
 import lol.cicco.ioc.annotation.Binder;
 import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.annotation.Registration;
+import lol.cicco.ioc.binder.TestEnum;
 
 @Registration(name = "testBean2")
 public class TestBean2 {
@@ -15,6 +16,9 @@ public class TestBean2 {
     @Binder("b.num")
     private int b;
 
+    @Binder("test.enum")
+    private TestEnum testEnum;
+
     @Inject(required = false, byName = "noReg2")
     private NoRegisterClass cls;
 
@@ -25,6 +29,7 @@ public class TestBean2 {
     public void printShowText(){
         System.out.println(showAText);
         System.out.println("b:"+b);
+        System.out.println("enum : "+ testEnum);
     }
 
     public boolean noRegisterClassIsNull(){

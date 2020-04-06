@@ -3,8 +3,10 @@ package lol.cicco.ioc;
 import lol.cicco.ioc.bean.BinderBean;
 import lol.cicco.ioc.bean.TestBean;
 import lol.cicco.ioc.bean.TestBean2;
+import lol.cicco.ioc.binder.TestEnum;
 import lol.cicco.ioc.core.IOC;
 import lol.cicco.ioc.core.LocalDateTimeBinderHandler;
+import lol.cicco.ioc.core.binder.EnumBindHandler;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,6 +20,7 @@ public class IOCTest {
                 .loadProperties("prop/app1.prop")
                 .loadProperties("prop/app2.prop")
                 .registerBindHandler(new LocalDateTimeBinderHandler())
+                .registerBindHandler(new EnumBindHandler<>(TestEnum.class))
                 .done()
         ;
     }
