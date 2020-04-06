@@ -50,7 +50,7 @@ class CiccoContainer {
         return container;
     }
 
-    private static void setBindHandler(List<BindHandler<?>> bindHandlers) {
+    private static void setBindHandler(Collection<BindHandler<?>> bindHandlers) {
         // 注册BinderHandler
         BinderProcessor binder = BinderProcessor.getInstance();
         for (BindHandler<?> handler : bindHandlers) {

@@ -1,50 +1,95 @@
 package lol.cicco.ioc.core.binder;
 
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class NumberBindHandler extends GeneralBindHandler<Number> {
+public class NumberBindHandler {
 
-    public NumberBindHandler(Type type) {
-        super(type);
+    private static final Collection<BindHandler<?>> handlers = new LinkedList<>();
+
+    static {
+        synchronized (NumberBindHandler.class) {
+            handlers.add(new GeneralBindHandler<Integer>(Integer.TYPE) {
+                @Override
+                public Integer covertProperty(String propertyName, String propertyValue) {
+                    return Integer.parseInt(propertyValue);
+                }
+            });
+
+            handlers.add(new GeneralBindHandler<Byte>(Byte.TYPE) {
+                @Override
+                public Byte covertProperty(String propertyName, String propertyValue) {
+                    return Byte.parseByte(propertyValue);
+                }
+            });
+
+            handlers.add(new GeneralBindHandler<Short>(Short.TYPE) {
+                @Override
+                public Short covertProperty(String propertyName, String propertyValue) {
+                    return Short.parseShort(propertyValue);
+                }
+            });
+
+            handlers.add(new GeneralBindHandler<Long>(Long.TYPE) {
+                @Override
+                public Long covertProperty(String propertyName, String propertyValue) {
+                    return Long.parseLong(propertyValue);
+                }
+            });
+
+            handlers.add(new GeneralBindHandler<Double>(Double.TYPE) {
+                @Override
+                public Double covertProperty(String propertyName, String propertyValue) {
+                    return Double.parseDouble(propertyValue);
+                }
+            });
+
+            handlers.add(new GeneralBindHandler<Float>(Float.TYPE) {
+                @Override
+                public Float covertProperty(String propertyName, String propertyValue) {
+                    return Float.parseFloat(propertyValue);
+                }
+            });
+
+            handlers.add(new GeneralBindHandler<AtomicInteger>(AtomicInteger.class) {
+                @Override
+                public AtomicInteger covertProperty(String propertyName, String propertyValue) {
+                    return new AtomicInteger(Integer.parseInt(propertyValue));
+                }
+            });
+
+            handlers.add(new GeneralBindHandler<AtomicLong>(AtomicLong.class) {
+                @Override
+                public AtomicLong covertProperty(String propertyName, String propertyValue) {
+                    return new AtomicLong(Long.parseLong(propertyValue));
+                }
+            });
+
+            handlers.add(new GeneralBindHandler<BigDecimal>(BigDecimal.class) {
+                @Override
+                public BigDecimal covertProperty(String propertyName, String propertyValue) {
+                    return BigDecimal.valueOf(Double.parseDouble(propertyValue));
+                }
+            });
+
+            handlers.add(new GeneralBindHandler<BigInteger>(BigInteger.class) {
+                @Override
+                public BigInteger covertProperty(String propertyName, String propertyValue) {
+                    return BigInteger.valueOf(Long.parseLong(propertyValue));
+                }
+            });
+        }
     }
 
-    @Override
-    public Number covertProperty(String propertyName, String propertyValue) {
-        if (Integer.TYPE.equals(bindType)) {
-            return Integer.parseInt(propertyValue);
-        }
-        if (Byte.TYPE.equals(bindType)) {
-            return Byte.parseByte(propertyValue);
-        }
-        if (Short.TYPE.equals(bindType)) {
-            return Short.parseShort(propertyValue);
-        }
-        if (Long.TYPE.equals(bindType)) {
-            return Long.parseLong(propertyValue);
-        }
-        if (Double.TYPE.equals(bindType)) {
-            return Double.parseDouble(propertyValue);
-        }
-        if (Float.TYPE.equals(bindType)) {
-            return Float.parseFloat(propertyValue);
-        }
-        if (AtomicInteger.class.equals(bindType)) {
-            return new AtomicInteger(Integer.parseInt(propertyValue));
-        }
-        if (AtomicLong.class.equals(bindType)) {
-            return new AtomicLong(Long.parseLong(propertyValue));
-        }
-        if (BigDecimal.class.equals(bindType)) {
-            return BigDecimal.valueOf(Double.parseDouble(propertyValue));
-        }
-        if (BigInteger.class.equals(bindType)) {
-            return BigInteger.valueOf(Long.parseLong(propertyValue));
-        }
-        return null;
+    private NumberBindHandler() {
+    }
+
+    static Collection<BindHandler<?>> create(){
+        return handlers;
     }
 
 }

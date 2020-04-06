@@ -4,8 +4,14 @@ import java.util.UUID;
 
 public class UUIDBindHandler extends GeneralBindHandler<UUID> {
 
-    public UUIDBindHandler() {
+    private static final UUIDBindHandler handler = new UUIDBindHandler();
+
+    private UUIDBindHandler() {
         super(UUID.class);
+    }
+
+    static BindHandler<?> create(){
+        return handler;
     }
 
     @Override

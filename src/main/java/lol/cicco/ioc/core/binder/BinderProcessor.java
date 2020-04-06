@@ -4,12 +4,7 @@ import lol.cicco.ioc.core.exception.PropertyBindException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.time.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 public final class BinderProcessor {
@@ -18,25 +13,10 @@ public final class BinderProcessor {
     private static final BinderProcessor OBJECT = new BinderProcessor();
 
     private BinderProcessor() {
-        registerHandler(new NumberBindHandler(Integer.TYPE));
-        registerHandler(new NumberBindHandler(Short.TYPE));
-        registerHandler(new NumberBindHandler(Byte.TYPE));
-        registerHandler(new NumberBindHandler(Long.TYPE));
-        registerHandler(new NumberBindHandler(Float.TYPE));
-        registerHandler(new NumberBindHandler(Double.TYPE));
-        registerHandler(new NumberBindHandler(AtomicInteger.class));
-        registerHandler(new NumberBindHandler(AtomicLong.class));
-        registerHandler(new NumberBindHandler(BigDecimal.class));
-        registerHandler(new NumberBindHandler(BigInteger.class));
-        registerHandler(new StringBindHandler());
-        registerHandler(new Java8TimeBindHandler(LocalDate.class));
-        registerHandler(new Java8TimeBindHandler(LocalDateTime.class));
-        registerHandler(new Java8TimeBindHandler(LocalTime.class));
-        registerHandler(new Java8TimeBindHandler(Year.class));
-        registerHandler(new Java8TimeBindHandler(Month.class));
-        registerHandler(new Java8TimeBindHandler(MonthDay.class));
-        registerHandler(new Java8TimeBindHandler(YearMonth.class));
-        registerHandler(new UUIDBindHandler());
+        registerHandler(NumberBindHandler.create());
+        registerHandler(StringBindHandler.create());
+        registerHandler(Java8TimeBindHandler.create());
+        registerHandler(UUIDBindHandler.create());
     }
 
     public static BinderProcessor getInstance() {
@@ -44,10 +24,16 @@ public final class BinderProcessor {
     }
 
     public void registerHandler(BindHandler<?> handler) {
-        log.debug("Binder处理器注册类型[{}], 对应处理器[{}]", handler.bindType().getTypeName(), handler.getClass().toString());
-        var handlers = bindHandler.getOrDefault(handler.bindType(), new LinkedList<>());
-        handlers.add(handler);
-        bindHandler.put(handler.bindType(), handlers);
+        registerHandler(Collections.singleton(handler));
+    }
+
+    public void registerHandler(Collection<BindHandler<?>> handlerArr) {
+        for(BindHandler<?> handler : handlerArr) {
+            log.debug("Binder处理器注册类型[{}], 对应处理器[{}]", handler.bindType().getTypeName(), handler.getClass().toString());
+            var handlers = bindHandler.getOrDefault(handler.bindType(), new LinkedList<>());
+            handlers.add(handler);
+            bindHandler.put(handler.bindType(), handlers);
+        }
     }
 
     public <T> T covertValue(String propName, String propValue, Type type) {
