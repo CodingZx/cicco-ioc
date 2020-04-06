@@ -6,7 +6,7 @@ import lol.cicco.ioc.annotation.Registration;
 
 @Registration(name = "testBean2")
 public class TestBean2 {
-    @Inject
+    @Inject(byName = "testBean1111")
     private TestBean testBean;
 
     @Binder("a.text")
@@ -15,7 +15,7 @@ public class TestBean2 {
     @Binder("b.num")
     private int b;
 
-    @Inject(required = false)
+    @Inject(required = false, byName = "noReg2")
     private NoRegisterClass cls;
 
     public void print(){

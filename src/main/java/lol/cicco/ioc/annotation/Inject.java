@@ -14,4 +14,9 @@ public @interface Inject {
      * 依赖是否必须
      */
     boolean required() default true;
+
+    /**
+     * 注入Bean名称
+     */
+    String byName() default "";
 }

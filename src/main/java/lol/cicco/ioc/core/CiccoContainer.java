@@ -126,13 +126,22 @@ class CiccoContainer {
 
                 if (injectAnnotation.annotationType() == Inject.class) {
                     Inject inject = (Inject) injectAnnotation;
-                    if(inject.required()) {
-                        field.set(bean, getBeanByType(field.getType()));
+
+                    Object injectObj = null;
+                    if("".equals(inject.byName().trim())) {
+                        injectObj = getBeanByName(inject.byName().trim());
                     } else {
-                        Object injectObject = getNullableBean(field.getType());
-                        if(injectObject != null) {
-                            field.set(bean, getBeanByType(field.getType()));
+                        injectObj = getNullableBean(field.getType());
+                    }
+
+                    if(inject.required()) {
+                        if (injectObj == null) {
+                            throw new BeanNotFountException("[" + field.getType().getTypeName() + "] 未注册至IOC, 请检查[" + Registration.class + "]注解与初始化配置.");
                         }
+                    }
+
+                    if(injectObj != null) {
+                        field.set(bean, getBeanByType(field.getType()));
                     }
                 }
                 if (injectAnnotation.annotationType() == Binder.class) {
