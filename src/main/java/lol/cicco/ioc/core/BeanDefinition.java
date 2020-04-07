@@ -2,15 +2,19 @@ package lol.cicco.ioc.core;
 
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
 public class BeanDefinition {
 
     BeanDefinition(){}
 
     /**
-     * Bean自身类型
+     * Bean可转换类型
      */
-    private Class<?> beanType;
+    private Set<Class<?>> beanTypes;
+
+    private Class<?> selfType;
 
     /**
      * Bean名称

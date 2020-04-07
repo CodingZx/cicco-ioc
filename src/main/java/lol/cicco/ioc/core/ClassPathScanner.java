@@ -10,10 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 public class ClassPathScanner {
@@ -66,7 +63,8 @@ public class ClassPathScanner {
                 }
 
                 BeanDefinition definition = new BeanDefinition();
-                definition.setBeanType(cls);
+                definition.setBeanTypes(getBeanTypes(cls));
+                definition.setSelfType(cls);
                 definition.setBeanName(beanNameOptional.get());
 
                 beanDefinitions.add(definition);
@@ -87,5 +85,26 @@ public class ClassPathScanner {
             return Optional.of(cls.getSimpleName());
         }
         return Optional.of(registration.name());
+    }
+
+    private Set<Class<?>> getBeanTypes(Class<?> cls){
+        if(Object.class.equals(cls)) {
+            return new HashSet<>();
+        }
+        Set<Class<?>> allCastClasses = new HashSet<>();
+        allCastClasses.add(cls);
+
+        Class<?>[] interfaces = cls.getInterfaces();
+        if(interfaces != null) {
+            for(Class<?> clsInterface : cls.getInterfaces()) {
+                allCastClasses.addAll(getBeanTypes(clsInterface));
+            }
+        }
+
+        Class<?> superCls = cls.getSuperclass();
+        if(superCls != null) {
+            allCastClasses.addAll(getBeanTypes(superCls));
+        }
+        return allCastClasses;
     }
 }

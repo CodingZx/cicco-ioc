@@ -14,7 +14,7 @@ public class IOCTest {
 
     static {
         IOC.initialize()
-                .scanBasePackages("lol.cicco")
+                .scanBasePackages("lol.cicco.bean")
                 .scanBasePackageClasses(TestBean.class)
                 .loadProperties("app.prop")
                 .loadProperties("prop/app1.prop")
@@ -38,6 +38,9 @@ public class IOCTest {
         testBean2.printShowText();
 
         Assert.assertTrue(testBean2.noRegisterClassIsNull());
+
+        TestBean testBean = IOC.getBeanByType(TestBean.class);
+        testBean.test();
     }
 
     @Test

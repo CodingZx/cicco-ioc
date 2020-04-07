@@ -24,7 +24,7 @@ class CiccoContainer {
     private final Map<String, String> propValues;
 
     // Bean
-    private final Map<Class<?>, String> typeBeans;
+    private final Map<Class<?>, List<String>> typeBeans;
     private final Map<String, Object> nameBeans;
 
     private CiccoContainer() {
@@ -87,22 +87,28 @@ class CiccoContainer {
 
     private void register(Set<BeanDefinition> definitions) {
         for (BeanDefinition definition : definitions) {
-            Class<?> type = definition.getBeanType();
+            Class<?> type = definition.getSelfType();
 
             // 被重复注册
             if (nameBeans.containsKey(definition.getBeanName())) {
-                throw new BeanDefinitionStoreException("BeanName["+definition.getBeanName()+"], Class["+definition.getBeanType().getTypeName()+"] 已经被注册至IOC..");
+                throw new BeanDefinitionStoreException("BeanName["+definition.getBeanName()+"], Class["+definition.getSelfType().getTypeName()+"] 已经被注册至IOC..");
             }
 
             try {
                 Constructor<?> defConstructor = type.getConstructor();
                 Object obj = defConstructor.newInstance();
-                log.debug("Bean[{}]注册至Container...", definition.getBeanType().toString());
+                log.debug("Bean[{}]注册至Container...", definition.getSelfType().toString());
 
                 nameBeans.put(definition.getBeanName(), obj);
-                typeBeans.put(definition.getBeanType(), definition.getBeanName());
+
+                for(Class<?> castType : definition.getBeanTypes()) {
+                    List<String> beanNames = typeBeans.getOrDefault(castType, new LinkedList<>());
+                    beanNames.add(definition.getBeanName());
+                    typeBeans.put(castType, beanNames);
+                }
+
             } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                throw new BeanInitializeException("[" + type.toString() + "] 没有默认构造函数....", e);
+                throw new BeanInitializeException("[" + type.toString() + "] 需要使用默认构造函数....", e);
             }
         }
     }
@@ -110,11 +116,11 @@ class CiccoContainer {
     @SneakyThrows
     private void inject(Set<BeanDefinition> definitions) {
         for (BeanDefinition definition : definitions) {
-            Object bean = this.getBeanByType(definition.getBeanType());
+            Object bean = this.getBeanByType(definition.getSelfType());
 
-            log.debug("执行依赖注入, 当前目标:{}", definition.getBeanType().toString());
+            log.debug("执行依赖注入, 当前目标:{}", definition.getSelfType().toString());
 
-            Field[] fields = definition.getBeanType().getDeclaredFields();
+            Field[] fields = definition.getSelfType().getDeclaredFields();
             for (Field field : fields) {
                 Annotation injectAnnotation = canInject(field);
                 if (injectAnnotation == null) {
@@ -127,9 +133,9 @@ class CiccoContainer {
                 if (injectAnnotation.annotationType() == Inject.class) {
                     Inject inject = (Inject) injectAnnotation;
 
-                    Object injectObj = null;
-                    if("".equals(inject.byName().trim())) {
-                        injectObj = getBeanByName(inject.byName().trim());
+                    Object injectObj;
+                    if(!"".equals(inject.byName().trim())) {
+                        injectObj = getNullableBean(inject.byName().trim());
                     } else {
                         injectObj = getNullableBean(field.getType());
                     }
@@ -141,7 +147,7 @@ class CiccoContainer {
                     }
 
                     if(injectObj != null) {
-                        field.set(bean, getBeanByType(field.getType()));
+                        field.set(bean, injectObj);
                     }
                 }
                 if (injectAnnotation.annotationType() == Binder.class) {
@@ -178,19 +184,29 @@ class CiccoContainer {
     }
 
     <T> T getNullableBean(Class<?> beanCls) {
-        String beanName = typeBeans.get(beanCls);
-        if(beanName == null) {
+        List<String> beanNames = typeBeans.get(beanCls);
+        if(beanNames == null) {
             return null;
         }
-        return (T)nameBeans.get(beanName);
+        if(beanNames.size() == 1) {
+            return (T)nameBeans.get(beanNames.get(0));
+        }
+
+        StringJoiner joiner = new StringJoiner(",");
+        beanNames.forEach(joiner::add);
+        throw new BeanDefinitionStoreException("存在多个对应Bean["+beanCls+"], 请指定注入BeanName...已存在BeanName为:{"+joiner.toString()+"}");
     }
 
     public <T> T getBeanByName(String beanName) {
-        T obj = (T) nameBeans.get(beanName);
+        T obj = getNullableBean(beanName);
         if (obj == null) {
             throw new BeanNotFountException("[" + beanName + "] 未注册至IOC, 请检查[" + Registration.class + "]注解与初始化配置.");
         }
         return obj;
+    }
+
+    <T> T getNullableBean(String beanName) {
+        return (T) nameBeans.get(beanName);
     }
 
     public String getProperty(String key, String defaultValue) {
