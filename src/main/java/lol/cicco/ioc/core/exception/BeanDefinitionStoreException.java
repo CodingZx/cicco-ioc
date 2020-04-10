@@ -2,7 +2,7 @@ package lol.cicco.ioc.core.exception;
 
 public class BeanDefinitionStoreException extends RuntimeException {
 
-    public BeanDefinitionStoreException(String message){
+    public BeanDefinitionStoreException(String message) {
         super(message);
     }
 

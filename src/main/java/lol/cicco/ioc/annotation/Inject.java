@@ -11,12 +11,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface Inject {
 
     /**
-     * 依赖是否必须
+     * 注入项是否为必须
      */
     boolean required() default true;
 
     /**
-     * 注入Bean名称
+     * 根据名称注入, ""则使用Type注入
      */
     String byName() default "";
 }

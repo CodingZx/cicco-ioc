@@ -1,10 +1,10 @@
 package lol.cicco.ioc.core.binder;
 
-public class EnumBindHandler<T extends Enum<T>> extends GeneralBindHandler<Enum<T>> {
+public class EnumPropertyHandler<T extends Enum<T>> extends GeneralPropertyHandler<Enum<T>> {
 
-    private Class<T> clsType;
+    private final Class<T> clsType;
 
-    public EnumBindHandler(Class<T> cls) {
+    public EnumPropertyHandler(Class<T> cls) {
         super(cls);
         this.clsType = cls;
     }

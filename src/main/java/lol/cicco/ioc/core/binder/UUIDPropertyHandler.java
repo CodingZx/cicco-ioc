@@ -2,15 +2,15 @@ package lol.cicco.ioc.core.binder;
 
 import java.util.UUID;
 
-public class UUIDBindHandler extends GeneralBindHandler<UUID> {
+public class UUIDPropertyHandler extends GeneralPropertyHandler<UUID> {
 
-    private static final UUIDBindHandler handler = new UUIDBindHandler();
+    private static final UUIDPropertyHandler handler = new UUIDPropertyHandler();
 
-    private UUIDBindHandler() {
+    private UUIDPropertyHandler() {
         super(UUID.class);
     }
 
-    static BindHandler<?> create(){
+    static PropertyHandler<?> create() {
         return handler;
     }
 

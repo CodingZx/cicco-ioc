@@ -8,7 +8,7 @@ public final class CiccoConstants {
 
     public static final String CLASS_FILE_SUFFIX = ".class";
 
-    private CiccoConstants(){
+    private CiccoConstants() {
         throw new IllegalAccessError();
     }
 }

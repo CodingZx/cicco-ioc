@@ -12,7 +12,8 @@ public class FileClassScanner implements BeanScanner {
 
     private static final FileClassScanner scanner = new FileClassScanner();
 
-    private FileClassScanner(){}
+    private FileClassScanner() {
+    }
 
     @Override
     public List<ResourceMeta> doScan(URL url, String suffix) {

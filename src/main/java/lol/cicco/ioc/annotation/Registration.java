@@ -11,7 +11,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface Registration {
 
     /**
-     * 定义BeanName, 若为"" 则采用ClassName
+     * 设置BeanName 若为"" 则使用Class.getName()
      */
     String name() default "";
 }

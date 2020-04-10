@@ -14,11 +14,12 @@ import java.util.zip.ZipException;
 @Slf4j
 public class JarClassScanner implements BeanScanner {
 
-    private JarClassScanner(){}
+    private JarClassScanner() {
+    }
 
     private static final JarClassScanner scanner = new JarClassScanner();
 
-    public static JarClassScanner getInstance(){
+    public static JarClassScanner getInstance() {
         return scanner;
     }
 

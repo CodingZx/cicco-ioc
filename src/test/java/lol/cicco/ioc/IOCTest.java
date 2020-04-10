@@ -6,7 +6,7 @@ import lol.cicco.ioc.bean.TestBean2;
 import lol.cicco.ioc.binder.TestEnum;
 import lol.cicco.ioc.core.IOC;
 import lol.cicco.ioc.core.LocalDateTimeBinderHandler;
-import lol.cicco.ioc.core.binder.EnumBindHandler;
+import lol.cicco.ioc.core.binder.EnumPropertyHandler;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -19,8 +19,8 @@ public class IOCTest {
                 .loadProperties("app.prop")
                 .loadProperties("prop/app1.prop")
                 .loadProperties("prop/app2.prop")
-                .registerBindHandler(new LocalDateTimeBinderHandler())
-                .registerBindHandler(new EnumBindHandler<>(TestEnum.class))
+                .registerPropertyHandler(new LocalDateTimeBinderHandler())
+                .registerPropertyHandler(new EnumPropertyHandler<>(TestEnum.class))
                 .done()
         ;
     }
@@ -48,6 +48,11 @@ public class IOCTest {
         BinderBean binderBean = IOC.getBeanByType(BinderBean.class);
 
         binderBean.print();
+
+        TestEnum testEnum = IOC.getProperty("test.enum", TestEnum.class);
+        Assert.assertEquals(testEnum, TestEnum.THREE);
+
+        System.out.println(binderBean.getClass().getName());
     }
 
 }

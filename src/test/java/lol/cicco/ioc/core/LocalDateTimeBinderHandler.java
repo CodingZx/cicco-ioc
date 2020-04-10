@@ -1,11 +1,11 @@
 package lol.cicco.ioc.core;
 
-import lol.cicco.ioc.core.binder.GeneralBindHandler;
+import lol.cicco.ioc.core.binder.GeneralPropertyHandler;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class LocalDateTimeBinderHandler extends GeneralBindHandler<LocalDateTime> {
+public class LocalDateTimeBinderHandler extends GeneralPropertyHandler<LocalDateTime> {
 
     public LocalDateTimeBinderHandler() {
         super(LocalDateTime.class);

@@ -10,7 +10,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(FIELD)
 public @interface Binder {
     /**
-     * 绑定对应PropertyKey
+     * 绑定对应PropertyName
      */
     String value();
 

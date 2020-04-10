@@ -1,6 +1,6 @@
 package lol.cicco.ioc.core;
 
-import lol.cicco.ioc.core.binder.BindHandler;
+import lol.cicco.ioc.core.binder.PropertyHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -8,22 +8,28 @@ import java.util.*;
 @Slf4j
 public class Initialize {
 
-    private Set<String> scanPackages;
-    private Set<String> loadProperties;
+    private final Set<String> scanPackages;
+    private final Set<String> loadPropertyFiles;
 
-    private List<BindHandler<?>> bindHandlers;
+    private final List<PropertyHandler<?>> propertyHandlers;
 
     public Initialize() {
         scanPackages = new LinkedHashSet<>();
-        loadProperties = new LinkedHashSet<>();
-        bindHandlers = new LinkedList<>();
+        loadPropertyFiles = new LinkedHashSet<>();
+        propertyHandlers = new LinkedList<>();
     }
 
+    /**
+     * 设置IOC扫描包名
+     */
     public Initialize scanBasePackages(String... packages) {
         scanPackages.addAll(Arrays.asList(packages));
         return this;
     }
 
+    /**
+     * 设置IOC扫描Class所在包
+     */
     public Initialize scanBasePackageClasses(Class<?>... classes) {
         for (Class<?> cls : classes) {
             scanPackages.add(cls.getPackageName());
@@ -31,39 +37,55 @@ public class Initialize {
         return this;
     }
 
-
-    public Initialize loadProperties(String... propertyNames) {
-        for(String propertyName : propertyNames) {
+    /**
+     * 设置IOC加载配置文件
+     */
+    public Initialize loadProperties(String... propertyFiles) {
+        for (String propertyName : propertyFiles) {
             propertyName = propertyName.trim();
-            if(propertyName.startsWith("/")) {
-                loadProperties.add(propertyName);
+            if (propertyName.startsWith("/")) {
+                loadPropertyFiles.add(propertyName);
             } else {
-                loadProperties.add("/" + propertyName);
+                loadPropertyFiles.add("/" + propertyName);
             }
         }
         return this;
     }
 
-
-    public Initialize registerBindHandler(BindHandler<?> bindHandler) {
-        bindHandlers.add(bindHandler);
+    /**
+     * 设置属性转换器
+     */
+    public Initialize registerPropertyHandler(PropertyHandler<?> propertyHandler) {
+        propertyHandlers.add(propertyHandler);
         return this;
     }
 
+    /**
+     * 初始化属性配置完毕
+     */
     public void done() {
         // 初始化完成
         IOC.initializeDone(this);
     }
 
+    /**
+     * 获得已设置的ScanPackage
+     */
     Set<String> getScanPackages() {
         return this.scanPackages;
     }
 
-    Set<String> getLoadProperties(){
-        return this.loadProperties;
+    /**
+     * 获得已设置的配置文件
+     */
+    Set<String> getLoadPropertyFiles() {
+        return this.loadPropertyFiles;
     }
 
-    List<BindHandler<?>> getBindHandlers(){
-        return this.bindHandlers;
+    /**
+     * 获得已设置的属性转换器
+     */
+    List<PropertyHandler<?>> getPropertyHandlers() {
+        return this.propertyHandlers;
     }
 }

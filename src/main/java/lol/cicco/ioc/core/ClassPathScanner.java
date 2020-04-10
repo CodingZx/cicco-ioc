@@ -28,15 +28,15 @@ public class ClassPathScanner {
 
                 BeanScanner scanner = null;
                 switch (url.getProtocol()) {
-                    case CiccoConstants.URL_PROTOCOL_JAR:
+                    case CiccoConstants.URL_PROTOCOL_JAR: // 需要从Jar中扫描对应文件
                         scanner = JarClassScanner.getInstance();
                         break;
-                    case CiccoConstants.URL_PROTOCOL_FILE:
+                    case CiccoConstants.URL_PROTOCOL_FILE: // 需要从本地文件中扫描对应文件
                         scanner = FileClassScanner.getInstance();
                         break;
                 }
 
-                if(scanner != null) {
+                if (scanner != null) {
                     allClasses.addAll(scanner.doScan(url, CiccoConstants.CLASS_FILE_SUFFIX));
                 } else {
                     log.warn("未找到对应BeanScanner, urlProtocol为:{}", url.getProtocol());
@@ -46,6 +46,7 @@ public class ClassPathScanner {
             throw new BeanDefinitionStoreException("扫描Class时出现异常..", e);
         }
 
+        // 分析Class, 是否为需要注册至IOC
         List<BeanDefinition> beanDefinitions = new LinkedList<>();
         for (ResourceMeta meta : allClasses) {
             try {
@@ -58,7 +59,7 @@ public class ClassPathScanner {
                     continue;
                 }
                 if (cls.isInterface()) {
-                    // 暂时无法处理接口
+                    // 无法处理接口
                     continue;
                 }
 
@@ -77,32 +78,29 @@ public class ClassPathScanner {
 
     private Optional<String> getBeanName(Class<?> cls) {
         Registration registration = cls.getAnnotation(Registration.class);
-        if(registration == null) {
+        if (registration == null) {
             return Optional.empty();
         }
         // 不能为空
-        if("".equals(registration.name().trim())) {
-            return Optional.of(cls.getSimpleName());
+        if ("".equals(registration.name().trim())) {
+            return Optional.of(cls.getName());
         }
         return Optional.of(registration.name());
     }
 
-    private Set<Class<?>> getBeanTypes(Class<?> cls){
-        if(Object.class.equals(cls)) {
+    private Set<Class<?>> getBeanTypes(Class<?> cls) {
+        if (Object.class.equals(cls)) {
             return new HashSet<>();
         }
         Set<Class<?>> allCastClasses = new HashSet<>();
-        allCastClasses.add(cls);
+        allCastClasses.add(cls); // 添加自身
 
-        Class<?>[] interfaces = cls.getInterfaces();
-        if(interfaces != null) {
-            for(Class<?> clsInterface : cls.getInterfaces()) {
-                allCastClasses.addAll(getBeanTypes(clsInterface));
-            }
+        for (Class<?> clsInterface : cls.getInterfaces()) {
+            allCastClasses.addAll(getBeanTypes(clsInterface));
         }
 
         Class<?> superCls = cls.getSuperclass();
-        if(superCls != null) {
+        if (superCls != null) {
             allCastClasses.addAll(getBeanTypes(superCls));
         }
         return allCastClasses;
