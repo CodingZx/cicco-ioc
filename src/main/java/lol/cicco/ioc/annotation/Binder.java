@@ -13,4 +13,9 @@ public @interface Binder {
      * 绑定对应PropertyKey
      */
     String value();
+
+    /**
+     * 指定默认值
+     */
+    String defaultValue() default "";
 }

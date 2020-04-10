@@ -152,8 +152,12 @@ class CiccoContainer {
                 }
                 if (injectAnnotation.annotationType() == Binder.class) {
                     Binder binder = (Binder) injectAnnotation;
-                    String propertyValue = propValues.get(binder.value());
-                    if (propertyValue == null) {
+                    String boundDefVal = binder.defaultValue();
+                    if(boundDefVal.equals("")) {
+                        boundDefVal = null;
+                    }
+                    String propertyValue = propValues.getOrDefault(binder.value().trim(), boundDefVal);
+                    if (propertyValue == null || propertyValue.trim().equals("")) {
                         throw new PropertyBindException("Property [" + binder.value() + "] 未配置, 请检查对应配置文件...");
                     }
                     // 执行属性注入
