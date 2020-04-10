@@ -198,7 +198,7 @@ class CiccoContainer {
 
         StringJoiner joiner = new StringJoiner(",");
         beanNames.forEach(joiner::add);
-        throw new BeanDefinitionStoreException("存在多个对应Bean["+beanCls+"], 请指定注入BeanName...已存在BeanName为:{"+joiner.toString()+"}");
+        throw new BeanDefinitionStoreException("存在多个对应Bean["+beanCls+"], 请指定BeanName...已存在BeanName为:{"+joiner.toString()+"}");
     }
 
     public <T> T getBeanByName(String beanName) {
