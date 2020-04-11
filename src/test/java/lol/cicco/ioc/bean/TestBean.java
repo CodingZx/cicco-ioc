@@ -11,4 +11,8 @@ public class TestBean {
     public void test() {
         testInterface.printTest();
     }
+
+    public void println(){
+        System.out.println("啦啦啦啦啦 println");
+    }
 }

@@ -1,5 +1,9 @@
 package lol.cicco.ioc;
 
+import lol.cicco.ioc.aop.LogInterceptor;
+import lol.cicco.ioc.aop.SystemClock;
+import lol.cicco.ioc.aop.SystemLog;
+import lol.cicco.ioc.aop.TimeInterceptor;
 import lol.cicco.ioc.bean.BinderBean;
 import lol.cicco.ioc.bean.TestBean;
 import lol.cicco.ioc.bean.TestBean2;
@@ -21,8 +25,35 @@ public class IOCTest {
                 .loadProperties("prop/app2.prop")
                 .registerPropertyHandler(new LocalDateTimeBinderHandler())
                 .registerPropertyHandler(new EnumPropertyHandler<>(TestEnum.class))
+
+                .registerInterceptor(SystemClock.class, new TimeInterceptor())
+                .registerInterceptor(SystemLog.class, new LogInterceptor())
                 .done()
         ;
+    }
+
+    @Test
+    public void testAop() throws Throwable {
+        System.out.println("-------");
+
+        var time = new TimeInterceptor();
+        time.before(null);
+        TestBean2 testBean2 = new TestBean2();
+        testBean2.print();
+        time.after(null);
+
+        System.out.println("-------");
+
+        TestBean2 testBean11 = IOC.getBeanByType(TestBean2.class);
+        testBean11.print();
+        System.out.println("-------");
+
+        TestBean2 testBean12 = IOC.getBeanByType(TestBean2.class);
+        testBean12.print();
+        System.out.println("-------");
+
+        TestBean2 testBean13 = IOC.getBeanByType(TestBean2.class);
+        testBean13.print();
     }
 
     @Test
@@ -54,5 +85,6 @@ public class IOCTest {
 
         System.out.println(binderBean.getClass().getName());
     }
+
 
 }

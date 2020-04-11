@@ -1,6 +1,5 @@
 package lol.cicco.ioc.core;
 
-import lol.cicco.ioc.core.binder.PropertyProcessor;
 import lol.cicco.ioc.core.exception.BeanDefinitionStoreException;
 import lol.cicco.ioc.core.exception.BeanInitializeException;
 

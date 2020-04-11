@@ -76,6 +76,7 @@ public class ClassPathScanner {
         return beanDefinitions;
     }
 
+
     private Optional<String> getBeanName(Class<?> cls) {
         Registration registration = cls.getAnnotation(Registration.class);
         if (registration == null) {

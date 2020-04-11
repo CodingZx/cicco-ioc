@@ -1,8 +1,10 @@
 package lol.cicco.ioc.core;
 
+import lol.cicco.ioc.core.aop.Interceptor;
 import lol.cicco.ioc.core.binder.PropertyHandler;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 @Slf4j
@@ -13,10 +15,13 @@ public class Initialize {
 
     private final List<PropertyHandler<?>> propertyHandlers;
 
+    private final Map<Class<? extends Annotation>, Interceptor> interceptors;
+
     public Initialize() {
         scanPackages = new LinkedHashSet<>();
         loadPropertyFiles = new LinkedHashSet<>();
         propertyHandlers = new LinkedList<>();
+        interceptors = new LinkedHashMap<>();
     }
 
     /**
@@ -61,6 +66,14 @@ public class Initialize {
     }
 
     /**
+     * 设置注解拦截器
+     */
+    public Initialize registerInterceptor(Class<? extends Annotation> annotation, Interceptor interceptor) {
+        interceptors.put(annotation, interceptor);
+        return this;
+    }
+
+    /**
      * 初始化属性配置完毕
      */
     public void done() {
@@ -87,5 +100,12 @@ public class Initialize {
      */
     List<PropertyHandler<?>> getPropertyHandlers() {
         return this.propertyHandlers;
+    }
+
+    /**
+     * 获得已设置的注解拦截器
+     */
+    Map<Class<? extends Annotation>, Interceptor> getInterceptors() {
+        return this.interceptors;
     }
 }

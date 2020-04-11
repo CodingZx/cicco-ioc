@@ -3,7 +3,10 @@ package lol.cicco.ioc.bean;
 import lol.cicco.ioc.annotation.Binder;
 import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.annotation.Registration;
+import lol.cicco.ioc.aop.SystemClock;
+import lol.cicco.ioc.aop.SystemLog;
 import lol.cicco.ioc.binder.TestEnum;
+import lombok.SneakyThrows;
 
 @Registration(name = "testBean2")
 public class TestBean2 {
@@ -22,7 +25,11 @@ public class TestBean2 {
     @Inject(required = false, byName = "noReg2")
     private NoRegisterClass cls;
 
+    @SystemClock
+    @SystemLog
+    @SneakyThrows
     public void print(){
+        Thread.sleep(100);
         System.out.println("testBean is "+testBean);
     }
 

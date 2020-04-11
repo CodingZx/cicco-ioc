@@ -19,6 +19,7 @@
         <lombok.version>1.18.12</lombok.version>
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
+        <javassist.version>3.27.0-GA</javassist.version>
     </properties>
 
     <dependencies>
@@ -45,6 +46,12 @@
             <version>${logback.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>${javassist.version}</version>
+        </dependency>
+
     </dependencies>
 
 

@@ -3,6 +3,8 @@ package lol.cicco.ioc.core;
 import lol.cicco.ioc.annotation.Binder;
 import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.annotation.Registration;
+import lol.cicco.ioc.core.aop.AopProcessor;
+import lol.cicco.ioc.core.aop.Interceptor;
 import lol.cicco.ioc.core.binder.PropertyHandler;
 import lol.cicco.ioc.core.binder.PropertyProcessor;
 import lol.cicco.ioc.core.exception.BeanDefinitionStoreException;
@@ -13,14 +15,13 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 @Slf4j
 class CiccoContainer {
     private final PropertyProcessor propertyProcessor;
+    private final AopProcessor aopProcessor;
     // Property
     private final Map<String, String> propValues;
 
@@ -32,6 +33,7 @@ class CiccoContainer {
         typeBeans = new LinkedHashMap<>();
         propValues = new LinkedHashMap<>();
         nameBeans = new LinkedHashMap<>();
+        aopProcessor = new AopProcessor();
         propertyProcessor = PropertyProcessor.getInstance();
     }
 
@@ -40,6 +42,8 @@ class CiccoContainer {
      */
     static CiccoContainer create(Initialize initialize) {
         CiccoContainer container = new CiccoContainer();
+        // 注册Aop拦截器
+        container.registerAopInterceptor(initialize.getInterceptors());
         // 注册转换器
         container.registerPropertyHandler(initialize.getPropertyHandlers());
         // 加载属性信息
@@ -47,10 +51,17 @@ class CiccoContainer {
         // 扫描注册Bean
         Set<BeanDefinition> beanDefinitions = container.doScanBeans(initialize.getScanPackages());
         // 注册
-        container.register(beanDefinitions);
+        container.registerBeans(beanDefinitions);
         // 注入
         container.inject(beanDefinitions);
         return container;
+    }
+
+    /**
+     * 注册Aop拦截器
+     */
+    protected void registerAopInterceptor(Map<Class<? extends Annotation>, Interceptor> interceptors) {
+        aopProcessor.register(interceptors);
     }
 
     /**
@@ -96,7 +107,7 @@ class CiccoContainer {
     /**
      * 对应Bean信息注册至IOC
      */
-    private void register(Set<BeanDefinition> definitions) {
+    private void registerBeans(Set<BeanDefinition> definitions) {
         for (BeanDefinition definition : definitions) {
             Class<?> type = definition.getSelfType();
 
@@ -104,23 +115,21 @@ class CiccoContainer {
             if (nameBeans.containsKey(definition.getBeanName())) {
                 throw new BeanDefinitionStoreException("BeanName[" + definition.getBeanName() + "], Class[" + definition.getSelfType().getTypeName() + "] 已经被注册至IOC..");
             }
-
             try {
-                // 只允许使用默认构造器
-                Constructor<?> defConstructor = type.getConstructor();
-                Object obj = defConstructor.newInstance();
-                log.debug("Bean[{}]注册至Container...", definition.getSelfType().toString());
-
-                nameBeans.put(definition.getBeanName(), obj);
-
-                for (Class<?> castType : definition.getBeanTypes()) {
-                    List<String> beanNames = typeBeans.getOrDefault(castType, new LinkedList<>());
-                    beanNames.add(definition.getBeanName());
-                    typeBeans.put(castType, beanNames);
-                }
-
-            } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                type.getConstructor(); // 校验是否存在默认构造函数
+            }catch (NoSuchMethodException e) {
                 throw new BeanInitializeException("[" + type.toString() + "] 需要使用默认构造函数....", e);
+            }
+
+            Object obj = aopProcessor.beanEnhance(definition);
+            nameBeans.put(definition.getBeanName(), obj);
+
+            log.debug("Bean[{}]注册至Container...", definition.getSelfType().toString());
+
+            for (Class<?> castType : definition.getBeanTypes()) {
+                List<String> beanNames = typeBeans.getOrDefault(castType, new LinkedList<>());
+                beanNames.add(definition.getBeanName());
+                typeBeans.put(castType, beanNames);
             }
         }
     }

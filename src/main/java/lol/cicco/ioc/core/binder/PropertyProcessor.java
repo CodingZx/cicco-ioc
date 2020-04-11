@@ -22,7 +22,7 @@ public final class PropertyProcessor {
     }
 
     /**
-     * 获取全局唯一实例
+     * 获取实例
      */
     public static PropertyProcessor getInstance() {
         return new PropertyProcessor();
