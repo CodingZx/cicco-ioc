@@ -28,18 +28,23 @@ public class TestBean2 {
     @SystemClock
     @SystemLog
     @SneakyThrows
-    public void print(){
+    public void print() {
         Thread.sleep(100);
-        System.out.println("testBean is "+testBean);
+        System.out.println("testBean is " + testBean);
     }
 
-    public void printShowText(){
+    public void printShowText() {
         System.out.println(showAText);
-        System.out.println("b:"+b);
-        System.out.println("enum : "+ testEnum);
+        System.out.println("b:" + b);
+        System.out.println("enum : " + testEnum);
     }
 
-    public boolean noRegisterClassIsNull(){
+    public boolean noRegisterClassIsNull() {
         return cls == null;
+    }
+
+    @SystemClock
+    public void test(int val) {
+        System.out.println("val is : " + val);
     }
 }

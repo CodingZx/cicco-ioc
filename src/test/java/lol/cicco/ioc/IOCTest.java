@@ -59,7 +59,10 @@ public class IOCTest {
     @Test
     public void inject(){
         TestBean2 testBean2 = IOC.getBeanByType(TestBean2.class);
-        testBean2.print();
+        testBean2.test(100);
+
+        TestBean2 testBean21 = IOC.getBeanByType(TestBean2.class);
+        testBean21.test(100);
 
         TestBean2 testBean2ByName = IOC.getBeanByName("testBean2");
         Assert.assertEquals(testBean2, testBean2ByName);

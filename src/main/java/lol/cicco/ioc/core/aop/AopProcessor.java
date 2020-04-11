@@ -22,8 +22,7 @@ public class AopProcessor {
         return interceptorMap.get(name);
     }
 
-    /*
-    public Object beanEnhance2(BeanDefinition definition) {
+    public Object beanEnhance(BeanDefinition definition) {
         Map<Method, List<String>> interceptors = new LinkedHashMap<>();
         Class<?> beanType = definition.getSelfType();
 
@@ -37,16 +36,16 @@ public class AopProcessor {
                 }
             }
         }
-        BeanProxy beanProxy = (BeanProxy) JavassistEnhance2.beanEnhance(beanType.getName(), interceptors);
+        BeanProxy beanProxy = (BeanProxy) JavassistEnhance.beanEnhance(beanType.getName(), interceptors);
         beanProxy.setProcessor(this);
         for(Method method : interceptors.keySet()) {
             beanProxy.putMethod(method.toGenericString(), method);
         }
         return beanProxy;
     }
-    */
 
-    public Object beanEnhance(BeanDefinition definition) {
+    /*
+    public Object beanEnhance2(BeanDefinition definition) {
         Map<Method, List<Interceptor>> interceptors = new LinkedHashMap<>();
         Class<?> beanType = definition.getSelfType();
 
@@ -61,5 +60,5 @@ public class AopProcessor {
             }
         }
         return JavassistEnhance.proxyEnhance(beanType, interceptors);
-    }
+    }*/
 }
