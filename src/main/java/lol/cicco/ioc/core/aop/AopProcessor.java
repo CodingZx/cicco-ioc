@@ -44,6 +44,11 @@ public class AopProcessor {
         return beanProxy;
     }
 
+    public void clearClassPoolCache() {
+        // 清理Javassist缓存无效的CtClass信息
+        JavassistEnhance.clearCache();
+    }
+
     /*
     public Object beanEnhance2(BeanDefinition definition) {
         Map<Method, List<Interceptor>> interceptors = new LinkedHashMap<>();

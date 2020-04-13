@@ -4,11 +4,15 @@ import javassist.*;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 final class JavassistEnhance {
-    private static final ClassPool CLASS_POOL = ClassPool.getDefault();
+    private static final ClassPool _DEFAULT_CLASS_POOL = ClassPool.getDefault();
+
+    private static final Map<String, CtClass> _CLASS_CACHE = new LinkedHashMap<>();
+
     private static CtClass PROCESSOR_CLS;
 
     private static final String PROCESSOR_FIELD_NAME = "_processor";
@@ -18,15 +22,12 @@ final class JavassistEnhance {
     private static final String INTERCEPTOR_CLASS = Interceptor.class.getName();
 
     static {
-        try {
-            PROCESSOR_CLS = CLASS_POOL.get(AopProcessor.class.getName());
-        } catch (NotFoundException ignore) {
-        }
+        PROCESSOR_CLS = getCtClassByName(AopProcessor.class.getName());
     }
 
     @SneakyThrows
     static Object beanEnhance(String originClsName, Map<Method, List<String>> interceptors) {
-        CtClass originCls = CLASS_POOL.get(originClsName);
+        CtClass originCls = getCtClassByName(originClsName);
         // 生成子类
         CtClass targetCls = makeProxyClass(originCls);
 
@@ -79,23 +80,21 @@ final class JavassistEnhance {
         // 生成对应类
         Class<?> target = targetCls.toClass();
 
-        // 从ClassPool移除生成类
-        targetCls.detach();
         return target.getConstructor().newInstance();
     }
 
     @SneakyThrows
     private static CtClass makeProxyClass(CtClass originCls) {
 
-        CtClass targetCls = CLASS_POOL.makeClass(originCls.getName() + "$Child");
+        CtClass targetCls = makeCtClass(originCls.getName() + "$Child");
         targetCls.setSuperclass(originCls);  // 设置原始类型为父类
-        targetCls.addInterface(CLASS_POOL.get(BeanProxy.class.getName()));
+        targetCls.addInterface(getCtClassByName(BeanProxy.class.getName()));
 
         CtField processorField = new CtField(PROCESSOR_CLS, PROCESSOR_FIELD_NAME, targetCls);
         processorField.setModifiers(Modifier.PRIVATE | Modifier.TRANSIENT);
         targetCls.addField(processorField);
 
-        CtField methodField = new CtField(CLASS_POOL.get(Map.class.getName()), METHOD_MAP_FIELD_NAME, targetCls);
+        CtField methodField = new CtField(getCtClassByName(Map.class.getName()), METHOD_MAP_FIELD_NAME, targetCls);
         methodField.setModifiers(Modifier.PRIVATE | Modifier.TRANSIENT);
         targetCls.addField(methodField);
 
@@ -105,12 +104,12 @@ final class JavassistEnhance {
         setProcessor.setModifiers(Modifier.PUBLIC);
         targetCls.addMethod(setProcessor);
 
-        CtMethod putMethod = new CtMethod(CtClass.voidType, "putMethod", new CtClass[]{CLASS_POOL.get(String.class.getName()), CLASS_POOL.get(Method.class.getName())}, targetCls);
+        CtMethod putMethod = new CtMethod(CtClass.voidType, "putMethod", new CtClass[]{getCtClassByName(String.class.getName()), getCtClassByName(Method.class.getName())}, targetCls);
         putMethod.setBody("{" + METHOD_MAP_FIELD_NAME + ".put($1,$2);}");
         putMethod.setModifiers(Modifier.PUBLIC);
         targetCls.addMethod(putMethod);
 
-        CtMethod getMethod = new CtMethod(CLASS_POOL.get(Object.class.getName()), "getMethod", new CtClass[]{CLASS_POOL.get(String.class.getName())}, targetCls);
+        CtMethod getMethod = new CtMethod(getCtClassByName(Object.class.getName()), "getMethod", new CtClass[]{getCtClassByName(String.class.getName())}, targetCls);
         getMethod.setBody("{return " + METHOD_MAP_FIELD_NAME + ".get($1);}");
         getMethod.setModifiers(Modifier.PUBLIC);
         targetCls.addMethod(getMethod);
@@ -119,5 +118,25 @@ final class JavassistEnhance {
         defConst.setBody("{"+METHOD_MAP_FIELD_NAME+"=new java.util.HashMap();}");
         targetCls.addConstructor(defConst);
         return targetCls;
+    }
+
+    @SneakyThrows
+    private static CtClass getCtClassByName(String originClsName) {
+        return _CLASS_CACHE.getOrDefault(originClsName, _DEFAULT_CLASS_POOL.get(originClsName));
+    }
+
+    private static CtClass makeCtClass(String originClsName) {
+        CtClass ctClass = _DEFAULT_CLASS_POOL.makeClass(originClsName);
+        _CLASS_CACHE.put(originClsName, ctClass);
+        return ctClass;
+    }
+
+    static void clearCache() {
+        for(String key : _CLASS_CACHE.keySet()) {
+            CtClass ctClass = _CLASS_CACHE.get(key);
+            ctClass.detach();
+        }
+
+        _CLASS_CACHE.clear();
     }
 }

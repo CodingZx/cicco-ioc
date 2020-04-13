@@ -132,6 +132,9 @@ class CiccoContainer {
                 typeBeans.put(castType, beanNames);
             }
         }
+
+        // 清理增强类缓存
+        aopProcessor.clearClassPoolCache();
     }
 
     /**
