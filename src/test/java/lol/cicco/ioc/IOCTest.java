@@ -54,6 +54,9 @@ public class IOCTest {
 
         TestBean2 testBean13 = IOC.getBeanByType(TestBean2.class);
         testBean13.print();
+
+        TestBean testBean = IOC.getBeanByType(TestBean.class);
+        testBean.testPrivatePrint();
     }
 
     @Test

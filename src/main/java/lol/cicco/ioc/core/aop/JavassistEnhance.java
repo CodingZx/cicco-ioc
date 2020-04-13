@@ -36,10 +36,10 @@ final class JavassistEnhance {
         return makeInstance(targetCls);
     }
 
-
     @SneakyThrows
     private static void addProxyMethod(CtClass originCls, CtClass targetCls, Method method, List<String> hasInters) {
         CtMethod originMethod = originCls.getDeclaredMethod(method.getName());
+        originMethod.setModifiers(Modifier.PROTECTED);
         CtMethod proxyMethod = new CtMethod(originMethod.getReturnType(), method.getName(), originMethod.getParameterTypes(), targetCls);
 
         // 生成方法体
@@ -69,7 +69,7 @@ final class JavassistEnhance {
         methodBody.append("}");
 
         proxyMethod.setBody(methodBody.toString());
-        proxyMethod.setModifiers(originMethod.getModifiers());
+        proxyMethod.setModifiers(Modifier.PUBLIC);
 
         targetCls.addMethod(proxyMethod);
     }
