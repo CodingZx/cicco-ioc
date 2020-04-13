@@ -45,7 +45,7 @@ public class TestBean2 {
 - 根据Name获取实例
 > var obj = IOC.getBeanByName("beanName"");
 
-####使用AOP
+#### 使用AOP
 - 使用自定义注解
 ```java
 // 创建拦截器
