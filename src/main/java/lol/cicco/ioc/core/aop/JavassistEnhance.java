@@ -92,11 +92,11 @@ final class JavassistEnhance {
         targetCls.addInterface(CLASS_POOL.get(BeanProxy.class.getName()));
 
         CtField processorField = new CtField(PROCESSOR_CLS, PROCESSOR_FIELD_NAME, targetCls);
-        processorField.setModifiers(Modifier.PRIVATE);
+        processorField.setModifiers(Modifier.PRIVATE | Modifier.TRANSIENT);
         targetCls.addField(processorField);
 
         CtField methodField = new CtField(CLASS_POOL.get(Map.class.getName()), METHOD_MAP_FIELD_NAME, targetCls);
-        methodField.setModifiers(Modifier.PRIVATE);
+        methodField.setModifiers(Modifier.PRIVATE | Modifier.TRANSIENT);
         targetCls.addField(methodField);
 
         CtMethod setProcessor = new CtMethod(CtClass.voidType, "setProcessor", new CtClass[]{PROCESSOR_CLS}, targetCls);
