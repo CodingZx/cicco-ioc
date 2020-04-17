@@ -3,6 +3,7 @@ package lol.cicco.ioc.core.scanner;
 import lol.cicco.ioc.core.CiccoConstants;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -15,6 +16,9 @@ public class ResourceScanner {
     public Set<ResourceMeta> doScan(String path, ClassLoader classLoader) {
         if (path.startsWith("/")) {
             path = path.substring(1);
+        }
+        if(!path.endsWith("/")) {
+            path = path + "/";
         }
         path = path.replace(".", "/");
         Set<ResourceMeta> allResources = new LinkedHashSet<>();

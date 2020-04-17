@@ -53,7 +53,7 @@ public class BeanModule implements CiccoModule<BeanRegistry>, BeanRegistry {
             for(Class<?> type : getTypes(beanType)) {
                 Set<String> beanNames = typeBeans.getOrDefault(type, new LinkedHashSet<>());
                 beanNames.add(beanName);
-                typeBeans.put(beanType, beanNames);
+                typeBeans.put(type, beanNames);
             }
         }
     }

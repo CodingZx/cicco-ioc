@@ -15,7 +15,8 @@ public class IOCTest {
 
     static {
         IOC.initialize()
-                .scanBasePackages("lol.cicco.bean")
+                .scanBasePackages("lol.cicco.ioc.bean")
+                .scanBasePackages("lol.cicco.ioc.aop")
                 .loadProperties("app.prop")
                 .loadProperties("prop/app1.prop")
                 .loadProperties("prop/app2.prop")

@@ -20,19 +20,20 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
 
     private final Map<String, String> propValues = new LinkedHashMap<>(); // 加载的属性值
 
-    public PropertyModule() {
+    @Override
+    public void initModule(CiccoContext context) {
         // 提供注册基本类型及相关JDK中类型的转换器
         registerHandler(NumberPropertyHandler.create());
         registerHandler(StringPropertyHandler.create());
         registerHandler(Java8TimePropertyHandler.create());
         registerHandler(UUIDPropertyHandler.create());
-    }
 
-    @Override
-    public void initModule(CiccoContext context) {
+
         Initialize initialize = context.getInitialize();
         loadProperties(initialize.getLoadPropertyFiles());
         registerHandler(initialize.getPropertyHandlers());
+
+        log.debug("init property module....");
     }
 
     @Override

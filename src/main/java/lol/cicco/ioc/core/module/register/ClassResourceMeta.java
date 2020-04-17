@@ -27,4 +27,9 @@ public class ClassResourceMeta {
      * 是否为抽象类
      */
     private boolean abstractType;
+
+    /**
+     * 文件路径
+     */
+    private String filePath;
 }

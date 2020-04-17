@@ -1,9 +1,11 @@
 package lol.cicco.ioc.aop;
 
+import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.module.aop.AfterJoinPoint;
 import lol.cicco.ioc.core.module.aop.BeforeJoinPoint;
 import lol.cicco.ioc.core.module.aop.Interceptor;
 
+@Registration
 public class TimeInterceptor implements Interceptor<SystemClock> {
 
     private final ThreadLocal<Long> threadLocal;

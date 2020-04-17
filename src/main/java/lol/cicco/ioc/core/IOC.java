@@ -2,6 +2,7 @@ package lol.cicco.ioc.core;
 
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.module.beans.BeanModule;
+import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
 import lol.cicco.ioc.core.module.beans.BeanStoreException;
 import lol.cicco.ioc.core.module.register.RegisterException;
@@ -61,11 +62,11 @@ public class IOC {
     public static <T> T getBeanByType(Class<T> beanCls) {
         checkProcessor();
         BeanRegistry beanRegistry = ((BeanModule)context.getModule(BeanModule.BEAN_MODULE_NAME)).getModuleProcessor();
-        T obj = (T) beanRegistry.getNullableBean(beanCls);
-        if (obj == null) {
+        BeanProvider provider = beanRegistry.getNullableBean(beanCls);
+        if (provider == null) {
             throw new BeanNotFountException("[" + beanCls.toString() + "] 未注册至IOC, 请检查[" + Registration.class + "]注解与初始化配置.");
         }
-        return obj;
+        return (T)provider.getObject();
     }
 
     /**
@@ -74,11 +75,11 @@ public class IOC {
     public static <T> T getBeanByName(String beanName) {
         checkProcessor();
         BeanRegistry beanRegistry = ((BeanModule)context.getModule(BeanModule.BEAN_MODULE_NAME)).getModuleProcessor();
-        T obj = (T) beanRegistry.getNullableBean(beanName);
-        if (obj == null) {
+        BeanProvider provider = beanRegistry.getNullableBean(beanName);
+        if (provider == null) {
             throw new BeanNotFountException("[" + beanName + "] 未注册至IOC, 请检查[" + Registration.class + "]注解与初始化配置.");
         }
-        return obj;
+        return (T)provider.getObject();
     }
 
     /**

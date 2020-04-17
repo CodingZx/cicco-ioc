@@ -2,10 +2,7 @@ package lol.cicco.ioc.core;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 @Slf4j
 public class CiccoContext {
@@ -14,36 +11,59 @@ public class CiccoContext {
     public CiccoContext(Initialize initialize) {
         this.initialize = initialize;
 
-        Stack<String> waitInitModules = new Stack<>();
+        initModule();
+    }
+
+    private void initModule() {
+        LinkedList<CiccoModule<?>> waitInitModules = new LinkedList<>();
         Set<String> alreadyInit = new HashSet<>();
 
         Map<String, CiccoModule<?>> modules = initialize.getModules();
-        for (String moduleName : modules.keySet()) {
-            if(alreadyInit.contains(moduleName)) {
-                continue; // 已经初始化
-            }
+
+        for(String moduleName : modules.keySet()) {
             CiccoModule<?> module = modules.get(moduleName);
-            if (module.dependOn() == null || module.dependOn().size() == 0) {
-                module.initModule(this);
-                alreadyInit.add(moduleName);
-            } else {
-                for (String dependModuleName : module.dependOn()) {
-                    if (alreadyInit.contains(dependModuleName)) {
+
+            waitInitModules.add(module);
+
+            while(!waitInitModules.isEmpty()) {
+                CiccoModule<?> tmp = waitInitModules.getLast();
+                if(tmp == null) {
+                    throw new CiccoModuleException("未找到依赖模块, 请检查模块是否注册至Context....");
+                }
+                if(alreadyInit.contains(tmp.getModuleName())) {
+                    waitInitModules.removeLast();
+                    continue;
+                }
+                if(tmp.dependOn() == null || tmp.dependOn().size() == 0) {
+                    tmp.initModule(this);
+                    alreadyInit.add(tmp.getModuleName());
+                    waitInitModules.removeLast();
+                    continue;
+                }
+                boolean canInit = true;
+                for(String depend : tmp.dependOn()) {
+                    if(!alreadyInit.contains(depend)) {
+                        canInit = false;
+                    } else {
                         continue;
                     }
-                    if(waitInitModules.contains(moduleName)) {
-                        throw new RuntimeException(); // 循环依赖
+                    CiccoModule<?> dependModule = modules.get(depend);
+                    if(waitInitModules.contains(dependModule)) {
+                        // 循环依赖
+                        throw new CiccoModuleException("循环依赖..请检查{" + dependModule.getModuleName()+"}依赖情况..");
                     }
-                    waitInitModules.push(moduleName);
+                    waitInitModules.add(dependModule);
                 }
-                while(!waitInitModules.isEmpty()){
-                    String waitName = waitInitModules.pop();
-                    modules.get(waitName).initModule(this);
-                    alreadyInit.add(waitName);
+
+                if(canInit) {
+                    waitInitModules.remove(tmp);
+                    alreadyInit.add(tmp.getModuleName());
+                    tmp.initModule(this);
                 }
             }
         }
     }
+
 
     /**
      * 获取初始化相关配置参数

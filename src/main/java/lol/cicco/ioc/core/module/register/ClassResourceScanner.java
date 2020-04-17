@@ -34,6 +34,7 @@ class ClassResourceScanner extends ResourceScanner {
                 definition.setAnnotations(cls.getDeclaredAnnotations());
                 definition.setInterfaceType(Modifier.isInterface(cls.getModifiers()));
                 definition.setAbstractType(Modifier.isAbstract(cls.getModifiers()));
+                definition.setFilePath(meta.getUri().getPath());
 
                 classDefinitions.add(definition);
             } catch (ClassNotFoundException e) {

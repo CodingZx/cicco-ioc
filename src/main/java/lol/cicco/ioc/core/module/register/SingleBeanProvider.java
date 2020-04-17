@@ -1,18 +1,18 @@
 package lol.cicco.ioc.core.module.register;
 
-import lol.cicco.ioc.core.module.aop.AopModule;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
+import lol.cicco.ioc.core.module.aop.AopProcessor;
 
 class SingleBeanProvider implements BeanProvider {
 
     private final Class<?> originCls;
-    private final AopModule aopModule;
+    private final AopProcessor aopProcessor;
 
     private Object singleObj;
 
-    SingleBeanProvider(Class<?> originCls, AopModule aopModule) {
+    SingleBeanProvider(Class<?> originCls, AopProcessor aopProcessor) {
         this.originCls = originCls;
-        this.aopModule = aopModule;
+        this.aopProcessor = aopProcessor;
     }
 
     @Override
@@ -24,7 +24,7 @@ class SingleBeanProvider implements BeanProvider {
     public Object getObject() {
         if(singleObj == null) {
             synchronized (originCls) {
-                Object object = aopModule.getModuleProcessor().beanEnhance(originCls);
+                Object object = aopProcessor.beanEnhance(originCls);
                 this.singleObj = object;
                 return object;
             }

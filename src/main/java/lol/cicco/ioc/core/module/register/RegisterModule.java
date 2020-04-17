@@ -5,7 +5,10 @@ import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
 import lol.cicco.ioc.core.IOC;
 import lol.cicco.ioc.core.module.aop.AopModule;
+import lol.cicco.ioc.core.module.aop.AopProcessor;
+import lol.cicco.ioc.core.module.aop.Interceptor;
 import lol.cicco.ioc.core.module.beans.BeanModule;
+import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
@@ -45,6 +48,8 @@ public class RegisterModule implements CiccoModule<Void> {
     }
 
     private void registerBeans(Set<String> packages) {
+        AopProcessor aopProcessor = aopModule.getModuleProcessor();
+
         ClassResourceScanner scanner = new ClassResourceScanner();
         for (String pkg : packages) {
             Set<ClassResourceMeta> classResourceMetas = scanner.scanClassMeta(pkg, IOC.class.getClassLoader());
@@ -64,9 +69,23 @@ public class RegisterModule implements CiccoModule<Void> {
 
                 String beanName = "".equals(registration.name().trim()) ? meta.getSelfType().getName() : registration.name().trim();
 
-                beanModule.register(type, beanName, new SingleBeanProvider(meta.getSelfType(), aopModule), false);
-                log.debug("Bean[{}]注册至IOC...", meta.getSelfType().toString());
+                log.debug("Bean[{}]注册至IOC. Path[{}]", meta.getSelfType().toString(), meta.getFilePath());
+                beanModule.register(type, beanName, new SingleBeanProvider(meta.getSelfType(), aopProcessor), false);
             }
+        }
+        // 注册至AOP
+        registerAopInterceptor();
+    }
+
+    private void registerAopInterceptor() {
+        AopProcessor aopProcessor = aopModule.getModuleProcessor();
+
+        Set<BeanProvider> interceptorProviders = beanModule.getModuleProcessor().getNullableBeans(Interceptor.class);
+        if(interceptorProviders == null) {
+            return;
+        }
+        for(BeanProvider provider : interceptorProviders) {
+            aopProcessor.register((Interceptor<?>) provider.getObject());
         }
     }
 

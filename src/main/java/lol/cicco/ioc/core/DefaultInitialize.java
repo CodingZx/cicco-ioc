@@ -29,8 +29,8 @@ public class DefaultInitialize implements Initialize {
 
         // 初始化默认模块
         registerModule(new PropertyModule());
-        registerModule(new BeanModule());
         registerModule(new AopModule());
+        registerModule(new BeanModule());
         registerModule(new RegisterModule());
         registerModule(new InjectModule());
         registerModule(new BinderModule());

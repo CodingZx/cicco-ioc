@@ -5,10 +5,7 @@ import lombok.SneakyThrows;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 final class JavassistProxy {
@@ -24,10 +21,14 @@ final class JavassistProxy {
         return factory.create(new Class<?>[]{}, new Object[]{}, (self, thisMethod, proceed, args) -> {
             Annotation[] methodAnnotations = methodInfo.get(thisMethod);
             if(methodAnnotations == null || methodAnnotations.length == 0) {
-                return thisMethod.invoke(self, args);
+                return proceed.invoke(self, args);
             }
 
-            List<Interceptor<?>> hasInterceptors = Arrays.stream(methodAnnotations).map(f -> processor.getInterceptor(f.annotationType())).collect(Collectors.toList());
+            List<Interceptor<?>> hasInterceptors = Arrays.stream(methodAnnotations).map(f -> processor.getInterceptor(f.annotationType())).filter(Objects::nonNull).collect(Collectors.toList());
+
+            if(hasInterceptors.isEmpty()) {
+                return proceed.invoke(self, args);
+            }
 
             JoinPointImpl point = new JoinPointImpl(self, thisMethod, args);
             for (Interceptor<?> interceptor : hasInterceptors) {

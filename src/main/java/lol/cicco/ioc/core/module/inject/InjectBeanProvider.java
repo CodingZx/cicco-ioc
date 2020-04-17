@@ -11,12 +11,11 @@ import java.lang.reflect.Field;
 class InjectBeanProvider implements BeanProvider {
     private final BeanProvider beanProvider;
     private final BeanRegistry beanRegistry;
-    private Object targetObj;
+    private Object targetObj = null;
 
     InjectBeanProvider(BeanProvider beanProvider, BeanRegistry beanRegistry) {
         this.beanProvider = beanProvider;
         this.beanRegistry = beanRegistry;
-        targetObj = beanProvider.getObject();
     }
 
     @Override

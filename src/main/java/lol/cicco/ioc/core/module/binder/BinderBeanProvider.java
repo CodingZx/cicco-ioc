@@ -12,13 +12,11 @@ public class BinderBeanProvider implements BeanProvider {
     private final BeanProvider beanProvider;
     private final PropertyRegistry propertyRegistry;
 
-    private Object target;
+    private Object target = null;
 
     BinderBeanProvider(BeanProvider beanProvider, PropertyRegistry propertyRegistry) {
         this.beanProvider = beanProvider;
         this.propertyRegistry = propertyRegistry;
-        this.target = beanProvider.getObject();
-
     }
 
     @Override
