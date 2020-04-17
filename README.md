@@ -13,8 +13,6 @@
 > init.registerPropertyHandler(new PropertyHandler<LocalDateTime>() {
 >   ...
 > });
-- 设置注解AOP
-> init.registerInterceptor(SystemClock.class, new TimeInterceptor());
 - 初始化完成
 > init.done();
 
@@ -49,6 +47,7 @@ public class TestBean2 {
 - 使用自定义注解
 ```java
 // 创建拦截器
+@Registration
 public class TimeInterceptor implements Interceptor {
 
     private long start;
@@ -71,9 +70,6 @@ public class TimeInterceptor implements Interceptor {
 @Target(METHOD)
 public @interface SystemClock {
 }
-
-// 注册至IOC
-IOC.defaultInitialize().registerInterceptor(SystemClock.class, new TimeInterceptor()).done();
 
 // 使用
 @SystemClock
