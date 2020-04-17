@@ -1,8 +1,5 @@
 package lol.cicco.ioc;
 
-import lol.cicco.ioc.aop.LogInterceptor;
-import lol.cicco.ioc.aop.SystemClock;
-import lol.cicco.ioc.aop.SystemLog;
 import lol.cicco.ioc.aop.TimeInterceptor;
 import lol.cicco.ioc.bean.BinderBean;
 import lol.cicco.ioc.bean.TestBean;
@@ -10,7 +7,7 @@ import lol.cicco.ioc.bean.TestBean2;
 import lol.cicco.ioc.binder.TestEnum;
 import lol.cicco.ioc.core.IOC;
 import lol.cicco.ioc.core.LocalDateTimeBinderHandler;
-import lol.cicco.ioc.core.binder.EnumPropertyHandler;
+import lol.cicco.ioc.core.module.property.EnumPropertyHandler;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -19,15 +16,11 @@ public class IOCTest {
     static {
         IOC.initialize()
                 .scanBasePackages("lol.cicco.bean")
-                .scanBasePackageClasses(TestBean.class)
                 .loadProperties("app.prop")
                 .loadProperties("prop/app1.prop")
                 .loadProperties("prop/app2.prop")
                 .registerPropertyHandler(new LocalDateTimeBinderHandler())
                 .registerPropertyHandler(new EnumPropertyHandler<>(TestEnum.class))
-
-                .registerInterceptor(SystemClock.class, new TimeInterceptor())
-                .registerInterceptor(SystemLog.class, new LogInterceptor())
                 .done()
         ;
     }

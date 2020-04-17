@@ -1,59 +1,93 @@
 package lol.cicco.ioc.core;
 
-import lol.cicco.ioc.core.exception.BeanDefinitionStoreException;
-import lol.cicco.ioc.core.exception.BeanInitializeException;
+import lol.cicco.ioc.annotation.Registration;
+import lol.cicco.ioc.core.module.beans.BeanModule;
+import lol.cicco.ioc.core.module.beans.BeanRegistry;
+import lol.cicco.ioc.core.module.beans.BeanStoreException;
+import lol.cicco.ioc.core.module.register.RegisterException;
+import lol.cicco.ioc.core.module.property.PropertyModule;
+import lol.cicco.ioc.core.module.property.PropertyRegistry;
+import lombok.SneakyThrows;
 
-public final class IOC {
+import java.lang.reflect.Constructor;
+
+public class IOC {
 
     private IOC() {
         throw new IllegalAccessError();
     }
 
-    private static CiccoContainer ciccoContainer;
+    private static CiccoContext context;
 
     /**
      * 初始化IOC
      */
     static void initializeDone(Initialize initialize) {
         synchronized (IOC.class) {
-            if (ciccoContainer != null) {
-                throw new BeanInitializeException("不能重复初始化IOC...");
+            if (context != null) {
+                throw new RegisterException("不能重复初始化IOC...");
             }
 
             // 初始化Container...
-            IOC.ciccoContainer = CiccoContainer.create(initialize);
+            IOC.context = new CiccoContext(initialize);
         }
+    }
+
+    protected CiccoContext getContext() {
+        return context;
     }
 
     /**
      * 初始化IOC
      */
     public static Initialize initialize() {
-        return new Initialize();
+        return initialize(DefaultInitialize.class);
+    }
+
+    @SneakyThrows
+    public static <T extends Initialize> T initialize(Class<T> initializeClass) {
+        Constructor<T> constructor;
+        try {
+            constructor = initializeClass.getConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new InitializeException("初始化失败, Initialize实现类必须包含默认构造方法..");
+        }
+        return constructor.newInstance();
     }
 
     /**
      * 根据Class类型获得IOC对应实例
      */
     public static <T> T getBeanByType(Class<T> beanCls) {
-        checkContainer();
-        return ciccoContainer.getBeanByType(beanCls);
+        checkProcessor();
+        BeanRegistry beanRegistry = ((BeanModule)context.getModule(BeanModule.BEAN_MODULE_NAME)).getModuleProcessor();
+        T obj = (T) beanRegistry.getNullableBean(beanCls);
+        if (obj == null) {
+            throw new BeanNotFountException("[" + beanCls.toString() + "] 未注册至IOC, 请检查[" + Registration.class + "]注解与初始化配置.");
+        }
+        return obj;
     }
 
     /**
      * 根据Bean名称获得IOC对应实例
      */
     public static <T> T getBeanByName(String beanName) {
-        checkContainer();
-        return ciccoContainer.getBeanByName(beanName);
+        checkProcessor();
+        BeanRegistry beanRegistry = ((BeanModule)context.getModule(BeanModule.BEAN_MODULE_NAME)).getModuleProcessor();
+        T obj = (T) beanRegistry.getNullableBean(beanName);
+        if (obj == null) {
+            throw new BeanNotFountException("[" + beanName + "] 未注册至IOC, 请检查[" + Registration.class + "]注解与初始化配置.");
+        }
+        return obj;
     }
 
     /**
      * 获得IOC中属性值
      */
     public static String getProperty(String propertyName, String defaultValue) {
-        checkContainer();
-        return ciccoContainer.getProperty(propertyName, defaultValue);
+        checkProcessor();
+        PropertyRegistry propertyRegistry = ((PropertyModule)context.getModule(PropertyModule.PROPERTY_MODULE_NAME)).getModuleProcessor();
+        return propertyRegistry.getProperty(propertyName, defaultValue);
     }
 
     /**
@@ -67,14 +101,33 @@ public final class IOC {
      * 获得IOC中属性值
      */
     public static <T> T getProperty(String propertyName, Class<T> cls) {
-        checkContainer();
-        return ciccoContainer.getProperty(propertyName, cls);
+        checkProcessor();
+        PropertyRegistry propertyRegistry = ((PropertyModule)context.getModule(PropertyModule.PROPERTY_MODULE_NAME)).getModuleProcessor();
+        return propertyRegistry.covertValue(propertyName, null, cls);
     }
 
-    // 检查当前container是否已初始化
-    private static void checkContainer() {
-        if (ciccoContainer == null) {
-            throw new BeanDefinitionStoreException("IOC容器未初始化..");
+    /**
+     * 设置属性
+     */
+    public static void setProperty(String propertyName, String propertyValue) {
+        checkProcessor();
+        PropertyRegistry propertyRegistry = ((PropertyModule)context.getModule(PropertyModule.PROPERTY_MODULE_NAME)).getModuleProcessor();
+        propertyRegistry.setProperty(propertyName, propertyValue);
+    }
+
+    /**
+     * 移除属性
+     */
+    public static void removeProperty(String propertyName) {
+        checkProcessor();
+        PropertyRegistry propertyRegistry = ((PropertyModule)context.getModule(PropertyModule.PROPERTY_MODULE_NAME)).getModuleProcessor();
+        propertyRegistry.removeProperty(propertyName);
+    }
+
+    // 检查当前Processor是否已初始化
+    private static void checkProcessor() {
+        if (context == null) {
+            throw new BeanStoreException("IOC容器未初始化..");
         }
     }
 }

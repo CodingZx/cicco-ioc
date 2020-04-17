@@ -4,7 +4,7 @@
 
 #### 初始化
 - 初始化IOC
-> var init = IOC.initialize();
+> var init = IOC.defaultInitialize();
 - 加载配置文件
 > init.loadProperties("/app.properties");
 - 设置扫描包路径
@@ -73,7 +73,7 @@ public @interface SystemClock {
 }
 
 // 注册至IOC
-IOC.initialize().registerInterceptor(SystemClock.class, new TimeInterceptor()).done();
+IOC.defaultInitialize().registerInterceptor(SystemClock.class, new TimeInterceptor()).done();
 
 // 使用
 @SystemClock

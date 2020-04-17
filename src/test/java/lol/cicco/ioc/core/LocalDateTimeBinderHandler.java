@@ -1,6 +1,6 @@
 package lol.cicco.ioc.core;
 
-import lol.cicco.ioc.core.binder.GeneralPropertyHandler;
+import lol.cicco.ioc.core.module.property.GeneralPropertyHandler;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
