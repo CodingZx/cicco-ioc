@@ -5,8 +5,8 @@ import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
 import lol.cicco.ioc.core.IOC;
 import lol.cicco.ioc.core.module.aop.AopModule;
-import lol.cicco.ioc.core.module.aop.AopProcessor;
 import lol.cicco.ioc.core.module.aop.Interceptor;
+import lol.cicco.ioc.core.module.aop.InterceptorRegistry;
 import lol.cicco.ioc.core.module.beans.BeanModule;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +48,7 @@ public class RegisterModule implements CiccoModule<Void> {
     }
 
     private void registerBeans(Set<String> packages) {
-        AopProcessor aopProcessor = aopModule.getModuleProcessor();
+        InterceptorRegistry registry = aopModule.getModuleProcessor();
 
         ClassResourceScanner scanner = new ClassResourceScanner();
         for (String pkg : packages) {
@@ -70,7 +70,7 @@ public class RegisterModule implements CiccoModule<Void> {
                 String beanName = "".equals(registration.name().trim()) ? meta.getSelfType().getName() : registration.name().trim();
 
                 log.debug("Bean[{}]注册至IOC. Path[{}]", meta.getSelfType().toString(), meta.getFilePath());
-                beanModule.register(type, beanName, new SingleBeanProvider(meta.getSelfType(), aopProcessor), false);
+                beanModule.register(type, beanName, new SingleBeanProvider(meta.getSelfType(), registry), false);
             }
         }
         // 注册至AOP
@@ -78,14 +78,14 @@ public class RegisterModule implements CiccoModule<Void> {
     }
 
     private void registerAopInterceptor() {
-        AopProcessor aopProcessor = aopModule.getModuleProcessor();
+        InterceptorRegistry interceptorRegistry = aopModule.getModuleProcessor();
 
         Set<BeanProvider> interceptorProviders = beanModule.getModuleProcessor().getNullableBeans(Interceptor.class);
         if(interceptorProviders == null) {
             return;
         }
         for(BeanProvider provider : interceptorProviders) {
-            aopProcessor.register((Interceptor<?>) provider.getObject());
+            interceptorRegistry.register((Interceptor<?>) provider.getObject());
         }
     }
 

@@ -1,18 +1,18 @@
 package lol.cicco.ioc.core.module.register;
 
+import lol.cicco.ioc.core.module.aop.InterceptorRegistry;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
-import lol.cicco.ioc.core.module.aop.AopProcessor;
 
 class SingleBeanProvider implements BeanProvider {
 
     private final Class<?> originCls;
-    private final AopProcessor aopProcessor;
+    private final InterceptorRegistry registry;
 
     private Object singleObj;
 
-    SingleBeanProvider(Class<?> originCls, AopProcessor aopProcessor) {
+    SingleBeanProvider(Class<?> originCls, InterceptorRegistry registry) {
         this.originCls = originCls;
-        this.aopProcessor = aopProcessor;
+        this.registry = registry;
     }
 
     @Override
@@ -24,7 +24,7 @@ class SingleBeanProvider implements BeanProvider {
     public Object getObject() {
         if(singleObj == null) {
             synchronized (originCls) {
-                Object object = aopProcessor.beanEnhance(originCls);
+                Object object = registry.createProxy(originCls);
                 this.singleObj = object;
                 return object;
             }

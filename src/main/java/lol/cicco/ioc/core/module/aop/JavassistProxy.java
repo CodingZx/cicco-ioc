@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 final class JavassistProxy {
 
     @SneakyThrows
-    static Object proxyEnhance(Class<?> superCls, AopProcessor processor) {
+    static Object proxyEnhance(Class<?> superCls, InterceptorRegistry registry) {
         Map<Method, Annotation[]> methodInfo = filterMethods(superCls);
 
         ProxyFactory factory = new ProxyFactory();
@@ -24,7 +24,7 @@ final class JavassistProxy {
                 return proceed.invoke(self, args);
             }
 
-            List<Interceptor<?>> hasInterceptors = Arrays.stream(methodAnnotations).map(f -> processor.getInterceptor(f.annotationType())).filter(Objects::nonNull).collect(Collectors.toList());
+            List<Interceptor<?>> hasInterceptors = Arrays.stream(methodAnnotations).map(f -> registry.getInterceptor(f.annotationType())).filter(Objects::nonNull).collect(Collectors.toList());
 
             if(hasInterceptors.isEmpty()) {
                 return proceed.invoke(self, args);

@@ -7,4 +7,6 @@ public interface InterceptorRegistry {
     void register(Interceptor<?> interceptor);
 
     Interceptor<?> getInterceptor(Class<? extends Annotation> annotation);
+
+    Object createProxy(Class<?> originCls);
 }
