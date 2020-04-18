@@ -7,7 +7,7 @@ import java.util.Set;
 
 public interface Initialize {
     /**
-     * 设置IOC扫描包名
+     * 设置属性转换器
      */
     Initialize registerPropertyHandler(PropertyHandler<?> propertyHandler);
 

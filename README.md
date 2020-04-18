@@ -1,26 +1,33 @@
 # cicco-ioc
-简单IOC实现, 仅支持默认空构造方法创建Bean实例<br>
+简单IOC实现, 仅支持默认空构造方法创建Bean实例
+
 包含Bean实例管理, AOP, 属性注入
+
+包含默认自动注册Aop, Bean, Binder, Inject, Property, Register模块
 
 #### 初始化
 - 初始化IOC
-> var init = IOC.defaultInitialize();
-- 加载配置文件
-> init.loadProperties("/app.properties");
+> var init = IOC.initialize();
+- 加载配置文件, 全路径名称
+> init.loadProperties("app.properties", "prop/app1.prop");
 - 设置扫描包路径
-> init.scanBasePackages("lol.cicco"); 或使用 init.scanBasePackageClasses(IOC.class);
+> init.scanBasePackages("lol.cicco"); 
 - 添加绑定属性转换器, 相同类型可添加多个, 若前置转换失败会继续使用后续转换器转换
 > init.registerPropertyHandler(new PropertyHandler<LocalDateTime>() {
->   ...
+> ...
 > });
-- 初始化完成
+- 注册自定义模块
+> init.registerModule(new CiccoModule<...> {...});
+- 初始化设置完成, 此时根据相关设置初始化全部模块
 > init.done();
+
+初始化所有接口请参阅<a href="https://github.com/CodingZx/cicco-ioc/blob/master/src/main/java/lol/cicco/ioc/core/Initialize.java">此处</a>
 
 #### 使用IOC
 
 - 设置Bean
 ```java
-@Registration(name = "testBean2")
+@Registration(name = "testBean2") // 此注解表明注册至Bean管理器
 public class TestBean2 {
     //设置注入Bean实例, byName不为空时根据BeanName注入对应实例 
     @Inject(byName = "testBean1111")
@@ -41,28 +48,40 @@ public class TestBean2 {
 - 根据Type获取实例
 > var obj = IOC.getBeanByType(TestBean2.class);
 - 根据Name获取实例
-> var obj = IOC.getBeanByName("beanName"");
+> var obj = IOC.getBeanByName("beanName");
 
 #### 使用AOP
 - 使用自定义注解
 ```java
 // 创建拦截器
-@Registration
-public class TimeInterceptor implements Interceptor {
+@Registration // 必须注册至Bean中才能使用.
+public class TimeInterceptor implements Interceptor<SystemClock> {
 
-    private long start;
+    private final ThreadLocal<Long> threadLocal;
+
+    public TimeInterceptor() {
+        this.threadLocal = new ThreadLocal<>();
+    }
+
+    @Override
+    public Class<SystemClock> getAnnotation() {
+        return SystemClock.class;
+    }
 
     @Override
     public void before(BeforeJoinPoint point) throws Throwable {
-        start = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
         System.out.println("执行开始时间: " + start);
+        threadLocal.set(start);
     }
 
     @Override
     public void after(AfterJoinPoint point) throws Throwable {
+        long start = threadLocal.get();
         long end = System.currentTimeMillis();
         System.out.println("执行结束时间: " + end);
         System.out.println("总执行时间  : " + (end - start) + "ms");
+        threadLocal.remove();
     }
 }
 // 创建自定义注解
@@ -77,3 +96,5 @@ public void aop() {
     // ....
 }
 ```
+
+使用实例参见<a href="https://github.com/CodingZx/cicco-ioc/blob/master/src/test/java/lol/cicco/ioc/IOCTest.java">此处</a>
