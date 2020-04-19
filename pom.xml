@@ -23,7 +23,7 @@
         <logback.version>1.2.3</logback.version>
         <mybatis.version>3.5.4</mybatis.version>
         <hikaricp.version>3.4.2</hikaricp.version>
-        <postgresql.version>42.2.12</postgresql.version>
+        <h2.version>1.4.200</h2.version>
     </properties>
 
     <dependencies>
@@ -70,11 +70,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
             <scope>test</scope>
         </dependency>
+
 
     </dependencies>
 

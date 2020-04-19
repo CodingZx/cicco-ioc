@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.scanner.ResourceMeta;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.mapping.Environment;
@@ -13,6 +14,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.util.Set;
 
 @Slf4j
@@ -62,6 +64,7 @@ public class MybatisConfig {
         return str != null && !str.trim().isEmpty();
     }
 
+    @SneakyThrows
     private DataSource configDataSource() {
         // 创建连接池
         HikariDataSource ds = new HikariDataSource();
@@ -82,6 +85,11 @@ public class MybatisConfig {
         log.debug("创建DataSource成功.");
 
         Runtime.getRuntime().addShutdownHook(new Thread(ds::close));
+
+        try(Connection connection = ds.getConnection()) {
+            connection.createStatement().execute("create table test(id varchar(255) NOT NULL,name varchar(255) NOT NULL, PRIMARY KEY (id) );");
+        }
+
         return ds;
     }
 }

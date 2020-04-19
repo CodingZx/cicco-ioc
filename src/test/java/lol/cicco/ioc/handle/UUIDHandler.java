@@ -2,7 +2,6 @@ package lol.cicco.ioc.handle;
 
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
-import org.postgresql.util.PGobject;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -14,10 +13,7 @@ public class UUIDHandler extends BaseTypeHandler<UUID> {
 
 	@Override
 	public void setNonNullParameter(PreparedStatement ps, int i, UUID parameter, JdbcType jdbcType) throws SQLException {
-		PGobject uuidObj = new PGobject();
-		uuidObj.setType("uuid");
-		uuidObj.setValue(parameter.toString());
-		ps.setObject(i, uuidObj);
+		ps.setObject(i, parameter.toString());
 	}
 
 	@Override

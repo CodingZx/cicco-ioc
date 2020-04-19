@@ -1,8 +1,8 @@
 # mybatis.datasource
-mybatis.datasource.url = jdbc:postgresql://localhost:5432/postgres
-mybatis.datasource.userName = postgres
-mybatis.datasource.password = zhaoxu@2020
-mybatis.datasource.driverClassName = org.postgresql.Driver
+mybatis.datasource.url = jdbc:h2:mem:test
+mybatis.datasource.userName =
+mybatis.datasource.password =
+mybatis.datasource.driverClassName = org.h2.Driver
 mybatis.datasource.minimumIdle = 5
 mybatis.datasource.maximumPoolSize = 10
 mybatis.datasource.connectionTimeoutMs = 30000
