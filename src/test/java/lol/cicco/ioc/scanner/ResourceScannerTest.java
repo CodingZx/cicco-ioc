@@ -1,5 +1,6 @@
 package lol.cicco.ioc.scanner;
 
+import lol.cicco.ioc.core.CiccoConstants;
 import lol.cicco.ioc.core.scanner.ResourceScanner;
 import lombok.SneakyThrows;
 import org.junit.Test;

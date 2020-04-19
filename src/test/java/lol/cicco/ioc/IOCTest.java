@@ -8,6 +8,8 @@ import lol.cicco.ioc.binder.TestEnum;
 import lol.cicco.ioc.core.IOC;
 import lol.cicco.ioc.core.LocalDateTimeBinderHandler;
 import lol.cicco.ioc.core.module.property.EnumPropertyHandler;
+import lol.cicco.ioc.mybatis.MybatisModule;
+import lol.cicco.ioc.service.TestBeanService;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,11 +19,15 @@ public class IOCTest {
         IOC.initialize()
                 .scanBasePackages("lol.cicco.ioc.bean")
                 .scanBasePackages("lol.cicco.ioc.aop")
+                .scanBasePackages("lol.cicco.ioc.mybatis")
+                .scanBasePackages("lol.cicco.ioc.service")
                 .loadProperties("app.prop")
                 .loadProperties("prop/app1.prop")
                 .loadProperties("prop/app2.prop")
+                .loadProperties("mybatis.prop")
                 .registerPropertyHandler(new LocalDateTimeBinderHandler())
                 .registerPropertyHandler(new EnumPropertyHandler<>(TestEnum.class))
+                .registerModule(new MybatisModule())
                 .done()
         ;
     }
@@ -86,5 +92,14 @@ public class IOCTest {
         System.out.println(binderBean.getClass().getName());
     }
 
+    @Test
+    public void mybatis() {
+        TestBeanService testBeanService = IOC.getBeanByType(TestBeanService.class);
+        testBeanService.save(false);
+
+        testBeanService.save(false);
+
+        testBeanService.all().forEach(a -> testBeanService.delete(a.getId()));
+    }
 
 }

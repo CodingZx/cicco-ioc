@@ -1,0 +1,14 @@
+# mybatis.datasource
+mybatis.datasource.url = jdbc:postgresql://localhost:5432/postgres
+mybatis.datasource.userName = postgres
+mybatis.datasource.password = zhaoxu@2020
+mybatis.datasource.driverClassName = org.postgresql.Driver
+mybatis.datasource.minimumIdle = 5
+mybatis.datasource.maximumPoolSize = 10
+mybatis.datasource.connectionTimeoutMs = 30000
+mybatis.datasource.idleTimeout = 300000
+mybatis.datasource.maxLifetime = 1800000
+
+mybatis.handles = lol.cicco.ioc.handle
+mybatis.xmlLocation = task
+mybatis.mappers = lol.cicco.ioc.mapper
