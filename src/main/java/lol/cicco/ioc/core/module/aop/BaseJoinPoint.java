@@ -2,10 +2,7 @@ package lol.cicco.ioc.core.module.aop;
 
 import java.lang.reflect.Method;
 
-/**
- * Interceptor.before参数
- */
-public interface BeforeJoinPoint extends BaseJoinPoint{
+public interface BaseJoinPoint {
 
     /**
      * 当前执行方法的实例

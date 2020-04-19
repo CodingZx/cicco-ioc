@@ -1,6 +1,9 @@
-package lol.cicco.ioc.core.module.aop;
+package lol.cicco.ioc.core.module.register;
 
 import javassist.util.proxy.ProxyFactory;
+import lol.cicco.ioc.core.module.aop.Interceptor;
+import lol.cicco.ioc.core.module.aop.InterceptorRegistry;
+import lol.cicco.ioc.core.module.aop.JoinPointImpl;
 import lombok.SneakyThrows;
 
 import java.lang.annotation.Annotation;

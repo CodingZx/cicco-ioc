@@ -47,7 +47,4 @@ public class AopModule implements CiccoModule<InterceptorRegistry>, InterceptorR
         return interceptorMap.get(annotation.getName());
     }
 
-    public Object createProxy(Class<?> superCls) {
-        return JavassistProxy.proxyEnhance(superCls, this);
-    }
 }

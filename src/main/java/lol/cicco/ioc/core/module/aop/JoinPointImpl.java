@@ -2,7 +2,7 @@ package lol.cicco.ioc.core.module.aop;
 
 import java.lang.reflect.Method;
 
-public class JoinPointImpl implements AfterJoinPoint, ThrowJoinPoint {
+public class JoinPointImpl implements BeforeJoinPoint, AfterJoinPoint, ThrowJoinPoint {
     private final Object target;
     private final Method method;
     private final Object[] args;

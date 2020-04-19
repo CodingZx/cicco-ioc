@@ -24,7 +24,7 @@ class SingleBeanProvider implements BeanProvider {
     public Object getObject() {
         if(singleObj == null) {
             synchronized (originCls) {
-                Object object = registry.createProxy(originCls);
+                Object object = JavassistProxy.proxyEnhance(originCls, registry);
                 this.singleObj = object;
                 return object;
             }
