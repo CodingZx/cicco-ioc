@@ -32,7 +32,8 @@ class JarResourceScanner implements ProtocolResourceScanner {
                 // 扫描文件
                 if (entryName.startsWith(packagePath)) {
                     // 将对应文件路径替换为全称
-                    entryName = entryName.replace("/", ".").substring(0, entryName.lastIndexOf("."));
+                    entryName = entryName.replace("/", ".");
+                    entryName = entryName.substring(0, entryName.lastIndexOf("."));
                     allResources.add(ResourceMeta.of(entryName, url.toURI()));
                 }
             }
