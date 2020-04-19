@@ -1,12 +1,11 @@
 package lol.cicco.ioc;
 
 import lol.cicco.ioc.core.IOC;
-import lol.cicco.ioc.core.module.beans.BeanStoreException;
 import org.junit.Test;
 
 public class IOCTestThrow {
 
-    @Test(expected = BeanStoreException.class)
+    @Test(expected = IllegalStateException.class)
     public void testThrow() {
 
         // testBean2被注册两次
