@@ -104,7 +104,7 @@ public class IOC {
     public static <T> T getProperty(String propertyName, Class<T> cls) {
         checkProcessor();
         PropertyRegistry propertyRegistry = ((PropertyModule)context.getModule(PropertyModule.PROPERTY_MODULE_NAME)).getModuleProcessor();
-        return propertyRegistry.covertValue(propertyName, null, cls);
+        return propertyRegistry.convertValue(propertyName, null, cls);
     }
 
     /**

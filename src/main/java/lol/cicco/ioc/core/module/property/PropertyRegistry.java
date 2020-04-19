@@ -15,7 +15,7 @@ public interface PropertyRegistry {
     /**
      * 转换对应属性
      */
-    <T> T covertValue(String propName, String defaultValue, Class<T> type);
+    <T> T convertValue(String propName, String defaultValue, Class<T> type);
 
     /**
      * 获取属性

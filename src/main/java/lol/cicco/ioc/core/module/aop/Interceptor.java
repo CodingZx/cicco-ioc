@@ -13,4 +13,9 @@ public interface Interceptor<T extends Annotation> {
     default void after(AfterJoinPoint point) throws Throwable {
 
     }
+
+    default void throwException(ThrowJoinPoint point) throws Throwable {
+
+    }
+
 }

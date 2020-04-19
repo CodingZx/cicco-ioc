@@ -19,7 +19,7 @@ class JarResourceScanner implements ProtocolResourceScanner {
     }
 
     @Override
-    public List<ResourceMeta> doScan(URL url, String suffix) throws IOException {
+    public List<ResourceMeta> doScan(URL url) throws IOException {
         List<ResourceMeta> allResources = new LinkedList<>();
         String[] jarInfo = url.getFile().split("!");
         String jarFilePath = jarInfo[0].substring(jarInfo[0].indexOf("/"));
@@ -29,13 +29,11 @@ class JarResourceScanner implements ProtocolResourceScanner {
             while (entries.hasMoreElements()) {
                 JarEntry jarEntry = entries.nextElement();
                 String entryName = jarEntry.getName();
-                // 扫描Class文件
-                if (entryName.endsWith(suffix)) {
-                    if (entryName.startsWith(packagePath)) {
-                        // 将对应文件路径替换为全称
-                        entryName = entryName.replace("/", ".").substring(0, entryName.lastIndexOf("."));
-                        allResources.add(ResourceMeta.of(entryName, url.toURI()));
-                    }
+                // 扫描文件
+                if (entryName.startsWith(packagePath)) {
+                    // 将对应文件路径替换为全称
+                    entryName = entryName.replace("/", ".").substring(0, entryName.lastIndexOf("."));
+                    allResources.add(ResourceMeta.of(entryName, url.toURI()));
                 }
             }
         } catch (ZipException | URISyntaxException e) {

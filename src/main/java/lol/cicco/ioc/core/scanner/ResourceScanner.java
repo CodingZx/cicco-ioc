@@ -38,7 +38,7 @@ public class ResourceScanner {
                 }
 
                 if (scanner != null) {
-                    allResources.addAll(scanner.doScan(url, CiccoConstants.CLASS_FILE_SUFFIX));
+                    allResources.addAll(scanner.doScan(url));
                 } else {
                     log.warn("未找到对应BeanScanner, urlProtocol为:{}", url.getProtocol());
                 }

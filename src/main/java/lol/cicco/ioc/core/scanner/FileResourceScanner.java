@@ -14,11 +14,11 @@ class FileResourceScanner implements ProtocolResourceScanner {
     }
 
     @Override
-    public List<ResourceMeta> doScan(URL url, String suffix) {
-        return addFileFromPath(url.getPath(), suffix);
+    public List<ResourceMeta> doScan(URL url) {
+        return addFileFromPath(url.getPath());
     }
 
-    private List<ResourceMeta> addFileFromPath(String path, String suffix) {
+    private List<ResourceMeta> addFileFromPath(String path) {
         List<ResourceMeta> resourceMetas = new LinkedList<>();
 
         File file = new File(path);
@@ -29,29 +29,27 @@ class FileResourceScanner implements ProtocolResourceScanner {
         for (File childFile : childFiles) {
             if (childFile.isDirectory()) {
                 // 搜索子目录
-                resourceMetas.addAll(addFileFromPath(childFile.getPath(), suffix));
+                resourceMetas.addAll(addFileFromPath(childFile.getPath()));
             } else {
                 String childFilePath = childFile.getPath();
 
-                if (childFilePath.endsWith(suffix)) {
-                    int classesStartIdx = 0;
+                int classesStartIdx = 0;
 
-                    String classDir = File.separator + "classes" + File.separator;
-                    String testClassDir = File.separator + "test-classes" + File.separator;
+                String classDir = File.separator + "classes" + File.separator;
+                String testClassDir = File.separator + "test-classes" + File.separator;
 
-                    int classesIdx = childFilePath.indexOf(classDir);
-                    if (classesIdx != -1) {
-                        classesStartIdx = classesIdx + classDir.length();
-                    } else {
-                        int testClassesIdx = childFilePath.indexOf(testClassDir);
-                        if (testClassesIdx != -1) {
-                            classesStartIdx = testClassesIdx + testClassDir.length();
-                        }
+                int classesIdx = childFilePath.indexOf(classDir);
+                if (classesIdx != -1) {
+                    classesStartIdx = classesIdx + classDir.length();
+                } else {
+                    int testClassesIdx = childFilePath.indexOf(testClassDir);
+                    if (testClassesIdx != -1) {
+                        classesStartIdx = testClassesIdx + testClassDir.length();
                     }
-
-                    childFilePath = childFilePath.substring(classesStartIdx).replace(File.separator, ".");
-                    resourceMetas.add(ResourceMeta.of(childFilePath, file.toURI()));
                 }
+
+                childFilePath = childFilePath.substring(classesStartIdx).replace(File.separator, ".");
+                resourceMetas.add(ResourceMeta.of(childFilePath, file.toURI()));
             }
         }
         return resourceMetas;

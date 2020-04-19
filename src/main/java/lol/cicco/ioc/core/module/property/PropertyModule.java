@@ -100,7 +100,7 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
      * 转换对应属性
      */
     @Override
-    public <T> T covertValue(String propName, String defaultValue, Class<T> type) {
+    public <T> T convertValue(String propName, String defaultValue, Class<T> type) {
         var propValue = getProperty(propName, defaultValue);
         var handlers = PROPERTY_HANDLERS.getOrDefault(type, Collections.emptyList());
         PropertyConvertException exception = null;

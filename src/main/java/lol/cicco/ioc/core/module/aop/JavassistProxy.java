@@ -29,19 +29,27 @@ final class JavassistProxy {
             if(hasInterceptors.isEmpty()) {
                 return proceed.invoke(self, args);
             }
-
             JoinPointImpl point = new JoinPointImpl(self, thisMethod, args);
-            for (Interceptor<?> interceptor : hasInterceptors) {
-                interceptor.before(point);
-            }
+            try {
+                for (Interceptor<?> interceptor : hasInterceptors) {
+                    interceptor.before(point);
+                }
 
-            Object result = proceed.invoke(self, args);
+                Object result = proceed.invoke(self, args);
 
-            point.setReturnValue(result);
-            for (Interceptor<?> interceptor : hasInterceptors) {
-                interceptor.after(point);
+                point.setReturnValue(result);
+                for (Interceptor<?> interceptor : hasInterceptors) {
+                    interceptor.after(point);
+                }
+
+                return result;
+            } catch (Exception e) {
+                point.setThrowable(e);
+                for (Interceptor<?> interceptor : hasInterceptors) {
+                    interceptor.throwException(point);
+                }
+                throw e;
             }
-            return result;
         });
     }
 

@@ -2,11 +2,12 @@ package lol.cicco.ioc.core.module.aop;
 
 import java.lang.reflect.Method;
 
-public class JoinPointImpl implements AfterJoinPoint {
+public class JoinPointImpl implements AfterJoinPoint, ThrowJoinPoint {
     private final Object target;
     private final Method method;
     private final Object[] args;
     private Object returnValue;
+    private Throwable throwable;
 
     public JoinPointImpl(Object target, Method method, Object[] args) {
         this.target = target;
@@ -36,5 +37,14 @@ public class JoinPointImpl implements AfterJoinPoint {
 
     public void setReturnValue(Object returnValue) {
         this.returnValue = returnValue;
+    }
+
+    public void setThrowable(Throwable throwable) {
+        this.throwable = throwable;
+    }
+
+    @Override
+    public Throwable getThrowable() {
+        return throwable;
     }
 }

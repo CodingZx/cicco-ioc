@@ -1,6 +1,7 @@
 package lol.cicco.ioc.core.module.binder;
 
 import lol.cicco.ioc.annotation.Binder;
+import lol.cicco.ioc.annotation.Property;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.property.PropertyConvertException;
 import lol.cicco.ioc.core.module.property.PropertyRegistry;
@@ -33,25 +34,38 @@ public class BinderBeanProvider implements BeanProvider {
         }
         target = oldObj;
 
-        for(Field field : beanProvider.beanType().getDeclaredFields()) {
+        Class<?> beanType = beanProvider.beanType();
+
+        Property beanProperty = beanType.getDeclaredAnnotation(Property.class);
+        String prefix = beanProperty == null ? "" : beanProperty.prefix().trim();
+
+        for(Field field : beanType.getDeclaredFields()) {
             Binder binder = field.getDeclaredAnnotation(Binder.class);
-            if(binder == null) {
+
+            if(beanProperty == null && binder == null) {
                 continue;
             }
 
-            String defValue = "".equals(binder.defaultValue().trim()) ? null : binder.defaultValue().trim();
+            String propertyName = prefix;
+            String defValue = null;
+            if(binder != null) {
+                propertyName += binder.value().trim();
+                defValue = "".equals(binder.defaultValue().trim()) ? null : binder.defaultValue().trim();
+            } else {
+                propertyName = propertyName + "." + field.getName();
+            }
 
             if(!field.canAccess(target)) {
                 field.setAccessible(true);
             }
-            Object propertyValue = propertyRegistry.covertValue(binder.value().trim(), defValue, field.getType());
+            Object propertyValue = propertyRegistry.convertValue(propertyName, defValue, field.getType());
 
-            if (propertyValue == null) {
-                throw new PropertyConvertException("Property [" + binder.value() + "] 未配置, 请检查对应配置文件...");
+            if (propertyValue == null && beanProperty == null) {
+                throw new PropertyConvertException("Property [" + propertyName + "] 未配置, 请检查对应配置文件...");
             }
-
             field.set(target, propertyValue);
         }
         return target;
     }
+
 }
