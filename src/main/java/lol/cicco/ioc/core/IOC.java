@@ -28,8 +28,6 @@ public class IOC {
             if (context != null) {
                 throw new RegisterException("不能重复初始化IOC...");
             }
-
-            // 初始化Container...
             IOC.context = new CiccoContext(initialize);
         }
     }

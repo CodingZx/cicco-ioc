@@ -10,6 +10,7 @@ import lombok.SneakyThrows;
 import java.lang.reflect.Field;
 
 public class BinderBeanProvider implements BeanProvider {
+    private final boolean hasBinder; // 是否需要Binder注入
     private final BeanProvider beanProvider;
     private final PropertyRegistry propertyRegistry;
 
@@ -18,6 +19,22 @@ public class BinderBeanProvider implements BeanProvider {
     BinderBeanProvider(BeanProvider beanProvider, PropertyRegistry propertyRegistry) {
         this.beanProvider = beanProvider;
         this.propertyRegistry = propertyRegistry;
+        this.hasBinder = checkHasBinder();
+    }
+
+    private boolean checkHasBinder() {
+        Class<?> beanType = beanProvider.beanType();
+        Property beanProperty = beanType.getDeclaredAnnotation(Property.class);
+        if(beanProperty != null) {
+            return true;
+        }
+        for(Field field : beanType.getDeclaredFields()) {
+            Binder binder = field.getDeclaredAnnotation(Binder.class);
+            if(binder != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -28,6 +45,11 @@ public class BinderBeanProvider implements BeanProvider {
     @Override
     @SneakyThrows
     public Object getObject() {
+        if(!hasBinder) {
+            // 不需要进行binder注入.
+            return beanProvider.getObject();
+        }
+
         Object oldObj = beanProvider.getObject();
         if(oldObj == target) {
             return target;
