@@ -21,7 +21,7 @@ class ClassResourceScanner extends ResourceScanner {
         // 分析Class, 是否为需要注册至IOC
         Set<ClassResourceMeta> classDefinitions = new LinkedHashSet<>();
         for (ResourceMeta meta : resourceMetas) {
-            if(!meta.getFileName().endsWith(CiccoConstants.CLASS_FILE_SUFFIX)) {
+            if (!meta.getFileName().endsWith(CiccoConstants.CLASS_FILE_SUFFIX)) {
                 // 过滤非class文件
                 continue;
             }

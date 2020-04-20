@@ -22,7 +22,7 @@ class SingleBeanProvider implements BeanProvider {
 
     @Override
     public Object getObject() {
-        if(singleObj == null) {
+        if (singleObj == null) {
             synchronized (originCls) {
                 Object object = JavassistProxy.proxyEnhance(originCls, registry);
                 this.singleObj = object;

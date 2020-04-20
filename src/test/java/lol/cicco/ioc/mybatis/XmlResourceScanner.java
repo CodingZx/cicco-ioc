@@ -16,7 +16,7 @@ class XmlResourceScanner extends ResourceScanner {
         // 分析Class, 是否为需要注册至IOC
         Set<ResourceMeta> classDefinitions = new LinkedHashSet<>();
         for (ResourceMeta meta : resourceMetas) {
-            if(!meta.getFileName().endsWith(".xml")) {
+            if (!meta.getFileName().endsWith(".xml")) {
                 // 过滤非class文件
                 continue;
             }

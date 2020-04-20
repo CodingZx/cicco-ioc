@@ -21,7 +21,7 @@ public class BinderModule implements CiccoModule<Void> {
 
     @Override
     public void initModule(CiccoContext context) {
-        beanModule = (BeanModule)context.getModule(BeanModule.BEAN_MODULE_NAME);
+        beanModule = (BeanModule) context.getModule(BeanModule.BEAN_MODULE_NAME);
         propertyModule = (PropertyModule) context.getModule(PropertyModule.PROPERTY_MODULE_NAME);
 
         doBinder();

@@ -8,7 +8,7 @@ import lombok.Data;
 @Registration
 @Property(prefix = "mybatis")
 public class MyBatisProperties {
-	private String mappers;
-	private String handles;
-	private String xmlLocation;
+    private String mappers;
+    private String handles;
+    private String xmlLocation;
 }

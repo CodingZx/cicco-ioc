@@ -81,10 +81,10 @@ public class RegisterModule implements CiccoModule<Void> {
         InterceptorRegistry interceptorRegistry = aopModule.getModuleProcessor();
 
         Set<BeanProvider> interceptorProviders = beanModule.getModuleProcessor().getNullableBeans(Interceptor.class);
-        if(interceptorProviders == null) {
+        if (interceptorProviders == null) {
             return;
         }
-        for(BeanProvider provider : interceptorProviders) {
+        for (BeanProvider provider : interceptorProviders) {
             interceptorRegistry.register((Interceptor<?>) provider.getObject());
         }
     }

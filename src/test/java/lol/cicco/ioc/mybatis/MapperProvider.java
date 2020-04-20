@@ -27,7 +27,7 @@ public class MapperProvider implements BeanProvider {
     @Override
     @SneakyThrows
     public Object getObject() {
-        if(target != null) {
+        if (target != null) {
             return target;
         }
 
@@ -38,7 +38,7 @@ public class MapperProvider implements BeanProvider {
         target = factory.create(new Class<?>[]{}, new Object[]{}, (self, thisMethod, proceed, args) -> {
             boolean needClear = false;
             SqlSession sqlSession = MybatisConstants.getSession();
-            if(sqlSession == null) {
+            if (sqlSession == null) {
                 needClear = true;
                 sqlSession = MybatisConstants.init();
             }
@@ -46,7 +46,7 @@ public class MapperProvider implements BeanProvider {
             Method proxyMethod = beanType.getMethod(thisMethod.getName(), thisMethod.getParameterTypes());
             Object res = proxyMethod.invoke(obj, args);
 
-            if(needClear) {
+            if (needClear) {
                 sqlSession.commit();
                 MybatisConstants.clear();
             }

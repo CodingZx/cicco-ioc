@@ -18,15 +18,15 @@ public class TestBeanService {
     public void save(boolean throwException) {
         TestEntity testEntity = new TestEntity();
         testEntity.setId(UUID.randomUUID());
-        testEntity.setName("lalalala-" +Thread.currentThread().getName());
+        testEntity.setName("lalalala-" + Thread.currentThread().getName());
         testMapper.save(testEntity);
 
         TestEntity testEntity2 = new TestEntity();
         testEntity2.setId(UUID.randomUUID());
-        testEntity2.setName("lalalala-" +Thread.currentThread().getName());
+        testEntity2.setName("lalalala-" + Thread.currentThread().getName());
         testMapper.save(testEntity2);
 
-        if(throwException) {
+        if (throwException) {
             throw new RuntimeException();
         }
     }

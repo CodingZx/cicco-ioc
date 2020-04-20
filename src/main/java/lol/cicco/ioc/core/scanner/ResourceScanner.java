@@ -17,7 +17,7 @@ public class ResourceScanner {
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
-        if(!path.endsWith("/")) {
+        if (!path.endsWith("/")) {
             path = path + "/";
         }
         path = path.replace(".", "/");

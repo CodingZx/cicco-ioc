@@ -25,12 +25,12 @@ public class BinderBeanProvider implements BeanProvider {
     private boolean checkHasBinder() {
         Class<?> beanType = beanProvider.beanType();
         Property beanProperty = beanType.getDeclaredAnnotation(Property.class);
-        if(beanProperty != null) {
+        if (beanProperty != null) {
             return true;
         }
-        for(Field field : beanType.getDeclaredFields()) {
+        for (Field field : beanType.getDeclaredFields()) {
             Binder binder = field.getDeclaredAnnotation(Binder.class);
-            if(binder != null) {
+            if (binder != null) {
                 return true;
             }
         }
@@ -45,13 +45,13 @@ public class BinderBeanProvider implements BeanProvider {
     @Override
     @SneakyThrows
     public Object getObject() {
-        if(!hasBinder) {
+        if (!hasBinder) {
             // 不需要进行binder注入.
             return beanProvider.getObject();
         }
 
         Object oldObj = beanProvider.getObject();
-        if(oldObj == target) {
+        if (oldObj == target) {
             return target;
         }
         target = oldObj;
@@ -61,23 +61,23 @@ public class BinderBeanProvider implements BeanProvider {
         Property beanProperty = beanType.getDeclaredAnnotation(Property.class);
         String prefix = beanProperty == null ? "" : beanProperty.prefix().trim();
 
-        for(Field field : beanType.getDeclaredFields()) {
+        for (Field field : beanType.getDeclaredFields()) {
             Binder binder = field.getDeclaredAnnotation(Binder.class);
 
-            if(beanProperty == null && binder == null) {
+            if (beanProperty == null && binder == null) {
                 continue;
             }
 
             String propertyName = prefix;
             String defValue = null;
-            if(binder != null) {
+            if (binder != null) {
                 propertyName += binder.value().trim();
                 defValue = "".equals(binder.defaultValue().trim()) ? null : binder.defaultValue().trim();
             } else {
                 propertyName = propertyName + "." + field.getName();
             }
 
-            if(!field.canAccess(target)) {
+            if (!field.canAccess(target)) {
                 field.setAccessible(true);
             }
             Object propertyValue = propertyRegistry.convertValue(propertyName, defValue, field.getType());

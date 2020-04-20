@@ -10,7 +10,7 @@ public class MybatisConstants {
     private static final ThreadLocal<SqlSession> local = new ThreadLocal<>();
 
     public static SqlSession init() {
-        if(local.get() != null) {
+        if (local.get() != null) {
             return local.get();
         }
         var session = factory.openSession(false);

@@ -13,7 +13,7 @@ public class ResourceScannerTest {
 
         scanner.doScan("org", ResourceScanner.class.getClassLoader());
 
-        for(Constructor<?> constructor : scanner.getClass().getConstructors()) {
+        for (Constructor<?> constructor : scanner.getClass().getConstructors()) {
             System.out.println(constructor.getParameterCount());
             System.out.println(constructor.canAccess(null));
         }

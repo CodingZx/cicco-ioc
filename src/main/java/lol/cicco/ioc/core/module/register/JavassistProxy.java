@@ -23,13 +23,13 @@ final class JavassistProxy {
         factory.setFilter(m -> methodInfo.get(m) != null);
         return factory.create(new Class<?>[]{}, new Object[]{}, (self, thisMethod, proceed, args) -> {
             Annotation[] methodAnnotations = methodInfo.get(thisMethod);
-            if(methodAnnotations == null || methodAnnotations.length == 0) {
+            if (methodAnnotations == null || methodAnnotations.length == 0) {
                 return proceed.invoke(self, args);
             }
 
             List<Interceptor<?>> hasInterceptors = Arrays.stream(methodAnnotations).map(f -> registry.getInterceptor(f.annotationType())).filter(Objects::nonNull).collect(Collectors.toList());
 
-            if(hasInterceptors.isEmpty()) {
+            if (hasInterceptors.isEmpty()) {
                 return proceed.invoke(self, args);
             }
             JoinPointImpl point = new JoinPointImpl(self, thisMethod, args);
@@ -58,9 +58,9 @@ final class JavassistProxy {
 
     private static Map<Method, Annotation[]> filterMethods(Class<?> superCls) {
         Map<Method, Annotation[]> methodMap = new LinkedHashMap<>();
-        for(Method method : superCls.getDeclaredMethods()) {
+        for (Method method : superCls.getDeclaredMethods()) {
             Annotation[] annotations = method.getAnnotations();
-            if(annotations == null || annotations.length == 0) {
+            if (annotations == null || annotations.length == 0) {
                 continue;
             }
             methodMap.put(method, annotations);

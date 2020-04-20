@@ -20,11 +20,11 @@ public class BinderBean {
     @Binder("binder.localdatetime")
     private LocalDateTime localDateTime;
 
-    public void print(){
-        System.out.println("year:"+year);
-        System.out.println("month:"+month);
-        System.out.println("yearMonth:"+yearMonth);
-        System.out.println("monthDay:"+monthDay);
-        System.out.println("localDateTime:"+localDateTime);
+    public void print() {
+        System.out.println("year:" + year);
+        System.out.println("month:" + month);
+        System.out.println("yearMonth:" + yearMonth);
+        System.out.println("monthDay:" + monthDay);
+        System.out.println("localDateTime:" + localDateTime);
     }
 }

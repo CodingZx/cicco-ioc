@@ -5,9 +5,9 @@ import lol.cicco.ioc.core.module.beans.BeanModule;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
 import lol.cicco.ioc.core.module.beans.BeanStoreException;
-import lol.cicco.ioc.core.module.register.RegisterException;
 import lol.cicco.ioc.core.module.property.PropertyModule;
 import lol.cicco.ioc.core.module.property.PropertyRegistry;
+import lol.cicco.ioc.core.module.register.RegisterException;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Constructor;
@@ -59,12 +59,12 @@ public class IOC {
      */
     public static <T> T getBeanByType(Class<T> beanCls) {
         checkProcessor();
-        BeanRegistry beanRegistry = ((BeanModule)context.getModule(BeanModule.BEAN_MODULE_NAME)).getModuleProcessor();
+        BeanRegistry beanRegistry = ((BeanModule) context.getModule(BeanModule.BEAN_MODULE_NAME)).getModuleProcessor();
         BeanProvider provider = beanRegistry.getNullableBean(beanCls);
         if (provider == null) {
             throw new BeanNotFountException("[" + beanCls.toString() + "] 未注册至IOC, 请检查[" + Registration.class + "]注解与初始化配置.");
         }
-        return (T)provider.getObject();
+        return (T) provider.getObject();
     }
 
     /**
@@ -72,12 +72,12 @@ public class IOC {
      */
     public static <T> T getBeanByName(String beanName) {
         checkProcessor();
-        BeanRegistry beanRegistry = ((BeanModule)context.getModule(BeanModule.BEAN_MODULE_NAME)).getModuleProcessor();
+        BeanRegistry beanRegistry = ((BeanModule) context.getModule(BeanModule.BEAN_MODULE_NAME)).getModuleProcessor();
         BeanProvider provider = beanRegistry.getNullableBean(beanName);
         if (provider == null) {
             throw new BeanNotFountException("[" + beanName + "] 未注册至IOC, 请检查[" + Registration.class + "]注解与初始化配置.");
         }
-        return (T)provider.getObject();
+        return (T) provider.getObject();
     }
 
     /**
@@ -85,7 +85,7 @@ public class IOC {
      */
     public static String getProperty(String propertyName, String defaultValue) {
         checkProcessor();
-        PropertyRegistry propertyRegistry = ((PropertyModule)context.getModule(PropertyModule.PROPERTY_MODULE_NAME)).getModuleProcessor();
+        PropertyRegistry propertyRegistry = ((PropertyModule) context.getModule(PropertyModule.PROPERTY_MODULE_NAME)).getModuleProcessor();
         return propertyRegistry.getProperty(propertyName, defaultValue);
     }
 
@@ -101,7 +101,7 @@ public class IOC {
      */
     public static <T> T getProperty(String propertyName, Class<T> cls) {
         checkProcessor();
-        PropertyRegistry propertyRegistry = ((PropertyModule)context.getModule(PropertyModule.PROPERTY_MODULE_NAME)).getModuleProcessor();
+        PropertyRegistry propertyRegistry = ((PropertyModule) context.getModule(PropertyModule.PROPERTY_MODULE_NAME)).getModuleProcessor();
         return propertyRegistry.convertValue(propertyName, null, cls);
     }
 
@@ -110,7 +110,7 @@ public class IOC {
      */
     public static void setProperty(String propertyName, String propertyValue) {
         checkProcessor();
-        PropertyRegistry propertyRegistry = ((PropertyModule)context.getModule(PropertyModule.PROPERTY_MODULE_NAME)).getModuleProcessor();
+        PropertyRegistry propertyRegistry = ((PropertyModule) context.getModule(PropertyModule.PROPERTY_MODULE_NAME)).getModuleProcessor();
         propertyRegistry.setProperty(propertyName, propertyValue);
     }
 
@@ -119,7 +119,7 @@ public class IOC {
      */
     public static void removeProperty(String propertyName) {
         checkProcessor();
-        PropertyRegistry propertyRegistry = ((PropertyModule)context.getModule(PropertyModule.PROPERTY_MODULE_NAME)).getModuleProcessor();
+        PropertyRegistry propertyRegistry = ((PropertyModule) context.getModule(PropertyModule.PROPERTY_MODULE_NAME)).getModuleProcessor();
         propertyRegistry.removeProperty(propertyName);
     }
 

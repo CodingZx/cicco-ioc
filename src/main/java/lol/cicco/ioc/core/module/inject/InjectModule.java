@@ -20,7 +20,7 @@ public class InjectModule implements CiccoModule<Void> {
 
     @Override
     public void initModule(CiccoContext context) {
-        this.beanModule = (BeanModule)context.getModule(BeanModule.BEAN_MODULE_NAME);
+        this.beanModule = (BeanModule) context.getModule(BeanModule.BEAN_MODULE_NAME);
 
         doInject();
         log.debug("init inject module....");

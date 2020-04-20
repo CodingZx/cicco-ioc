@@ -15,7 +15,7 @@ public class ResourceScannerTest {
         scanResources.forEach(System.out::println);
 
         var urls = ResourceScannerTest.class.getClassLoader().getResources("lol/cicco/ioc/core/");
-        while(urls.hasMoreElements()) {
+        while (urls.hasMoreElements()) {
             System.out.println(urls.nextElement());
         }
     }

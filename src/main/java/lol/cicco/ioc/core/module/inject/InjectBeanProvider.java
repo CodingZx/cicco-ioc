@@ -27,7 +27,7 @@ class InjectBeanProvider implements BeanProvider {
     @SneakyThrows
     public Object getObject() {
         Object oldObj = beanProvider.getObject();
-        if(oldObj == targetObj) { // 相同代表同一个对象, 执行过注入
+        if (oldObj == targetObj) { // 相同代表同一个对象, 执行过注入
             return targetObj;
         }
         targetObj = oldObj;

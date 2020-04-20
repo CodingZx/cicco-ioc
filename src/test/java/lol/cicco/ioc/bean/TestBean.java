@@ -16,7 +16,7 @@ public class TestBean {
         testInterface.printTest();
     }
 
-    public void println(){
+    public void println() {
         System.out.println("啦啦啦啦啦 println");
     }
 
@@ -25,7 +25,7 @@ public class TestBean {
         System.out.println("privatePrint....");
     }
 
-    public void testPrivatePrint(){
+    public void testPrivatePrint() {
         testBean.privatePrint();
     }
 }

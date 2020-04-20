@@ -60,7 +60,7 @@ public class IOCTest {
     }
 
     @Test
-    public void inject(){
+    public void inject() {
         TestBean2 testBean2 = IOC.getBeanByType(TestBean2.class);
         testBean2.test(100);
 
@@ -81,7 +81,7 @@ public class IOCTest {
     }
 
     @Test
-    public void binder(){
+    public void binder() {
         BinderBean binderBean = IOC.getBeanByType(BinderBean.class);
 
         binderBean.print();

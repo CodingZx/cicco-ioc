@@ -86,7 +86,7 @@ public class MybatisConfig {
 
         Runtime.getRuntime().addShutdownHook(new Thread(ds::close));
 
-        try(Connection connection = ds.getConnection()) {
+        try (Connection connection = ds.getConnection()) {
             connection.createStatement().execute("create table test(id varchar(255) NOT NULL,name varchar(255) NOT NULL, PRIMARY KEY (id) );");
         }
 
