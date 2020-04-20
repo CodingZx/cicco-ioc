@@ -5,7 +5,7 @@ import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
 import lol.cicco.ioc.core.IOC;
 import lol.cicco.ioc.core.module.aop.AopModule;
-import lol.cicco.ioc.core.module.aop.Interceptor;
+import lol.cicco.ioc.core.module.aop.AnnotationInterceptor;
 import lol.cicco.ioc.core.module.aop.InterceptorRegistry;
 import lol.cicco.ioc.core.module.beans.BeanModule;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
@@ -80,12 +80,12 @@ public class RegisterModule implements CiccoModule<Void> {
     private void registerAopInterceptor() {
         InterceptorRegistry interceptorRegistry = aopModule.getModuleProcessor();
 
-        Set<BeanProvider> interceptorProviders = beanModule.getModuleProcessor().getNullableBeans(Interceptor.class);
+        Set<BeanProvider> interceptorProviders = beanModule.getModuleProcessor().getNullableBeans(AnnotationInterceptor.class);
         if (interceptorProviders == null) {
             return;
         }
         for (BeanProvider provider : interceptorProviders) {
-            interceptorRegistry.register((Interceptor<?>) provider.getObject());
+            interceptorRegistry.register((AnnotationInterceptor<?>) provider.getObject());
         }
     }
 

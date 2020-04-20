@@ -3,10 +3,10 @@ package lol.cicco.ioc.aop;
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.module.aop.AfterJoinPoint;
 import lol.cicco.ioc.core.module.aop.BeforeJoinPoint;
-import lol.cicco.ioc.core.module.aop.Interceptor;
+import lol.cicco.ioc.core.module.aop.AnnotationInterceptor;
 
 @Registration
-public class LogInterceptor implements Interceptor<SystemLog> {
+public class LogAnnotationInterceptor implements AnnotationInterceptor<SystemLog> {
     @Override
     public Class<SystemLog> getAnnotation() {
         return SystemLog.class;

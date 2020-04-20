@@ -1,6 +1,6 @@
 package lol.cicco.ioc;
 
-import lol.cicco.ioc.aop.TimeInterceptor;
+import lol.cicco.ioc.aop.TimeAnnotationInterceptor;
 import lol.cicco.ioc.bean.BinderBean;
 import lol.cicco.ioc.bean.TestBean;
 import lol.cicco.ioc.bean.TestBean2;
@@ -36,7 +36,7 @@ public class IOCTest {
     public void testAop() throws Throwable {
         System.out.println("-------");
 
-        var time = new TimeInterceptor();
+        var time = new TimeAnnotationInterceptor();
         time.before(null);
         TestBean2 testBean2 = new TestBean2();
         testBean2.print();

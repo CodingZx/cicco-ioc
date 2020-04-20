@@ -7,10 +7,10 @@ public interface InterceptorRegistry {
     /**
      * 注册拦截器
      */
-    void register(Interceptor<?> interceptor);
+    void register(AnnotationInterceptor<?> annotationInterceptor);
 
     /**
      * 根据注解获得对应拦截器
      */
-    Interceptor<?> getInterceptor(Class<? extends Annotation> annotation);
+    AnnotationInterceptor<?> getInterceptor(Class<? extends Annotation> annotation);
 }

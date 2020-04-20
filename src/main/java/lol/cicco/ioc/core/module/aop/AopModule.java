@@ -13,7 +13,7 @@ import java.util.Map;
 public class AopModule implements CiccoModule<InterceptorRegistry>, InterceptorRegistry {
     public static final String AOP_MODULE_NAME = "_aopModule";
 
-    private final Map<String, Interceptor<?>> interceptorMap = new LinkedHashMap<>();
+    private final Map<String, AnnotationInterceptor<?>> interceptorMap = new LinkedHashMap<>();
 
     @Override
     public void initModule(CiccoContext context) {
@@ -37,13 +37,13 @@ public class AopModule implements CiccoModule<InterceptorRegistry>, InterceptorR
 
 
     @Override
-    public void register(Interceptor<?> interceptor) {
-        log.debug("aopProcessor register [{}]", interceptor.getAnnotation().getName());
-        interceptorMap.put(interceptor.getAnnotation().getName(), interceptor);
+    public void register(AnnotationInterceptor<?> annotationInterceptor) {
+        log.debug("aopProcessor register [{}]", annotationInterceptor.getAnnotation().getName());
+        interceptorMap.put(annotationInterceptor.getAnnotation().getName(), annotationInterceptor);
     }
 
     @Override
-    public Interceptor<?> getInterceptor(Class<? extends Annotation> annotation) {
+    public AnnotationInterceptor<?> getInterceptor(Class<? extends Annotation> annotation) {
         return interceptorMap.get(annotation.getName());
     }
 

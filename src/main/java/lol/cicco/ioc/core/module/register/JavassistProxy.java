@@ -1,7 +1,7 @@
 package lol.cicco.ioc.core.module.register;
 
 import javassist.util.proxy.ProxyFactory;
-import lol.cicco.ioc.core.module.aop.Interceptor;
+import lol.cicco.ioc.core.module.aop.AnnotationInterceptor;
 import lol.cicco.ioc.core.module.aop.InterceptorRegistry;
 import lol.cicco.ioc.core.module.aop.JoinPointImpl;
 import lombok.SneakyThrows;
@@ -27,29 +27,29 @@ final class JavassistProxy {
                 return proceed.invoke(self, args);
             }
 
-            List<Interceptor<?>> hasInterceptors = Arrays.stream(methodAnnotations).map(f -> registry.getInterceptor(f.annotationType())).filter(Objects::nonNull).collect(Collectors.toList());
+            List<AnnotationInterceptor<?>> hasAnnotationInterceptors = Arrays.stream(methodAnnotations).map(f -> registry.getInterceptor(f.annotationType())).filter(Objects::nonNull).collect(Collectors.toList());
 
-            if (hasInterceptors.isEmpty()) {
+            if (hasAnnotationInterceptors.isEmpty()) {
                 return proceed.invoke(self, args);
             }
             JoinPointImpl point = new JoinPointImpl(self, thisMethod, args);
             try {
-                for (Interceptor<?> interceptor : hasInterceptors) {
-                    interceptor.before(point);
+                for (AnnotationInterceptor<?> annotationInterceptor : hasAnnotationInterceptors) {
+                    annotationInterceptor.before(point);
                 }
 
                 Object result = proceed.invoke(self, args);
 
                 point.setReturnValue(result);
-                for (Interceptor<?> interceptor : hasInterceptors) {
-                    interceptor.after(point);
+                for (AnnotationInterceptor<?> annotationInterceptor : hasAnnotationInterceptors) {
+                    annotationInterceptor.after(point);
                 }
 
                 return result;
             } catch (Exception e) {
                 point.setThrowable(e);
-                for (Interceptor<?> interceptor : hasInterceptors) {
-                    interceptor.throwException(point);
+                for (AnnotationInterceptor<?> annotationInterceptor : hasAnnotationInterceptors) {
+                    annotationInterceptor.throwException(point);
                 }
                 throw e;
             }

@@ -3,14 +3,14 @@ package lol.cicco.ioc.aop;
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.module.aop.AfterJoinPoint;
 import lol.cicco.ioc.core.module.aop.BeforeJoinPoint;
-import lol.cicco.ioc.core.module.aop.Interceptor;
+import lol.cicco.ioc.core.module.aop.AnnotationInterceptor;
 
 @Registration
-public class TimeInterceptor implements Interceptor<SystemClock> {
+public class TimeAnnotationInterceptor implements AnnotationInterceptor<SystemClock> {
 
     private final ThreadLocal<Long> threadLocal;
 
-    public TimeInterceptor() {
+    public TimeAnnotationInterceptor() {
         this.threadLocal = new ThreadLocal<>();
     }
 
