@@ -59,6 +59,11 @@ public class BeanModule implements CiccoModule<BeanRegistry>, BeanRegistry {
     }
 
     @Override
+    public boolean containsBean(String beanName) {
+        return nameBeans.containsKey(beanName);
+    }
+
+    @Override
     public Set<String> getRegisterBeans() {
         return nameBeans.keySet();
     }

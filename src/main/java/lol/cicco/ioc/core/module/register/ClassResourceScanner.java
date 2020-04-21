@@ -5,7 +5,6 @@ import lol.cicco.ioc.core.scanner.ResourceMeta;
 import lol.cicco.ioc.core.scanner.ResourceScanner;
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.reflect.Modifier;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -32,8 +31,6 @@ class ClassResourceScanner extends ResourceScanner {
                 ClassResourceMeta definition = new ClassResourceMeta();
                 definition.setSelfType(cls);
                 definition.setAnnotations(cls.getDeclaredAnnotations());
-                definition.setInterfaceType(Modifier.isInterface(cls.getModifiers()));
-                definition.setAbstractType(Modifier.isAbstract(cls.getModifiers()));
                 definition.setFilePath(meta.getUri().getPath());
 
                 classDefinitions.add(definition);

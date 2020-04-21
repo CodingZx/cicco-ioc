@@ -15,6 +15,11 @@ public interface BeanRegistry {
     void register(Class<?> beanType, String beanName, BeanProvider provider, boolean override);
 
     /**
+     * Bean是否已注册
+     */
+    boolean containsBean(String beanName);
+
+    /**
      * 获得所有注册Bean的名称
      */
     Set<String> getRegisterBeans();

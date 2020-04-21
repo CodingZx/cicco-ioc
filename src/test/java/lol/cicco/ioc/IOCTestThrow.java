@@ -1,6 +1,8 @@
 package lol.cicco.ioc;
 
+import lol.cicco.ioc.bean2.TestBeanByConstructor;
 import lol.cicco.ioc.core.IOC;
+import lol.cicco.ioc.core.module.register.RegisterException;
 import org.junit.Test;
 
 public class IOCTestThrow {
@@ -13,5 +15,16 @@ public class IOCTestThrow {
                 .scanBasePackages("lol.cicco.ioc.bean", "lol.cicco.ioc.bean2")
                 .done()
         ;
+    }
+
+
+    @Test(expected = RegisterException.class)
+    public void injectConstructorThrow() {
+        IOC.initialize()
+                .scanBasePackages("lol.cicco.ioc.bean2")
+                .done()
+        ;
+
+        IOC.getBeanByType(TestBeanByConstructor.class).println();
     }
 }

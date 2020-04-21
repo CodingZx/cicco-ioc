@@ -4,6 +4,7 @@ import lol.cicco.ioc.aop.TimeAnnotationInterceptor;
 import lol.cicco.ioc.bean.BinderBean;
 import lol.cicco.ioc.bean.TestBean;
 import lol.cicco.ioc.bean.TestBean2;
+import lol.cicco.ioc.bean.TestBeanByConstructor;
 import lol.cicco.ioc.binder.TestEnum;
 import lol.cicco.ioc.core.IOC;
 import lol.cicco.ioc.core.LocalDateTimeBinderHandler;
@@ -100,6 +101,12 @@ public class IOCTest {
         testBeanService.save(false);
 
         testBeanService.all().forEach(a -> testBeanService.delete(a.getId()));
+    }
+
+    @Test
+    public void testInjectByConstructor(){
+        TestBeanByConstructor testBeanByConstructor = IOC.getBeanByType(TestBeanByConstructor.class);
+        testBeanByConstructor.test();
     }
 
 }

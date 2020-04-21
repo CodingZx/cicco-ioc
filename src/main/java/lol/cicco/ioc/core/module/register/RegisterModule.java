@@ -1,17 +1,22 @@
 package lol.cicco.ioc.core.module.register;
 
+import javassist.Modifier;
+import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
-import lol.cicco.ioc.core.IOC;
-import lol.cicco.ioc.core.module.aop.AopModule;
 import lol.cicco.ioc.core.module.aop.AnnotationInterceptor;
+import lol.cicco.ioc.core.module.aop.AopModule;
 import lol.cicco.ioc.core.module.aop.InterceptorRegistry;
 import lol.cicco.ioc.core.module.beans.BeanModule;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
+import lol.cicco.ioc.core.module.beans.BeanRegistry;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -21,7 +26,6 @@ public class RegisterModule implements CiccoModule<Void> {
 
     private BeanModule beanModule;
     private AopModule aopModule;
-
 
     @Override
     public void initModule(CiccoContext context) {
@@ -48,33 +52,64 @@ public class RegisterModule implements CiccoModule<Void> {
     }
 
     private void registerBeans(Set<String> packages) {
-        InterceptorRegistry registry = aopModule.getModuleProcessor();
-
         ClassResourceScanner scanner = new ClassResourceScanner();
         for (String pkg : packages) {
-            Set<ClassResourceMeta> classResourceMetas = scanner.scanClassMeta(pkg, IOC.class.getClassLoader());
+            Set<ClassResourceMeta> classResourceMetas = scanner.scanClassMeta(pkg, RegisterModule.class.getClassLoader());
+            // 查找依赖
             for (ClassResourceMeta meta : classResourceMetas) {
-                Class<?> type = meta.getSelfType();
-
-                Registration registration = type.getDeclaredAnnotation(Registration.class);
-                if (registration == null) {
-                    continue;
-                }
-
-                try {
-                    type.getConstructor(); // 校验是否存在默认构造函数
-                } catch (NoSuchMethodException e) {
-                    throw new RegisterException("[" + type.toString() + "] 需要使用默认构造函数....", e);
-                }
-
-                String beanName = "".equals(registration.name().trim()) ? meta.getSelfType().getName() : registration.name().trim();
-
-                log.debug("Bean[{}]注册至IOC. Path[{}]", meta.getSelfType().toString(), meta.getFilePath());
-                beanModule.register(type, beanName, new SingleBeanProvider(meta.getSelfType(), registry), false);
+                analyzeBeanType(meta);
             }
         }
         // 注册至AOP
         registerAopInterceptor();
+    }
+
+    @SneakyThrows
+    private void analyzeBeanType(ClassResourceMeta meta) {
+        InterceptorRegistry interceptorRegistry = aopModule.getModuleProcessor();
+        BeanRegistry beanRegistry = beanModule.getModuleProcessor();
+
+        // 等待分析队列
+        LinkedList<Class<?>> waitAnalyzeBeans = new LinkedList<>();
+        waitAnalyzeBeans.add(meta.getSelfType());
+        // 待初始化栈
+        LinkedList<AnalyzeBeanDefine> registerStack = new LinkedList<>();
+        while (!waitAnalyzeBeans.isEmpty()) {
+            Class<?> type = waitAnalyzeBeans.removeLast();
+            Registration registration = type.getDeclaredAnnotation(Registration.class);
+            if (registration == null || Modifier.isInterface(type.getModifiers()) || Modifier.isAbstract(type.getModifiers())) {
+                continue; // 非注册类
+            }
+            String beanName = "".equals(registration.name().trim()) ? meta.getSelfType().getName() : registration.name().trim();
+
+            if (beanRegistry.containsBean(beanName)) {
+                continue; //已初始化过
+            }
+
+            Constructor<?> constructor = analyzeBeanConstructor(type);
+            registerStack.push(new AnalyzeBeanDefine(type, beanName, constructor));
+
+            if (constructor.getParameterTypes().length > 0) {
+                // 继续扫描依赖
+                waitAnalyzeBeans.addAll(Arrays.asList(constructor.getParameterTypes()));
+            }
+        }
+
+        while (!registerStack.isEmpty()) {
+            AnalyzeBeanDefine define = registerStack.pop();
+
+            log.debug("Bean[{}]注册至IOC. Path[{}]", meta.getSelfType().toString(), meta.getFilePath());
+            BeanProvider beanProvider = new SingleBeanProvider(meta.getSelfType(), interceptorRegistry, beanRegistry, define.getBeanConstructor());
+            beanRegistry.register(define.getBeanType(), define.getBeanName(), beanProvider, false);
+        }
+    }
+
+    private Constructor<?> analyzeBeanConstructor(Class<?> bean) {
+        Constructor<?>[] constructors = bean.getConstructors();
+        if (constructors.length == 1) {
+            return constructors[0];
+        }
+        throw new RegisterException("[" + bean.toString() + "] 拥有多个构造函数....无法初始化...");
     }
 
     private void registerAopInterceptor() {
