@@ -75,9 +75,7 @@ public class RegisterModule implements CiccoModule<Void> {
         LinkedList<AnalyzeBeanDefine> registerStack = new LinkedList<>();
         while (!waitAnalyzeBeans.isEmpty()) {
             Class<?> type = waitAnalyzeBeans.removeLast();
-            if(waitAnalyzeBeans.contains(type)) {
-                throw new RegisterException("循环依赖... 请检查["+type.getName()+"]依赖情况..");
-            }
+
             Registration registration = type.getDeclaredAnnotation(Registration.class);
             if (registration == null || Modifier.isInterface(type.getModifiers()) || Modifier.isAbstract(type.getModifiers())) {
                 continue; // 非注册类
@@ -89,7 +87,11 @@ public class RegisterModule implements CiccoModule<Void> {
             }
 
             Constructor<?> constructor = analyzeBeanConstructor(type);
-            registerStack.push(new AnalyzeBeanDefine(type, beanName, constructor));
+            AnalyzeBeanDefine beanDefine = new AnalyzeBeanDefine(type, beanName, constructor);
+            if(registerStack.contains(beanDefine)) {
+                throw new RegisterException("循环依赖... 请检查["+type.getName()+"]依赖情况..");
+            }
+            registerStack.push(beanDefine);
 
             if (constructor.getParameterTypes().length > 0) {
                 // 继续扫描依赖

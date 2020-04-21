@@ -31,7 +31,7 @@ public class IOCTestThrow {
         IOC.getBeanByType(TestBeanByConstructor.class).println();
     }
 
-    @Test
+    @Test(expected = RegisterException.class)
     public void noRegister(){
         IOC.initialize()
                 .scanBasePackages("lol.cicco.ioc.bean3")
