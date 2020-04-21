@@ -1,7 +1,6 @@
 package lol.cicco.ioc.core.module.register;
 
 import javassist.Modifier;
-import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
@@ -57,7 +56,7 @@ public class RegisterModule implements CiccoModule<Void> {
             Set<ClassResourceMeta> classResourceMetas = scanner.scanClassMeta(pkg, RegisterModule.class.getClassLoader());
             // 查找依赖
             for (ClassResourceMeta meta : classResourceMetas) {
-                analyzeBeanType(meta);
+                analyzeBeanType(meta.getSelfType());
             }
         }
         // 注册至AOP
@@ -65,13 +64,13 @@ public class RegisterModule implements CiccoModule<Void> {
     }
 
     @SneakyThrows
-    private void analyzeBeanType(ClassResourceMeta meta) {
+    private void analyzeBeanType(Class<?> beanType) {
         InterceptorRegistry interceptorRegistry = aopModule.getModuleProcessor();
         BeanRegistry beanRegistry = beanModule.getModuleProcessor();
 
         // 等待分析队列
         LinkedList<Class<?>> waitAnalyzeBeans = new LinkedList<>();
-        waitAnalyzeBeans.add(meta.getSelfType());
+        waitAnalyzeBeans.add(beanType);
         // 待初始化栈
         LinkedList<AnalyzeBeanDefine> registerStack = new LinkedList<>();
         while (!waitAnalyzeBeans.isEmpty()) {
@@ -83,7 +82,7 @@ public class RegisterModule implements CiccoModule<Void> {
             if (registration == null || Modifier.isInterface(type.getModifiers()) || Modifier.isAbstract(type.getModifiers())) {
                 continue; // 非注册类
             }
-            String beanName = "".equals(registration.name().trim()) ? meta.getSelfType().getName() : registration.name().trim();
+            String beanName = "".equals(registration.name().trim()) ? beanType.getName() : registration.name().trim();
 
             if (beanRegistry.containsBean(beanName)) {
                 continue; //已初始化过
@@ -101,8 +100,8 @@ public class RegisterModule implements CiccoModule<Void> {
         while (!registerStack.isEmpty()) {
             AnalyzeBeanDefine define = registerStack.pop();
 
-            log.debug("Bean[{}]注册至IOC. Path[{}]", meta.getSelfType().toString(), meta.getFilePath());
-            BeanProvider beanProvider = new SingleBeanProvider(meta.getSelfType(), interceptorRegistry, beanRegistry, define.getBeanConstructor());
+            log.debug("Bean[{}]注册至IOC.", beanType.toString());
+            BeanProvider beanProvider = new SingleBeanProvider(beanType, interceptorRegistry, beanRegistry, define.getBeanConstructor());
             beanRegistry.register(define.getBeanType(), define.getBeanName(), beanProvider, false);
         }
     }
