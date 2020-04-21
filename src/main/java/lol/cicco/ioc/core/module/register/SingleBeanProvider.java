@@ -98,12 +98,15 @@ class SingleBeanProvider implements BeanProvider {
         if (constructor.getParameterTypes().length == 0) { //默认构造方法
             constructorParams = new Object[]{};
         } else {
+            Annotation[][] annotations = constructor.getParameterAnnotations();
+
             Class<?>[] constructorTypes = constructor.getParameterTypes();
             constructorParams = new Object[constructorTypes.length];
             for (int i = 0; i < constructorTypes.length; i++) {
                 Class<?> constructorType = constructorTypes[i];
+                Annotation[] paramAnnotations = annotations[i];
 
-                Inject injectParam = constructorType.getDeclaredAnnotation(Inject.class);
+                Inject injectParam = (Inject) Arrays.stream(paramAnnotations).filter(a -> a.annotationType().equals(Inject.class)).findFirst().orElse(null);
                 boolean required;
                 BeanProvider provider;
                 if(injectParam == null) {
