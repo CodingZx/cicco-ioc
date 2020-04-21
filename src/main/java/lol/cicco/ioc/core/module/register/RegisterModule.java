@@ -1,6 +1,8 @@
 package lol.cicco.ioc.core.module.register;
 
 import javassist.Modifier;
+import lol.cicco.ioc.annotation.Inject;
+import lol.cicco.ioc.annotation.InjectConstructor;
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
@@ -80,10 +82,10 @@ public class RegisterModule implements CiccoModule<Void> {
             if (registration == null || Modifier.isInterface(type.getModifiers()) || Modifier.isAbstract(type.getModifiers())) {
                 continue; // 非注册类
             }
-            String beanName = "".equals(registration.name().trim()) ? beanType.getName() : registration.name().trim();
+            String beanName = "".equals(registration.name().trim()) ? type.getName() : registration.name().trim();
 
             if (beanRegistry.containsBean(beanName)) {
-                continue; //已初始化过
+                continue; //已初始化过或已在初始化栈中
             }
 
             Constructor<?> constructor = analyzeBeanConstructor(type);
@@ -112,6 +114,18 @@ public class RegisterModule implements CiccoModule<Void> {
         Constructor<?>[] constructors = bean.getConstructors();
         if (constructors.length == 1) {
             return constructors[0];
+        }
+        Constructor<?> useConstructor = null;
+        for(Constructor<?> constructor : constructors) {
+            if(constructor.getDeclaredAnnotation(InjectConstructor.class) != null) {
+                if(useConstructor != null) {
+                    throw new RegisterException("[" + bean.toString() + "] 无法使用多个构造函数....无法初始化... 请在确认使用的构造函数上添加@InjectConstructor");
+                }
+                useConstructor = constructor;
+            }
+        }
+        if (useConstructor != null) {
+            return useConstructor;
         }
         throw new RegisterException("[" + bean.toString() + "] 拥有多个构造函数....无法初始化...");
     }

@@ -5,6 +5,7 @@ import lol.cicco.ioc.bean3.Bean1;
 import lol.cicco.ioc.bean3.NoRegister;
 import lol.cicco.ioc.core.IOC;
 import lol.cicco.ioc.core.module.register.RegisterException;
+import lol.cicco.ioc.inject.constructor.TestSingleConstructor;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -40,5 +41,30 @@ public class IOCTestThrow {
 
         NoRegister noRegister = IOC.getBeanByType(Bean1.class).getNoRegister();
         Assert.assertNull(noRegister);
+    }
+
+    @Test
+    public void testInjectConstructor() {
+        try{
+            IOC.initialize()
+                    .scanBasePackages("lol.cicco.ioc.inject")
+                    .done()
+            ;
+        } catch (RegisterException e) {
+            System.out.println(e.getMessage());
+            Assert.assertTrue(e.getMessage().contains("无法使用多个构造函数"));
+        }
+    }
+
+
+    @Test
+    public void testSingleInjectConstructor() {
+        IOC.initialize()
+                .scanBasePackages("lol.cicco.ioc.inject.constructor")
+                .done()
+        ;
+
+        var bean = IOC.getBeanByType(TestSingleConstructor.class);
+        Assert.assertNotNull(bean.getInject());
     }
 }
