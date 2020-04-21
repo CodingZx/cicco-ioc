@@ -85,7 +85,7 @@ public class RegisterModule implements CiccoModule<Void> {
             String beanName = "".equals(registration.name().trim()) ? type.getName() : registration.name().trim();
 
             if (beanRegistry.containsBean(beanName)) {
-                continue; //已初始化过或已在初始化栈中
+                continue; //已初始化过
             }
 
             Constructor<?> constructor = analyzeBeanConstructor(type);
