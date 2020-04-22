@@ -55,9 +55,8 @@ class SingleBeanProvider implements BeanProvider {
             constructorParams = new Object[parameterTypes.length];
             for (int i = 0; i < parameterTypes.length; i++) {
                 Class<?> constructorType = parameterTypes[i];
-                Annotation[] paramAnnotations = parameterAnnotations[i];
 
-                Inject injectParam = (Inject) Arrays.stream(paramAnnotations).filter(a -> a.annotationType().equals(Inject.class)).findFirst().orElse(null);
+                Inject injectParam = parameterAnnotations[i] == null ? null : (Inject) Arrays.stream(parameterAnnotations[i]).filter(a -> a.annotationType().equals(Inject.class)).findFirst().orElse(null);
                 boolean required;
                 BeanProvider provider;
                 if (injectParam == null) {
