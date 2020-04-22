@@ -16,6 +16,7 @@ abstract class AbstractBeanProvider implements BeanProvider {
 
     protected final Class<?> originCls;
     protected final InterceptorRegistry interceptorRegistry;
+
     AbstractBeanProvider(Class<?> originCls, InterceptorRegistry interceptorRegistry) {
         this.originCls = originCls;
         this.interceptorRegistry = interceptorRegistry;

@@ -104,7 +104,6 @@ public class RegisterModule implements CiccoModule<Void> {
         List<AnalyzeBeanDefine> waitInitQueue = new LinkedList<>();
 
         for (AnalyzeBeanDefine define : allRegister) {
-
             // 等待分析队列
             LinkedList<AnalyzeBeanDefine> waitAnalyzeDepends = new LinkedList<>();
             // 待初始化栈
@@ -114,11 +113,10 @@ public class RegisterModule implements CiccoModule<Void> {
             while (!waitAnalyzeDepends.isEmpty()) {
                 AnalyzeBeanDefine type = waitAnalyzeDepends.removeFirst();
 
-                if(waitInitQueue.contains(type)) {
+                if (waitInitQueue.contains(type)) {
                     continue; // 已经放入初始化队列
                 }
-
-                if(registerStack.contains(type)) {
+                if (registerStack.contains(type)) {
                     throw new RegisterException("检测到循环依赖... 请检查[" + type.getBeanType().getName() + "]依赖情况..");
                 }
 
@@ -133,10 +131,7 @@ public class RegisterModule implements CiccoModule<Void> {
                     if (dependType.size() != 1 && (parameterAnnotations[i] == null || Arrays.stream(parameterAnnotations[i]).noneMatch(a -> a.annotationType().equals(Inject.class)))) {
                         throw new RegisterException("Class[" + type.getBeanType().getName() + "] 找到多个注入类型[" + parameterTypes[i].getName() + "], 请确认是否需要使用@Inject(byName=\"...\")指定名称注入..");
                     }
-
-                    AnalyzeBeanDefine dependDefine = beans.get(dependType.get(0));
-
-                    waitAnalyzeDepends.add(dependDefine);
+                    waitAnalyzeDepends.add(beans.get(dependType.get(0)));
                 }
                 registerStack.push(type);
             }
@@ -146,7 +141,7 @@ public class RegisterModule implements CiccoModule<Void> {
             }
         }
 
-        for(AnalyzeBeanDefine define : waitInitQueue) {
+        for (AnalyzeBeanDefine define : waitInitQueue) {
             log.debug("Bean[{}]注册至IOC.", define.getBeanType().toString());
             BeanProvider beanProvider = new SingleBeanProvider(define.getBeanType(), interceptorRegistry, beanRegistry, define.getBeanConstructor());
             beanRegistry.register(define.getBeanType(), define.getBeanName(), beanProvider, false);

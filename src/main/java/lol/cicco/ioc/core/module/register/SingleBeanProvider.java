@@ -32,7 +32,7 @@ class SingleBeanProvider extends AbstractBeanProvider {
         return singleObj;
     }
 
-    private Object[] getConstructorParams(){
+    private Object[] getConstructorParams() {
         Constructor<?> constructor = beanConstructor;
 
         Object[] constructorParams;
@@ -50,12 +50,12 @@ class SingleBeanProvider extends AbstractBeanProvider {
                 Inject injectParam = (Inject) Arrays.stream(paramAnnotations).filter(a -> a.annotationType().equals(Inject.class)).findFirst().orElse(null);
                 boolean required;
                 lol.cicco.ioc.core.module.beans.BeanProvider provider;
-                if(injectParam == null) {
+                if (injectParam == null) {
                     provider = beanRegistry.getNullableBean(constructorType);
                     required = true;
                 } else {
                     required = injectParam.required();
-                    if(injectParam.byName().trim().equals("")) {
+                    if (injectParam.byName().trim().equals("")) {
                         provider = beanRegistry.getNullableBean(constructorType);
                     } else {
                         provider = beanRegistry.getNullableBean(injectParam.byName().trim());
