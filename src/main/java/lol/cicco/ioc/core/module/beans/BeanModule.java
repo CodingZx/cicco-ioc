@@ -2,6 +2,7 @@ package lol.cicco.ioc.core.module.beans;
 
 import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
+import lol.cicco.ioc.util.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -50,7 +51,7 @@ public class BeanModule implements CiccoModule<BeanRegistry>, BeanRegistry {
             }
             nameBeans.put(beanName, provider);
 
-            for (Class<?> type : getTypes(beanType)) {
+            for (Class<?> type : ClassUtils.getClassTypes(beanType)) {
                 Set<String> beanNames = typeBeans.getOrDefault(type, new LinkedHashSet<>());
                 beanNames.add(beanName);
                 typeBeans.put(type, beanNames);
@@ -97,22 +98,4 @@ public class BeanModule implements CiccoModule<BeanRegistry>, BeanRegistry {
         return beanNames.stream().map(nameBeans::get).collect(Collectors.toSet());
     }
 
-
-    private Set<Class<?>> getTypes(Class<?> cls) {
-        if (Object.class.equals(cls)) {
-            return new HashSet<>();
-        }
-        Set<Class<?>> allCastClasses = new HashSet<>();
-        allCastClasses.add(cls); // 添加自身
-
-        for (Class<?> clsInterface : cls.getInterfaces()) {
-            allCastClasses.addAll(getTypes(clsInterface));
-        }
-
-        Class<?> superCls = cls.getSuperclass();
-        if (superCls != null) {
-            allCastClasses.addAll(getTypes(superCls));
-        }
-        return allCastClasses;
-    }
 }

@@ -8,10 +8,10 @@ import lombok.Getter;
 public class TestSingleConstructor {
 
     @Getter
-    private TestBeanInject inject;
+    private TestInterface inject;
 
     @InjectConstructor
-    public TestSingleConstructor(TestBeanInject inject) {
+    public TestSingleConstructor(TestInterface inject) {
         this.inject = inject;
     }
 

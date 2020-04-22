@@ -56,7 +56,6 @@ public class IOCTestThrow {
         }
     }
 
-
     @Test
     public void testSingleInjectConstructor() {
         IOC.initialize()

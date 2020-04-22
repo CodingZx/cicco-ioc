@@ -15,24 +15,20 @@ class SingleBeanProvider extends AbstractBeanProvider {
     private final BeanRegistry beanRegistry;
     private final Constructor<?> beanConstructor;
 
-    private Object singleObj;
+    private final Object singleObj;
 
     SingleBeanProvider(Class<?> originCls, InterceptorRegistry interceptorRegistry, BeanRegistry beanRegistry, Constructor<?> beanConstructor) {
         super(originCls, interceptorRegistry);
         this.originCls = originCls;
         this.beanRegistry = beanRegistry;
         this.beanConstructor = beanConstructor;
+        // 创建实例
+        this.singleObj = createProxy(beanConstructor.getParameterTypes(), getConstructorParams());
     }
 
     @Override
     @SneakyThrows
     public Object getObject() {
-        if (singleObj == null) {
-            synchronized (originCls) {
-                // 生成代理
-                singleObj = createProxy(beanConstructor.getParameterTypes(), getConstructorParams());
-            }
-        }
         return singleObj;
     }
 

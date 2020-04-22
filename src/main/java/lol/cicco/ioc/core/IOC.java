@@ -23,7 +23,7 @@ public class IOC {
     /**
      * 初始化IOC
      */
-    static void initializeDone(Initialize initialize) {
+    public static void initializeDone(Initialize initialize) {
         synchronized (IOC.class) {
             if (context != null) {
                 throw new RegisterException("不能重复初始化IOC...");
