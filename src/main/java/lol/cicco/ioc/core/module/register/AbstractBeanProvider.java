@@ -28,12 +28,12 @@ abstract class AbstractBeanProvider implements BeanProvider {
     }
 
     @SneakyThrows
-    protected Object createProxy(Class<?>[] factoryParamTypes, Object[] factoryArgs) {
+    protected Object createProxy(boolean useProxyCache, Class<?>[] factoryParamTypes, Object[] factoryArgs) {
         Map<Method, Annotation[]> methodInfo = filterMethods(originCls);
 
         ProxyFactory factory = new ProxyFactory();
         factory.setSuperclass(originCls);
-        factory.setUseCache(false); // 不需要缓存..
+        factory.setUseCache(useProxyCache); // 不需要缓存..
         factory.setFilter(m -> methodInfo.get(m) != null);
 
         // 生成代理

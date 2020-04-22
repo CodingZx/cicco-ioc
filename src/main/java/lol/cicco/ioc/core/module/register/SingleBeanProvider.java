@@ -23,7 +23,7 @@ class SingleBeanProvider extends AbstractBeanProvider {
         this.beanRegistry = beanRegistry;
         this.beanConstructor = beanConstructor;
         // 创建实例
-        this.singleObj = createProxy(beanConstructor.getParameterTypes(), getConstructorParams());
+        this.singleObj = createProxy(false, beanConstructor.getParameterTypes(), getConstructorParams());
     }
 
     @Override
