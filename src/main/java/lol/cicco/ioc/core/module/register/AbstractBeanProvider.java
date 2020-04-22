@@ -32,7 +32,7 @@ abstract class AbstractBeanProvider implements BeanProvider {
 
         ProxyFactory factory = new ProxyFactory();
         factory.setSuperclass(originCls);
-        factory.setUseCache(true);
+        factory.setUseCache(false); // 不需要缓存..
         factory.setFilter(m -> methodInfo.get(m) != null);
 
         // 生成代理
