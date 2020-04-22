@@ -72,7 +72,8 @@ public class RegisterModule implements CiccoModule<Void> {
 
                 AnalyzeBeanDefine define = new AnalyzeBeanDefine();
                 define.setBeanName(beanName);
-                define.setBeanConstructor(constructor);
+                define.setParameterTypes(constructor.getParameterTypes());
+                define.setParameterAnnotations(constructor.getParameterAnnotations());
                 define.setBeanType(type);
                 define.setCastClasses(ClassUtils.getClassTypes(type));
                 allRegister.add(define);
@@ -120,18 +121,30 @@ public class RegisterModule implements CiccoModule<Void> {
                     throw new RegisterException("检测到循环依赖... 请检查[" + type.getBeanType().getName() + "]依赖情况..");
                 }
 
-                Constructor<?> beanConstructor = type.getBeanConstructor();
-                Annotation[][] parameterAnnotations = beanConstructor.getParameterAnnotations();
-                Class<?>[] parameterTypes = beanConstructor.getParameterTypes();
+                Annotation[][] parameterAnnotations = type.getParameterAnnotations();
+                Class<?>[] parameterTypes = type.getParameterTypes();
                 for (int i = 0; i < parameterTypes.length; i++) {
                     List<String> dependType = types.get(parameterTypes[i]);
+                    Inject injectAnnotation = parameterAnnotations[i] == null ? null : (Inject) Arrays.stream(parameterAnnotations[i]).filter(a -> a.annotationType().equals(Inject.class)).findFirst().orElse(null);
+
+                    boolean require;
+                    String injectName = null;
+                    if(injectAnnotation == null) {
+                        require = true;
+                    } else {
+                        require = injectAnnotation.required();
+                        injectName = injectAnnotation.byName().trim();
+                    }
                     if (dependType == null) {
-                        throw new RegisterException("Class[" + type.getBeanType().getName() + "] 未找到注入类型[" + parameterTypes[i].getName() + "], 请检查构造参数是否正确..");
+                        if(require) {
+                            throw new RegisterException("Class[" + type.getBeanType().getName() + "] 未找到注入类型[" + parameterTypes[i].getName() + "], 请检查构造参数是否正确..");
+                        }
+                    } else {
+                        if((injectName == null || injectName.equals("")) && dependType.size() != 1) {
+                            throw new RegisterException("Class[" + type.getBeanType().getName() + "] 找到多个注入类型[" + parameterTypes[i].getName() + "], 请确认是否需要使用@Inject(byName=\"...\")指定名称注入..");
+                        }
+                        waitAnalyzeDepends.add(beans.get(dependType.get(0)));
                     }
-                    if (dependType.size() != 1 && (parameterAnnotations[i] == null || Arrays.stream(parameterAnnotations[i]).noneMatch(a -> a.annotationType().equals(Inject.class)))) {
-                        throw new RegisterException("Class[" + type.getBeanType().getName() + "] 找到多个注入类型[" + parameterTypes[i].getName() + "], 请确认是否需要使用@Inject(byName=\"...\")指定名称注入..");
-                    }
-                    waitAnalyzeDepends.add(beans.get(dependType.get(0)));
                 }
                 registerStack.push(type);
             }
@@ -143,8 +156,7 @@ public class RegisterModule implements CiccoModule<Void> {
 
         for (AnalyzeBeanDefine define : waitInitQueue) {
             log.debug("Bean[{}]注册至IOC.", define.getBeanType().toString());
-            BeanProvider beanProvider = new SingleBeanProvider(define.getBeanType(), interceptorRegistry, beanRegistry, define.getBeanConstructor());
-            beanRegistry.register(define.getBeanType(), define.getBeanName(), beanProvider, false);
+            beanRegistry.register(define.getBeanType(), define.getBeanName(), new SingleBeanProvider(interceptorRegistry, beanRegistry, define), false);
         }
     }
 
