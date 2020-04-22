@@ -1,7 +1,6 @@
 package lol.cicco.ioc.core.module.register;
 
 import javassist.Modifier;
-import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.annotation.InjectConstructor;
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.CiccoContext;
@@ -10,7 +9,6 @@ import lol.cicco.ioc.core.module.aop.AnnotationInterceptor;
 import lol.cicco.ioc.core.module.aop.AopModule;
 import lol.cicco.ioc.core.module.aop.InterceptorRegistry;
 import lol.cicco.ioc.core.module.beans.BeanModule;
-import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -105,7 +103,7 @@ public class RegisterModule implements CiccoModule<Void> {
             AnalyzeBeanDefine define = registerStack.pop();
 
             log.debug("Bean[{}]注册至IOC.", beanType.toString());
-            BeanProvider beanProvider = new SingleBeanProvider(beanType, interceptorRegistry, beanRegistry, define.getBeanConstructor());
+            lol.cicco.ioc.core.module.beans.BeanProvider beanProvider = new SingleBeanProvider(beanType, interceptorRegistry, beanRegistry, define.getBeanConstructor());
             beanRegistry.register(define.getBeanType(), define.getBeanName(), beanProvider, false);
         }
     }
@@ -133,11 +131,11 @@ public class RegisterModule implements CiccoModule<Void> {
     private void registerAopInterceptor() {
         InterceptorRegistry interceptorRegistry = aopModule.getModuleProcessor();
 
-        Set<BeanProvider> interceptorProviders = beanModule.getModuleProcessor().getNullableBeans(AnnotationInterceptor.class);
+        Set<lol.cicco.ioc.core.module.beans.BeanProvider> interceptorProviders = beanModule.getModuleProcessor().getNullableBeans(AnnotationInterceptor.class);
         if (interceptorProviders == null) {
             return;
         }
-        for (BeanProvider provider : interceptorProviders) {
+        for (lol.cicco.ioc.core.module.beans.BeanProvider provider : interceptorProviders) {
             interceptorRegistry.register((AnnotationInterceptor<?>) provider.getObject());
         }
     }

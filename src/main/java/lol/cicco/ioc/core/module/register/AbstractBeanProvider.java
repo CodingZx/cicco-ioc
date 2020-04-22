@@ -12,11 +12,11 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
-abstract class AbstractSingleBeanProvider implements BeanProvider {
+abstract class AbstractBeanProvider implements BeanProvider {
 
     protected final Class<?> originCls;
     protected final InterceptorRegistry interceptorRegistry;
-    AbstractSingleBeanProvider(Class<?> originCls, InterceptorRegistry interceptorRegistry) {
+    AbstractBeanProvider(Class<?> originCls, InterceptorRegistry interceptorRegistry) {
         this.originCls = originCls;
         this.interceptorRegistry = interceptorRegistry;
     }

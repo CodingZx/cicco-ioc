@@ -2,7 +2,6 @@ package lol.cicco.ioc.core.module.register;
 
 import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.core.module.aop.InterceptorRegistry;
-import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
 import lombok.SneakyThrows;
 
@@ -10,7 +9,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 
-class SingleBeanProvider extends AbstractSingleBeanProvider {
+class SingleBeanProvider extends AbstractBeanProvider {
 
     private final Class<?> originCls;
     private final BeanRegistry beanRegistry;
@@ -54,7 +53,7 @@ class SingleBeanProvider extends AbstractSingleBeanProvider {
 
                 Inject injectParam = (Inject) Arrays.stream(paramAnnotations).filter(a -> a.annotationType().equals(Inject.class)).findFirst().orElse(null);
                 boolean required;
-                BeanProvider provider;
+                lol.cicco.ioc.core.module.beans.BeanProvider provider;
                 if(injectParam == null) {
                     provider = beanRegistry.getNullableBean(constructorType);
                     required = true;
