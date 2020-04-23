@@ -20,6 +20,8 @@ public abstract class AbstractBeanProvider implements BeanProvider {
     protected final BeanRegistry beanRegistry;
     protected final InterceptorRegistry interceptorRegistry;
 
+    private Object target;
+
     protected AbstractBeanProvider(Class<?> originCls, BeanRegistry beanRegistry, InterceptorRegistry interceptorRegistry) {
         this.originCls = originCls;
         this.beanRegistry = beanRegistry;
@@ -31,21 +33,10 @@ public abstract class AbstractBeanProvider implements BeanProvider {
         return originCls;
     }
 
-    protected Map<Method, Annotation[]> filterMethods(Class<?> superCls) {
-        Map<Method, Annotation[]> methodMap = new LinkedHashMap<>();
-        for (Method method : superCls.getDeclaredMethods()) {
-            Annotation[] annotations = method.getAnnotations();
-            if (annotations == null || annotations.length == 0) {
-                continue;
-            }
-            methodMap.put(method, annotations);
-        }
-        return methodMap;
-    }
 
     @SneakyThrows
     protected Object createProxy() {
-        Map<Method, Annotation[]> methodInfo = filterMethods(originCls);
+        Map<Method, Annotation[]> methodInfo = filterBeanTypeMethods();
 
         ProxyFactory factory = new ProxyFactory();
         Class<?> superCls = superClass();
@@ -142,4 +133,6 @@ public abstract class AbstractBeanProvider implements BeanProvider {
     public abstract Class<?>[] getProxyParameterTypes();
 
     public abstract Annotation[][] getProxyParameterAnnotations();
+
+    public abstract Map<Method, Annotation[]> filterBeanTypeMethods();
 }

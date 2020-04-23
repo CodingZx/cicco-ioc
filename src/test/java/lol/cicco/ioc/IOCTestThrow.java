@@ -73,7 +73,7 @@ public class IOCTestThrow {
     @Test
     public void testMethodDefine() {
         IOC.initialize()
-                .scanBasePackages("lol.cicco.ioc.bean.method")
+                .scanBasePackages("lol.cicco.ioc.aop", "lol.cicco.ioc.bean")
                 .done()
         ;
 

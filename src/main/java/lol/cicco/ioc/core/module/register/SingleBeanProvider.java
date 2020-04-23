@@ -6,6 +6,8 @@ import lombok.SneakyThrows;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 class SingleBeanProvider extends AbstractBeanProvider {
 
@@ -50,5 +52,24 @@ class SingleBeanProvider extends AbstractBeanProvider {
     @Override
     public Annotation[][] getProxyParameterAnnotations() {
         return parameterAnnotations;
+    }
+
+    @Override
+    public Map<Method, Annotation[]> filterBeanTypeMethods() {
+        return analyzeMethods();
+    }
+
+
+    private Map<Method, Annotation[]> analyzeMethods() {
+        Map<Method, Annotation[]> methodMap = new LinkedHashMap<>();
+        for (Method method : originCls.getDeclaredMethods()) {
+
+            Annotation[] annotations = method.getAnnotations();
+            if (annotations == null || annotations.length == 0) {
+                continue;
+            }
+            methodMap.put(method, annotations);
+        }
+        return methodMap;
     }
 }
