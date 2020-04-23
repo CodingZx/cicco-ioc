@@ -1,5 +1,6 @@
 package lol.cicco.ioc;
 
+import lol.cicco.ioc.bean.method.TestBeanInterface;
 import lol.cicco.ioc.bean2.TestBeanByConstructor;
 import lol.cicco.ioc.bean3.Bean1;
 import lol.cicco.ioc.bean3.NoRegister;
@@ -65,5 +66,20 @@ public class IOCTestThrow {
 
         var bean = IOC.getBeanByType(TestSingleConstructor.class);
         Assert.assertNotNull(bean.getInject());
+    }
+
+
+
+    @Test
+    public void testMethodDefine() {
+        IOC.initialize()
+                .scanBasePackages("lol.cicco.ioc.bean.method")
+                .done()
+        ;
+
+        var bean = IOC.getBeanByType(TestBeanInterface.class);
+
+        bean.run();
+        bean.aabbc();
     }
 }

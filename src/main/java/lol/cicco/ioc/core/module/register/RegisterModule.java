@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.*;
 
 @Slf4j
@@ -63,20 +64,40 @@ public class RegisterModule implements CiccoModule<Void> {
                 if (Modifier.isInterface(type.getModifiers()) || Modifier.isAbstract(type.getModifiers())) {
                     continue; // 非注册类
                 }
-                Registration registration = type.getDeclaredAnnotation(Registration.class);
-                if (registration == null) {
+                Registration beanRegistration = type.getDeclaredAnnotation(Registration.class);
+                if (beanRegistration == null) {
                     continue;
                 }
-                String beanName = "".equals(registration.name().trim()) ? type.getName() : registration.name().trim();
+                String beanName = "".equals(beanRegistration.name().trim()) ? type.getName() : beanRegistration.name().trim();
                 Constructor<?> constructor = analyzeBeanConstructor(type);
 
-                AnalyzeBeanDefine define = new AnalyzeBeanDefine();
-                define.setBeanName(beanName);
-                define.setParameterTypes(constructor.getParameterTypes());
-                define.setParameterAnnotations(constructor.getParameterAnnotations());
-                define.setBeanType(type);
-                define.setCastClasses(ClassUtils.getClassTypes(type));
-                allRegister.add(define);
+                AnalyzeBeanDefine beanDefine = new AnalyzeBeanDefine();
+                beanDefine.setBeanName(beanName);
+                beanDefine.setParameterTypes(constructor.getParameterTypes());
+                beanDefine.setParameterAnnotations(constructor.getParameterAnnotations());
+                beanDefine.setBeanType(type);
+                beanDefine.setCastClasses(ClassUtils.getClassTypes(type));
+                allRegister.add(beanDefine);
+
+                for (Method method : type.getDeclaredMethods()) {
+                    Registration methodRegistration = method.getDeclaredAnnotation(Registration.class);
+                    if (methodRegistration == null) {
+                        continue;
+                    }
+                    String methodBeanName = "".equals(methodRegistration.name().trim()) ? method.getName() : methodRegistration.name().trim();
+
+                    Class<?> methodBeanType = method.getReturnType();
+
+                    AnalyzeMethodBeanDefine methodDefine = new AnalyzeMethodBeanDefine();
+                    methodDefine.setBeanName(methodBeanName);
+                    methodDefine.setParameterTypes(method.getParameterTypes());
+                    methodDefine.setParameterAnnotations(method.getParameterAnnotations());
+                    methodDefine.setBeanType(methodBeanType);
+                    methodDefine.setCastClasses(ClassUtils.getClassTypes(methodBeanType));
+                    methodDefine.setInvokeBeanName(beanName);
+                    methodDefine.setDefineMethod(method);
+                    allRegister.add(methodDefine);
+                }
             }
         }
         analyzeBeanTypes(allRegister);
@@ -129,18 +150,18 @@ public class RegisterModule implements CiccoModule<Void> {
 
                     boolean require;
                     String injectName = null;
-                    if(injectAnnotation == null) {
+                    if (injectAnnotation == null) {
                         require = true;
                     } else {
                         require = injectAnnotation.required();
                         injectName = injectAnnotation.byName().trim();
                     }
                     if (dependType == null) {
-                        if(require) {
+                        if (require) {
                             throw new RegisterException("Class[" + type.getBeanType().getName() + "] 未找到注入类型[" + parameterTypes[i].getName() + "], 请检查构造参数是否正确..");
                         }
                     } else {
-                        if((injectName == null || injectName.equals("")) && dependType.size() != 1) {
+                        if ((injectName == null || injectName.equals("")) && dependType.size() != 1) {
                             throw new RegisterException("Class[" + type.getBeanType().getName() + "] 找到多个注入类型[" + parameterTypes[i].getName() + "], 请确认是否需要使用@Inject(byName=\"...\")指定名称注入..");
                         }
                         waitAnalyzeDepends.add(beans.get(dependType.get(0)));
@@ -156,7 +177,12 @@ public class RegisterModule implements CiccoModule<Void> {
 
         for (AnalyzeBeanDefine define : waitInitQueue) {
             log.debug("Bean[{}]注册至IOC.", define.getBeanType().toString());
-            beanRegistry.register(define.getBeanType(), define.getBeanName(), new SingleBeanProvider(interceptorRegistry, beanRegistry, define), false);
+            if (define instanceof AnalyzeMethodBeanDefine) {
+                beanRegistry.register(define.getBeanType(), define.getBeanName(), new MethodSingleBeanProvider(interceptorRegistry, beanRegistry, (AnalyzeMethodBeanDefine) define), false);
+            } else {
+                beanRegistry.register(define.getBeanType(), define.getBeanName(), new SingleBeanProvider(interceptorRegistry, beanRegistry, define), false);
+            }
+
         }
     }
 
