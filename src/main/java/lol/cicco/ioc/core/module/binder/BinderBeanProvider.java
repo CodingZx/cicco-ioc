@@ -8,7 +8,6 @@ import lol.cicco.ioc.core.module.property.PropertyRegistry;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -20,8 +19,6 @@ public class BinderBeanProvider implements BeanProvider {
     private final Map<Field, Binder> allBinderMap;
     private final Map<Field, Binder> refreshBinderMap;
     private final Property property;
-
-    private boolean hasRefresh;
 
     private Object proxyTarget = null;
 
