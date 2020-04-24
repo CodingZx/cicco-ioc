@@ -20,8 +20,6 @@ public abstract class AbstractBeanProvider implements BeanProvider {
     protected final BeanRegistry beanRegistry;
     protected final InterceptorRegistry interceptorRegistry;
 
-    private Object target;
-
     protected AbstractBeanProvider(Class<?> originCls, BeanRegistry beanRegistry, InterceptorRegistry interceptorRegistry) {
         this.originCls = originCls;
         this.beanRegistry = beanRegistry;

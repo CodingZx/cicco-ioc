@@ -115,6 +115,9 @@ public class RegisterModule implements CiccoModule<Void> {
         Map<Class<?>, List<String>> types = new LinkedHashMap<>();
 
         for (AnalyzeBeanDefine define : allRegister) {
+            if(beans.containsKey(define.getBeanName())) {
+                throw new IllegalStateException("BeanName[" + define.getBeanName() + "] 被重复定义, 对应Class ["+define.getBeanType().getName()+", "+beans.get(define.getBeanName()).getBeanType().getName()+"]..");
+            }
             beans.put(define.getBeanName(), define);
             for (Class<?> cls : define.getCastClasses()) {
                 List<String> typeClassList = types.getOrDefault(cls, new LinkedList<>());
