@@ -2,6 +2,7 @@ package lol.cicco.ioc.bean;
 
 import lol.cicco.ioc.annotation.Binder;
 import lol.cicco.ioc.annotation.Registration;
+import lombok.Getter;
 
 import java.time.*;
 
@@ -19,6 +20,10 @@ public class BinderBean {
 
     @Binder("binder.localdatetime")
     private LocalDateTime localDateTime;
+
+    @Getter
+    @Binder(value = "test-fk-value", defaultValue = "10", refresh = true)
+    private int value;
 
     public void print() {
         System.out.println("year:" + year);

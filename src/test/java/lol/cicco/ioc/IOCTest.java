@@ -91,6 +91,11 @@ public class IOCTest {
         Assert.assertEquals(testEnum, TestEnum.THREE);
 
         System.out.println(binderBean.getClass().getName());
+
+        Assert.assertEquals(10, binderBean.getValue());
+        IOC.setProperty("test-fk-value", "20");
+        binderBean = IOC.getBeanByType(BinderBean.class);
+        Assert.assertEquals(20, binderBean.getValue());
     }
 
     @Test

@@ -18,4 +18,9 @@ public @interface Binder {
      * 指定默认值
      */
     String defaultValue() default "";
+
+    /**
+     * 是否指定注入属性可以运行时刷新, Property注解中refresh为true时失效
+     */
+    boolean refresh() default false;
 }

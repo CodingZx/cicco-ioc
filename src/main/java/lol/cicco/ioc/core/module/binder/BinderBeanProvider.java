@@ -8,33 +8,32 @@ import lol.cicco.ioc.core.module.property.PropertyRegistry;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class BinderBeanProvider implements BeanProvider {
-    private final boolean hasBinder; // 是否需要Binder注入
     private final BeanProvider beanProvider;
     private final PropertyRegistry propertyRegistry;
 
-    private Object target = null;
+    // 注入属性
+    private final Map<Field, Binder> allBinderMap;
+    private final Map<Field, Binder> refreshBinderMap;
+    private final Property property;
+
+    private boolean hasRefresh;
+
+    private Object proxyTarget = null;
 
     BinderBeanProvider(BeanProvider beanProvider, PropertyRegistry propertyRegistry) {
         this.beanProvider = beanProvider;
         this.propertyRegistry = propertyRegistry;
-        this.hasBinder = checkHasBinder();
-    }
+        this.property = beanType().getDeclaredAnnotation(Property.class);
+        this.allBinderMap = new LinkedHashMap<>();
+        this.refreshBinderMap = new LinkedHashMap<>();
 
-    private boolean checkHasBinder() {
-        Class<?> beanType = beanProvider.beanType();
-        Property beanProperty = beanType.getDeclaredAnnotation(Property.class);
-        if (beanProperty != null) {
-            return true;
-        }
-        for (Field field : beanType.getDeclaredFields()) {
-            Binder binder = field.getDeclaredAnnotation(Binder.class);
-            if (binder != null) {
-                return true;
-            }
-        }
-        return false;
+        // 分析注入属性
+        analyzeBinder();
     }
 
     @Override
@@ -43,36 +42,37 @@ public class BinderBeanProvider implements BeanProvider {
     }
 
     @Override
-    @SneakyThrows
     public Object getObject() {
-        if (!hasBinder) {
+        if (allBinderMap.isEmpty()) {
             // 不需要进行binder注入.
             return beanProvider.getObject();
         }
 
+        // 执行延迟注入..
         Object oldObj = beanProvider.getObject();
-        if (oldObj == target) {
-            return target;
+        if (oldObj == proxyTarget) {
+            // refresh...
+            setProperty(proxyTarget, refreshBinderMap);
+            return proxyTarget;
         }
-        target = oldObj;
+        proxyTarget = oldObj;
+        // 第一次初始化时注入属性
+        setProperty(proxyTarget, allBinderMap);
 
-        Class<?> beanType = beanProvider.beanType();
+        return proxyTarget;
+    }
 
-        Property beanProperty = beanType.getDeclaredAnnotation(Property.class);
-        String prefix = beanProperty == null ? "" : beanProperty.prefix().trim();
+    @SneakyThrows
+    private void setProperty(Object target, Map<Field, Binder> binderMap) {
+        String prefix = this.property == null ? "" : this.property.prefix().trim();
 
-        for (Field field : beanType.getDeclaredFields()) {
-            Binder binder = field.getDeclaredAnnotation(Binder.class);
-
-            if (beanProperty == null && binder == null) {
-                continue;
-            }
-
+        for (Field field : binderMap.keySet()) {
+            Binder fieldBinder = binderMap.get(field);
             String propertyName = prefix;
             String defValue = null;
-            if (binder != null) {
-                propertyName += binder.value().trim();
-                defValue = "".equals(binder.defaultValue().trim()) ? null : binder.defaultValue().trim();
+            if (fieldBinder != null) {
+                propertyName += fieldBinder.value().trim();
+                defValue = "".equals(fieldBinder.defaultValue().trim()) ? null : fieldBinder.defaultValue().trim();
             } else {
                 propertyName = propertyName + "." + field.getName();
             }
@@ -82,12 +82,25 @@ public class BinderBeanProvider implements BeanProvider {
             }
             Object propertyValue = propertyRegistry.convertValue(propertyName, defValue, field.getType());
 
-            if (propertyValue == null && beanProperty == null) {
+            if (propertyValue == null && this.property == null) {
                 throw new PropertyConvertException("Property [" + propertyName + "] 未配置, 请检查对应配置文件...");
             }
             field.set(target, propertyValue);
         }
-        return target;
+    }
+
+    private void analyzeBinder() {
+        for (Field field : beanType().getDeclaredFields()) {
+            Binder binder = field.getDeclaredAnnotation(Binder.class);
+
+            if (property == null && binder == null) {
+                continue;
+            }
+            allBinderMap.put(field, binder);
+            if ((property != null && property.refresh()) || (binder != null && binder.refresh())) {
+                refreshBinderMap.put(field, binder);
+            }
+        }
     }
 
 }
