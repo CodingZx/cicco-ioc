@@ -8,9 +8,9 @@ public interface PropertyChangeListener {
     String propertyName();
 
     /**
-     * 目标对象
+     * 监听器标识 重复标识无法注册
      */
-    Object getObject();
+    String listenerSign();
 
     /**
      * 属性改变时执行方法

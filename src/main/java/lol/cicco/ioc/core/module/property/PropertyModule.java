@@ -129,6 +129,9 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
         return propValues.getOrDefault(propertyName, defaultValue);
     }
 
+    /**
+     * 移除属性
+     */
     @Override
     public void removeProperty(String propertyName) {
         synchronized (propValues) {
@@ -137,9 +140,20 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
         }
     }
 
+    /**
+     * 注册属性监听器
+     */
     @Override
     public void registerPropertyListener(PropertyChangeListener listener) {
         propertyListeners.register(listener);
+    }
+
+    /**
+     * 移除属性监听器
+     */
+    @Override
+    public void removePropertyListener(String propertyName, String listenerSign) {
+        propertyListeners.removeListener(propertyName, listenerSign);
     }
 
 }

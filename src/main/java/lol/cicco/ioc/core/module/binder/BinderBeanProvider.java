@@ -9,6 +9,7 @@ import lol.cicco.ioc.core.module.property.PropertyRegistry;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -117,30 +118,40 @@ public class BinderBeanProvider implements BeanProvider {
                 propertyName = propertyName + "." + field.getName();
             }
 
+            // 注册属性监听器
             final Class<?> fieldType = field.getType();
             final String listenerPropertyName = propertyName;
             final String defaultValue = defValue;
+            final String listenerSign = propertyName + "-"+target.toString();
+            final WeakReference<Object> binderReference = new WeakReference<>(target);
             propertyRegistry.registerPropertyListener(new PropertyChangeListener() {
+
                 @Override
                 public String propertyName() {
                     return listenerPropertyName;
                 }
 
                 @Override
-                public Object getObject() {
-                    return target;
+                public String listenerSign() {
+                    return listenerSign;
                 }
 
                 @Override
                 public void onChange() {
-                    if(!field.canAccess(target)) {
+                    Object object = binderReference.get();
+                    if(object == null) {
+                        // 对象已经被垃圾回收.. 移除属性监听器...
+                        propertyRegistry.removePropertyListener(propertyName(), listenerSign());
+                        return;
+                    }
+                    if(!field.canAccess(object)) {
                         field.setAccessible(true);
                     }
 
                     Object propertyValue = propertyRegistry.convertValue(listenerPropertyName, defaultValue, fieldType);
 
                     try {
-                        field.set(target, propertyValue);
+                        field.set(object, propertyValue);
                     } catch (Exception e) {
                         log.error("RefreshProperty出现异常, 异常信息:{}", e.getMessage(), e);
                     }

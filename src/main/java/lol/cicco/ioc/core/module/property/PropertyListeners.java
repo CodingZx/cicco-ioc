@@ -2,37 +2,41 @@ package lol.cicco.ioc.core.module.property;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.ref.WeakReference;
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Slf4j
 class PropertyListeners {
 
-    private static final Map<String, List<InlinePropertyListener>> objectListeners = new LinkedHashMap<>();
-
-    static {
-        checkListeners();
-    }
+    private static final Map<String, Queue<InlinePropertyListener>> objectListeners = new LinkedHashMap<>();
 
     private static class InlinePropertyListener {
-        private WeakReference<?> target;
         private OnChangeFunc processor;
+        private String listenerSign;
     }
 
     void register(PropertyChangeListener listener) {
         synchronized (objectListeners) {
-            List<InlinePropertyListener> objects = objectListeners.getOrDefault(listener.propertyName(), new LinkedList<>());
-            if(objects.stream().map(r -> r.target.get()).filter(Objects::nonNull).noneMatch(a-> listener.getObject() == a)) {
+            Queue<InlinePropertyListener> objects = objectListeners.getOrDefault(listener.propertyName(), new ConcurrentLinkedQueue<>());
+            if(objects.stream().noneMatch(a-> listener.listenerSign().equals(a.listenerSign))) {
                 InlinePropertyListener propertyListener = new InlinePropertyListener();
-                propertyListener.target = new WeakReference<>(listener.getObject());
                 propertyListener.processor = listener::onChange;
+                propertyListener.listenerSign = listener.listenerSign();
                 objects.add(propertyListener);
-                log.debug("PropertyListener 监听[{}] , 当前对象数量为:{}", listener.toString(), objects.size());
+                log.debug("PropertyListener 监听属性[{}] sign:{}, 当前对象数量为:{}", listener.propertyName(), listener.listenerSign(), objects.size());
                 objectListeners.put(listener.propertyName(), objects);
+            }
+        }
+    }
+
+    void removeListener(String propertyName, String sign) {
+        synchronized (objectListeners) {
+            Queue<InlinePropertyListener> objects = objectListeners.get(propertyName);
+            boolean removeFlag = objects.removeIf(inlinePropertyListener -> inlinePropertyListener.listenerSign.equals(sign));
+            if(removeFlag) {
+                log.debug("Property[{}] Listener[{}]被移除..", propertyName, sign);
             }
         }
     }
@@ -40,44 +44,13 @@ class PropertyListeners {
     void onChange(String propertyName) {
         synchronized (objectListeners) {
             log.debug("onChange:[{}]....", propertyName);
-            List<InlinePropertyListener> objects = objectListeners.get(propertyName);
+            Queue<InlinePropertyListener> objects = objectListeners.get(propertyName);
             if(objects != null && !objects.isEmpty()) {
-                Iterator<InlinePropertyListener> iterator = objects.iterator();
-                while(iterator.hasNext()) {
-                    InlinePropertyListener listener = iterator.next();
-                    Object target = listener.target.get();
-                    if (target == null) {
-                        log.debug("Listener[{}]目标对象已经被回收.....", listener.toString());
-                        iterator.remove();
-                        continue;
-                    }
-
+                for (InlinePropertyListener listener : objects) {
                     listener.processor.onChange();
                 }
             }
         }
     }
-
-    private static void checkListeners() {
-        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
-        scheduledExecutorService.scheduleAtFixedRate(() -> {
-            synchronized (objectListeners) {
-                log.debug("开始检测已注册objectListeners存储对象是否还存活.....");
-                Iterator<String> iterator = objectListeners.keySet().iterator();
-                while(iterator.hasNext()) {
-                    String key = iterator.next();
-                    List<InlinePropertyListener> listeners = objectListeners.get(key);
-                    if(listeners == null || listeners.isEmpty()) {
-                        iterator.remove();
-                        continue;
-                    }
-                    listeners.removeIf(listener -> listener.target.get() == null);
-                }
-            }
-        },0, 10, TimeUnit.MINUTES);
-
-        Runtime.getRuntime().addShutdownHook(new Thread(scheduledExecutorService::shutdown));
-    }
-
 
 }
