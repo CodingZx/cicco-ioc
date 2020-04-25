@@ -15,8 +15,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Random;
-
 public class IOCTest {
 
     static {
@@ -94,43 +92,6 @@ public class IOCTest {
 
         Assert.assertEquals(10, binderBean.getValue());
 //        binderBean = IOC.getBeanByType(BinderBean.class);
-
-        new Thread(() -> {
-
-            for (int i = 0; i < 10; i++) {
-                for (int v = 0; v < 6; v++) {
-                    int size = 1024 * 1024 * 1024;
-                    byte[] bytes = new byte[size];
-                    byte[] bytes2 = new byte[size];
-                    byte[] bytes3 = new byte[size];
-                    byte[] bytes4 = new byte[size];
-                    System.out.println("创建[" + (size) + "]数组....");
-                }
-
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                IOC.setProperty("test-fk-value", String.valueOf(System.currentTimeMillis()));
-                IOC.setProperty("test-fk-value", String.valueOf(System.currentTimeMillis()));
-                IOC.setProperty("test-fk-value", String.valueOf(System.currentTimeMillis()));
-
-
-                BinderBean test111 = IOC.getBeanByType(BinderBean.class);
-
-                System.gc();
-            }
-
-            flag = true;
-
-        }).start();
-
-        while (true) {
-            if (flag) {
-                break;
-            }
-        }
 
         IOC.setProperty("test-fk-value", "20");
         Assert.assertEquals(20, binderBean.getValue());
