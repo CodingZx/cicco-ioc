@@ -3,10 +3,12 @@ package lol.cicco.ioc.core.module.binder;
 import lol.cicco.ioc.annotation.Binder;
 import lol.cicco.ioc.annotation.Property;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
+import lol.cicco.ioc.core.module.property.PropertyChangeListener;
 import lol.cicco.ioc.core.module.property.PropertyConvertException;
 import lol.cicco.ioc.core.module.property.PropertyRegistry;
 import lombok.SneakyThrows;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -47,6 +49,9 @@ public class BinderBeanProvider implements BeanProvider {
 
         // 执行延迟注入..
         Object oldObj = beanProvider.getObject();
+
+        registerListener(oldObj);
+
         if (oldObj == proxyTarget) {
             // refresh...
             setProperty(proxyTarget, refreshBinderMap);
@@ -69,7 +74,7 @@ public class BinderBeanProvider implements BeanProvider {
             String defValue = null;
             if (fieldBinder != null) {
                 propertyName += fieldBinder.value().trim();
-                defValue = "".equals(fieldBinder.defaultValue().trim()) ? null : fieldBinder.defaultValue().trim();
+                defValue = getDefaultValue(fieldBinder);
             } else {
                 propertyName = propertyName + "." + field.getName();
             }
@@ -100,4 +105,30 @@ public class BinderBeanProvider implements BeanProvider {
         }
     }
 
+    private void registerListener(Object target) {
+        String prefix = this.property == null ? "" : this.property.prefix().trim();
+        for(Field field : refreshBinderMap.keySet()) {
+            Binder fieldBinder = refreshBinderMap.get(field);
+
+            String propertyName = prefix;
+            String defValue = null;
+            if (fieldBinder != null) {
+                propertyName += fieldBinder.value().trim();
+                defValue = getDefaultValue(fieldBinder);
+            } else {
+                propertyName = propertyName + "." + field.getName();
+            }
+
+            PropertyChangeListener listener = new PropertyChangeListener();
+            listener.setDefaultValue(defValue);
+            listener.setField(field);
+            listener.setObject(new WeakReference<>(target));
+            listener.setProperty(propertyName);
+            propertyRegistry.registerPropertyListener(listener);
+        }
+    }
+
+    private String getDefaultValue(Binder binder) {
+        return "".equals(binder.defaultValue().trim()) ? null : binder.defaultValue().trim();
+    }
 }

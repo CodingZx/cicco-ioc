@@ -23,7 +23,7 @@ public class BinderBean {
 
     @Getter
     @Binder(value = "test-fk-value", defaultValue = "10", refresh = true)
-    private int value;
+    private long value;
 
     public void print() {
         System.out.println("year:" + year);

@@ -20,8 +20,11 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
 
     private final Map<String, String> propValues = new LinkedHashMap<>(); // 加载的属性值
 
+    private PropertyListeners propertyListeners;
+
     @Override
     public void initModule(CiccoContext context) {
+        propertyListeners = new PropertyListeners(this);
         // 提供注册基本类型及相关JDK中类型的转换器
         registerHandler(NumberPropertyHandler.create());
         registerHandler(StringPropertyHandler.create());
@@ -93,6 +96,7 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
     public void setProperty(String propertyName, String propertyValue) {
         synchronized (propValues) {
             propValues.put(propertyName, propertyValue);
+            propertyListeners.onChange(propertyName);
         }
     }
 
@@ -131,7 +135,13 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
     public void removeProperty(String propertyName) {
         synchronized (propValues) {
             propValues.remove(propertyName);
+            propertyListeners.onChange(propertyName);
         }
+    }
+
+    @Override
+    public void registerPropertyListener(PropertyChangeListener listener) {
+        propertyListeners.register(listener);
     }
 
 }

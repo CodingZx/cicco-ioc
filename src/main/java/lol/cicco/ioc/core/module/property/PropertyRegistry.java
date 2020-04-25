@@ -26,4 +26,9 @@ public interface PropertyRegistry {
      * 删除属性
      */
     void removeProperty(String propertyName);
+
+    /**
+     * 注册属性监听器
+     */
+    void registerPropertyListener(PropertyChangeListener listener);
 }

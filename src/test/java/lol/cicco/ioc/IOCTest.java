@@ -11,8 +11,11 @@ import lol.cicco.ioc.core.LocalDateTimeBinderHandler;
 import lol.cicco.ioc.core.module.property.EnumPropertyHandler;
 import lol.cicco.ioc.mybatis.MybatisModule;
 import lol.cicco.ioc.service.TestBeanService;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Random;
 
 public class IOCTest {
 
@@ -81,21 +84,64 @@ public class IOCTest {
         testBean.test();
     }
 
+    volatile boolean flag = false;
+
     @Test
     public void binder() {
         BinderBean binderBean = IOC.getBeanByType(BinderBean.class);
-
-        binderBean.print();
-
-        TestEnum testEnum = IOC.getProperty("test.enum", TestEnum.class);
-        Assert.assertEquals(testEnum, TestEnum.THREE);
-
-        System.out.println(binderBean.getClass().getName());
+        BinderBean binderBean2 = IOC.getBeanByType(BinderBean.class);
+        BinderBean binderBean3 = IOC.getBeanByType(BinderBean.class);
 
         Assert.assertEquals(10, binderBean.getValue());
+//        binderBean = IOC.getBeanByType(BinderBean.class);
+
+        new Thread(() -> {
+
+            for (int i = 0; i < 10; i++) {
+                for (int v = 0; v < 6; v++) {
+                    int size = 1024 * 1024 * 1024;
+                    byte[] bytes = new byte[size];
+                    byte[] bytes2 = new byte[size];
+                    byte[] bytes3 = new byte[size];
+                    byte[] bytes4 = new byte[size];
+                    System.out.println("创建[" + (size) + "]数组....");
+                }
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                IOC.setProperty("test-fk-value", String.valueOf(System.currentTimeMillis()));
+                IOC.setProperty("test-fk-value", String.valueOf(System.currentTimeMillis()));
+                IOC.setProperty("test-fk-value", String.valueOf(System.currentTimeMillis()));
+
+
+                BinderBean test111 = IOC.getBeanByType(BinderBean.class);
+
+                System.gc();
+            }
+
+            flag = true;
+
+        }).start();
+
+        while (true) {
+            if (flag) {
+                break;
+            }
+        }
+
         IOC.setProperty("test-fk-value", "20");
-        binderBean = IOC.getBeanByType(BinderBean.class);
         Assert.assertEquals(20, binderBean.getValue());
+        Assert.assertEquals(20, binderBean2.getValue());
+        Assert.assertEquals(20, binderBean3.getValue());
+    }
+
+    @AfterClass
+    public static void afterClass(){
+
+        System.gc();
     }
 
     @Test
@@ -109,7 +155,7 @@ public class IOCTest {
     }
 
     @Test
-    public void testInjectByConstructor(){
+    public void testInjectByConstructor() {
         TestBeanByConstructor testBeanByConstructor = IOC.getBeanByType(TestBeanByConstructor.class);
         testBeanByConstructor.test();
     }
