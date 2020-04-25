@@ -1,14 +1,19 @@
 package lol.cicco.ioc.core.module.property;
 
-import lombok.Data;
+public interface PropertyChangeListener {
 
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Field;
+    /**
+     * 监听属性名称
+     */
+    String propertyName();
 
-@Data
-public class PropertyChangeListener {
-    private WeakReference<?> object;
-    private Field field;
-    private String property;
-    private String defaultValue;
+    /**
+     * 目标对象
+     */
+    Object getObject();
+
+    /**
+     * 属性改变时执行方法
+     */
+    void onChange();
 }

@@ -7,12 +7,13 @@ import lol.cicco.ioc.core.module.property.PropertyChangeListener;
 import lol.cicco.ioc.core.module.property.PropertyConvertException;
 import lol.cicco.ioc.core.module.property.PropertyRegistry;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Slf4j
 public class BinderBeanProvider implements BeanProvider {
     private final BeanProvider beanProvider;
     private final PropertyRegistry propertyRegistry;
@@ -49,18 +50,15 @@ public class BinderBeanProvider implements BeanProvider {
 
         // 执行延迟注入..
         Object oldObj = beanProvider.getObject();
-
+        // 为当前对象添加监听器..
         registerListener(oldObj);
 
         if (oldObj == proxyTarget) {
-            // refresh...
             setProperty(proxyTarget, refreshBinderMap);
-            return proxyTarget;
+        } else {
+            proxyTarget = oldObj;
+            setProperty(proxyTarget, allBinderMap);
         }
-        proxyTarget = oldObj;
-        // 第一次初始化时注入属性
-        setProperty(proxyTarget, allBinderMap);
-
         return proxyTarget;
     }
 
@@ -119,12 +117,35 @@ public class BinderBeanProvider implements BeanProvider {
                 propertyName = propertyName + "." + field.getName();
             }
 
-            PropertyChangeListener listener = new PropertyChangeListener();
-            listener.setDefaultValue(defValue);
-            listener.setField(field);
-            listener.setObject(new WeakReference<>(target));
-            listener.setProperty(propertyName);
-            propertyRegistry.registerPropertyListener(listener);
+            final Class<?> fieldType = field.getType();
+            final String listenerPropertyName = propertyName;
+            final String defaultValue = defValue;
+            propertyRegistry.registerPropertyListener(new PropertyChangeListener() {
+                @Override
+                public String propertyName() {
+                    return listenerPropertyName;
+                }
+
+                @Override
+                public Object getObject() {
+                    return target;
+                }
+
+                @Override
+                public void onChange() {
+                    if(!field.canAccess(target)) {
+                        field.setAccessible(true);
+                    }
+
+                    Object propertyValue = propertyRegistry.convertValue(listenerPropertyName, defaultValue, fieldType);
+
+                    try {
+                        field.set(target, propertyValue);
+                    } catch (Exception e) {
+                        log.error("RefreshProperty出现异常, 异常信息:{}", e.getMessage(), e);
+                    }
+                }
+            });
         }
     }
 

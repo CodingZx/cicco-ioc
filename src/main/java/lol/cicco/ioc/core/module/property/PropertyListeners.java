@@ -2,33 +2,37 @@ package lol.cicco.ioc.core.module.property;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.reflect.Field;
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 @Slf4j
 class PropertyListeners {
 
-    private static final Map<String, List<PropertyChangeListener>> objectListeners = new LinkedHashMap<>();
-    private final PropertyRegistry registry;
+    private static final Map<String, List<InlinePropertyListener>> objectListeners = new LinkedHashMap<>();
 
     static {
         checkListeners();
     }
 
-    PropertyListeners(PropertyRegistry registry) {
-        this.registry = registry;
+    private static class InlinePropertyListener {
+        private WeakReference<?> target;
+        private OnChangeFunc processor;
     }
 
     void register(PropertyChangeListener listener) {
         synchronized (objectListeners) {
-            List<PropertyChangeListener> objects = objectListeners.getOrDefault(listener.getProperty(), new LinkedList<>());
-            if(objects.stream().map(r -> r.getObject().get()).filter(Objects::nonNull).noneMatch(a-> listener.getObject().get() == a)) {
-                objects.add(listener);
+            List<InlinePropertyListener> objects = objectListeners.getOrDefault(listener.propertyName(), new LinkedList<>());
+            if(objects.stream().map(r -> r.target.get()).filter(Objects::nonNull).noneMatch(a-> listener.getObject() == a)) {
+                InlinePropertyListener propertyListener = new InlinePropertyListener();
+                propertyListener.target = new WeakReference<>(listener.getObject());
+                propertyListener.processor = listener::onChange;
+                objects.add(propertyListener);
                 log.debug("PropertyListener 监听[{}] , 当前对象数量为:{}", listener.toString(), objects.size());
-                objectListeners.put(listener.getProperty(), objects);
+                objectListeners.put(listener.propertyName(), objects);
             }
         }
     }
@@ -36,29 +40,19 @@ class PropertyListeners {
     void onChange(String propertyName) {
         synchronized (objectListeners) {
             log.debug("onChange:[{}]....", propertyName);
-            List<PropertyChangeListener> objects = objectListeners.get(propertyName);
+            List<InlinePropertyListener> objects = objectListeners.get(propertyName);
             if(objects != null && !objects.isEmpty()) {
-                Iterator<PropertyChangeListener> iterator = objects.iterator();
+                Iterator<InlinePropertyListener> iterator = objects.iterator();
                 while(iterator.hasNext()) {
-                    PropertyChangeListener listener = iterator.next();
-                    Object target = listener.getObject().get();
-                    Field field = listener.getField();
+                    InlinePropertyListener listener = iterator.next();
+                    Object target = listener.target.get();
                     if (target == null) {
                         log.debug("Listener[{}]目标对象已经被回收.....", listener.toString());
                         iterator.remove();
                         continue;
                     }
-                    if(!field.canAccess(target)) {
-                        field.setAccessible(true);
-                    }
 
-                    Object propertyValue = registry.convertValue(propertyName, listener.getDefaultValue(), listener.getField().getType());
-
-                    try {
-                        field.set(target, propertyValue);
-                    } catch (Exception e) {
-                        log.error("RefreshProperty出现异常, 异常信息:{}", e.getMessage(), e);
-                    }
+                    listener.processor.onChange();
                 }
             }
         }
@@ -72,12 +66,12 @@ class PropertyListeners {
                 Iterator<String> iterator = objectListeners.keySet().iterator();
                 while(iterator.hasNext()) {
                     String key = iterator.next();
-                    List<PropertyChangeListener> listeners = objectListeners.get(key);
+                    List<InlinePropertyListener> listeners = objectListeners.get(key);
                     if(listeners == null || listeners.isEmpty()) {
                         iterator.remove();
                         continue;
                     }
-                    listeners.removeIf(propertyChangeListener -> propertyChangeListener.getObject().get() == null);
+                    listeners.removeIf(listener -> listener.target.get() == null);
                 }
             }
         },0, 10, TimeUnit.MINUTES);

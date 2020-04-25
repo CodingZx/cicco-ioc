@@ -18,13 +18,11 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
     // 属性转换器存在Map, 允许同一种类型对应多个转换器
     private final Map<Type, Collection<PropertyHandler<?>>> PROPERTY_HANDLERS = new LinkedHashMap<>();
 
+    private final PropertyListeners propertyListeners = new PropertyListeners();
     private final Map<String, String> propValues = new LinkedHashMap<>(); // 加载的属性值
-
-    private PropertyListeners propertyListeners;
 
     @Override
     public void initModule(CiccoContext context) {
-        propertyListeners = new PropertyListeners(this);
         // 提供注册基本类型及相关JDK中类型的转换器
         registerHandler(NumberPropertyHandler.create());
         registerHandler(StringPropertyHandler.create());
