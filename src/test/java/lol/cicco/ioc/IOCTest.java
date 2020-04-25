@@ -81,24 +81,82 @@ public class IOCTest {
         TestBean testBean = IOC.getBeanByType(TestBean.class);
         testBean.test();
     }
-
     volatile boolean flag = false;
 
     @Test
     public void binder() {
         BinderBean binderBean = IOC.getBeanByType(BinderBean.class);
+
+        binderBean.print();
+
+        TestEnum testEnum = IOC.getProperty("test.enum", TestEnum.class);
+        Assert.assertEquals(testEnum, TestEnum.THREE);
+
+        System.out.println(binderBean.getClass().getName());
         BinderBean binderBean2 = IOC.getBeanByType(BinderBean.class);
         BinderBean binderBean3 = IOC.getBeanByType(BinderBean.class);
 
         Assert.assertEquals(10, binderBean.getValue());
 //        binderBean = IOC.getBeanByType(BinderBean.class);
 
+        new Thread(() -> {
+            while (!flag) {
+                BinderBean test111 = IOC.getBeanByType(BinderBean.class);
+                try {
+                    int size = 1024 * 1024 * 1024;
+                    byte[] bytes = new byte[size];
+                    byte[] bytes2 = new byte[size];
+                    byte[] bytes3 = new byte[size];
+                    byte[] bytes4 = new byte[size];
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        new Thread(() -> {
+
+            for (int i = 0; i < 10; i++) {
+                for (int v = 0; v < 6; v++) {
+                    int size = 1024 * 1024 * 1024;
+                    byte[] bytes = new byte[size];
+                    byte[] bytes2 = new byte[size];
+                    byte[] bytes3 = new byte[size];
+                    byte[] bytes4 = new byte[size];
+                    System.out.println("创建[" + (size) + "]数组....");
+                }
+
+                TestBean bb = IOC.getBeanByType(TestBean.class);
+                try {
+                    Thread.sleep(6000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                IOC.setProperty("test-fk-value", String.valueOf(System.currentTimeMillis()));
+
+
+                BinderBean test111 = IOC.getBeanByType(BinderBean.class);
+
+                System.gc();
+            }
+
+            flag = true;
+
+        }).start();
+
+        while (true) {
+            if (flag) {
+                break;
+            }
+        }
+
         IOC.setProperty("test-fk-value", "20");
+        binderBean = IOC.getBeanByType(BinderBean.class);
         Assert.assertEquals(20, binderBean.getValue());
         Assert.assertEquals(20, binderBean2.getValue());
         Assert.assertEquals(20, binderBean3.getValue());
     }
-
     @AfterClass
     public static void afterClass(){
 

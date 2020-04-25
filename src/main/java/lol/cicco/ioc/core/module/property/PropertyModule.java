@@ -18,7 +18,7 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
     // 属性转换器存在Map, 允许同一种类型对应多个转换器
     private final Map<Type, Collection<PropertyHandler<?>>> PROPERTY_HANDLERS = new LinkedHashMap<>();
 
-    private final PropertyListeners propertyListeners = new PropertyListeners();
+    private final PropertyListenerRegistry propertyListenerRegistry = new PropertyListenerRegistry();
     private final Map<String, String> propValues = new LinkedHashMap<>(); // 加载的属性值
 
     @Override
@@ -94,7 +94,7 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
     public void setProperty(String propertyName, String propertyValue) {
         synchronized (propValues) {
             propValues.put(propertyName, propertyValue);
-            propertyListeners.onChange(propertyName);
+            propertyListenerRegistry.onChange(propertyName);
         }
     }
 
@@ -136,7 +136,7 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
     public void removeProperty(String propertyName) {
         synchronized (propValues) {
             propValues.remove(propertyName);
-            propertyListeners.onChange(propertyName);
+            propertyListenerRegistry.onChange(propertyName);
         }
     }
 
@@ -145,7 +145,7 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
      */
     @Override
     public void registerPropertyListener(PropertyChangeListener listener) {
-        propertyListeners.register(listener);
+        propertyListenerRegistry.register(listener);
     }
 
     /**
@@ -153,7 +153,7 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
      */
     @Override
     public void removePropertyListener(String propertyName, String listenerSign) {
-        propertyListeners.removeListener(propertyName, listenerSign);
+        propertyListenerRegistry.removeListener(propertyName, listenerSign);
     }
 
 }

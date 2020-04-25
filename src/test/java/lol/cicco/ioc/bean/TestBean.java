@@ -1,5 +1,6 @@
 package lol.cicco.ioc.bean;
 
+import lol.cicco.ioc.annotation.Binder;
 import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.aop.SystemClock;
@@ -11,6 +12,9 @@ public class TestBean {
 
     @Inject
     private TestBean testBean;
+
+    @Binder(value = "test-fk-value", defaultValue = "10", refresh = true)
+    private long value;
 
     public void test() {
         testInterface.printTest();

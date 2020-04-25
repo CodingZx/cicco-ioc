@@ -9,13 +9,16 @@ import lol.cicco.ioc.core.module.property.PropertyRegistry;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class BinderBeanProvider implements BeanProvider {
+    private static final Queue<PropertyChangeListener> REGISTER_LISTENERS = new ConcurrentLinkedQueue<>();
     private final BeanProvider beanProvider;
     private final PropertyRegistry propertyRegistry;
 
@@ -25,6 +28,10 @@ public class BinderBeanProvider implements BeanProvider {
     private final Property property;
 
     private Object proxyTarget = null;
+
+    static {
+        checkListeners();
+    }
 
     BinderBeanProvider(BeanProvider beanProvider, PropertyRegistry propertyRegistry) {
         this.beanProvider = beanProvider;
@@ -106,7 +113,7 @@ public class BinderBeanProvider implements BeanProvider {
 
     private void registerListener(Object target) {
         String prefix = this.property == null ? "" : this.property.prefix().trim();
-        for(Field field : refreshBinderMap.keySet()) {
+        for (Field field : refreshBinderMap.keySet()) {
             Binder fieldBinder = refreshBinderMap.get(field);
 
             String propertyName = prefix;
@@ -119,48 +126,46 @@ public class BinderBeanProvider implements BeanProvider {
             }
 
             // 注册属性监听器
-            final Class<?> fieldType = field.getType();
-            final String listenerPropertyName = propertyName;
-            final String defaultValue = defValue;
-            final String listenerSign = propertyName + "-"+target.toString();
-            final WeakReference<Object> binderReference = new WeakReference<>(target);
-            propertyRegistry.registerPropertyListener(new PropertyChangeListener() {
-
-                @Override
-                public String propertyName() {
-                    return listenerPropertyName;
-                }
-
-                @Override
-                public String listenerSign() {
-                    return listenerSign;
-                }
-
-                @Override
-                public void onChange() {
-                    Object object = binderReference.get();
-                    if(object == null) {
-                        // 对象已经被垃圾回收.. 移除属性监听器...
-                        propertyRegistry.removePropertyListener(propertyName(), listenerSign());
-                        return;
-                    }
-                    if(!field.canAccess(object)) {
-                        field.setAccessible(true);
-                    }
-
-                    Object propertyValue = propertyRegistry.convertValue(listenerPropertyName, defaultValue, fieldType);
-
-                    try {
-                        field.set(object, propertyValue);
-                    } catch (Exception e) {
-                        log.error("RefreshProperty出现异常, 异常信息:{}", e.getMessage(), e);
-                    }
-                }
-            });
+            BinderPropertyChangeListener changeListener = new BinderPropertyChangeListener(target, field, propertyName, defValue, propertyRegistry);
+            propertyRegistry.registerPropertyListener(changeListener);
+            REGISTER_LISTENERS.add(changeListener);
         }
     }
 
     private String getDefaultValue(Binder binder) {
         return "".equals(binder.defaultValue().trim()) ? null : binder.defaultValue().trim();
     }
+
+    // 检测对象
+    private static void checkListeners() {
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1, new ThreadFactory() {
+            private final AtomicInteger counter = new AtomicInteger(0);
+
+            @Override
+            public Thread newThread(Runnable runnable) {
+                counter.compareAndSet(Integer.MAX_VALUE, 0);
+                Thread thread = new Thread(runnable);
+                thread.setName("Schedule Thread-" + counter.addAndGet(1));
+                return thread;
+            }
+        });
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
+            log.debug("开始检测已注册PropertyListeners存储对象是否还存活.....");
+            for (PropertyChangeListener listener : REGISTER_LISTENERS) {
+                if (listener instanceof BinderPropertyChangeListener) {
+                    BinderPropertyChangeListener propertyChangeListener = (BinderPropertyChangeListener) listener;
+                    if (propertyChangeListener.getBinderReference().get() == null) {
+                        log.debug("检测到Listener[{}]已经失效....", propertyChangeListener.listenerSign());
+                        // 对象已被回收...
+                        propertyChangeListener.removeListener();
+                        REGISTER_LISTENERS.remove(propertyChangeListener);
+                    }
+                }
+            }
+        }, 0, 30, TimeUnit.MINUTES);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(scheduledExecutorService::shutdown));
+    }
+
+
 }

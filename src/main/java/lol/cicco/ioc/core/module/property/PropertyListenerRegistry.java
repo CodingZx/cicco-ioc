@@ -8,7 +8,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Slf4j
-class PropertyListeners {
+class PropertyListenerRegistry {
 
     private static final Map<String, Queue<InlinePropertyListener>> objectListeners = new LinkedHashMap<>();
 
