@@ -4,32 +4,39 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 class PropertyListeners {
 
-    private static final Map<String, List<PropertyChangeListener>> objectListener = new LinkedHashMap<>();
+    private static final Map<String, List<PropertyChangeListener>> objectListeners = new LinkedHashMap<>();
     private final PropertyRegistry registry;
+
+    static {
+        checkListeners();
+    }
 
     PropertyListeners(PropertyRegistry registry) {
         this.registry = registry;
     }
 
     void register(PropertyChangeListener listener) {
-        synchronized (objectListener) {
-            List<PropertyChangeListener> objects = objectListener.getOrDefault(listener.getProperty(), new LinkedList<>());
+        synchronized (objectListeners) {
+            List<PropertyChangeListener> objects = objectListeners.getOrDefault(listener.getProperty(), new LinkedList<>());
             if(objects.stream().map(r -> r.getObject().get()).filter(Objects::nonNull).noneMatch(a-> listener.getObject().get() == a)) {
                 objects.add(listener);
                 log.debug("PropertyListener 监听[{}] , 当前对象数量为:{}", listener.toString(), objects.size());
-                objectListener.put(listener.getProperty(), objects);
+                objectListeners.put(listener.getProperty(), objects);
             }
         }
     }
 
     void onChange(String propertyName) {
-        synchronized (objectListener) {
+        synchronized (objectListeners) {
             log.debug("onChange:[{}]....", propertyName);
-            List<PropertyChangeListener> objects = objectListener.get(propertyName);
+            List<PropertyChangeListener> objects = objectListeners.get(propertyName);
             if(objects != null && !objects.isEmpty()) {
                 Iterator<PropertyChangeListener> iterator = objects.iterator();
                 while(iterator.hasNext()) {
@@ -57,6 +64,26 @@ class PropertyListeners {
         }
     }
 
+    private static void checkListeners() {
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
+            synchronized (objectListeners) {
+                log.debug("开始检测已注册objectListeners存储对象是否还存活.....");
+                Iterator<String> iterator = objectListeners.keySet().iterator();
+                while(iterator.hasNext()) {
+                    String key = iterator.next();
+                    List<PropertyChangeListener> listeners = objectListeners.get(key);
+                    if(listeners == null || listeners.isEmpty()) {
+                        iterator.remove();
+                        continue;
+                    }
+                    listeners.removeIf(propertyChangeListener -> propertyChangeListener.getObject().get() == null);
+                }
+            }
+        },0, 10, TimeUnit.MINUTES);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(scheduledExecutorService::shutdown));
+    }
 
 
 }
