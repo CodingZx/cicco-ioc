@@ -110,7 +110,7 @@ public class LocalDateTimeBinderHandler extends GeneralPropertyHandler<LocalDate
     }
 
     @Override
-    public LocalDateTime covertProperty(String propertyName, String propertyValue) {
+    public LocalDateTime covertNonNullProperty(String propertyName, String propertyValue) {
         return LocalDateTime.parse(propertyValue, DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss"));
     }
 }
@@ -118,7 +118,7 @@ public class LocalDateTimeBinderHandler extends GeneralPropertyHandler<LocalDate
 ```
 
 
-#### 使用AOP
+#### 使用拦截器
 - 编写自定义注解拦截器
 ```java
 // 创建注解拦截器拦截器
@@ -169,7 +169,7 @@ public @interface SystemClock {
 
 // 使用
 @SystemClock
-public void aop() {
+public void interceptorMethod() {
     // ....
 }
 ```
