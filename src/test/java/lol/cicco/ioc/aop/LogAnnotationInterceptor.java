@@ -1,9 +1,9 @@
 package lol.cicco.ioc.aop;
 
 import lol.cicco.ioc.annotation.Registration;
-import lol.cicco.ioc.core.module.aop.AfterJoinPoint;
-import lol.cicco.ioc.core.module.aop.BeforeJoinPoint;
-import lol.cicco.ioc.core.module.aop.AnnotationInterceptor;
+import lol.cicco.ioc.core.module.interceptor.AfterJoinPoint;
+import lol.cicco.ioc.core.module.interceptor.AnnotationInterceptor;
+import lol.cicco.ioc.core.module.interceptor.BeforeJoinPoint;
 
 @Registration
 public class LogAnnotationInterceptor implements AnnotationInterceptor<SystemLog> {
@@ -13,12 +13,12 @@ public class LogAnnotationInterceptor implements AnnotationInterceptor<SystemLog
     }
 
     @Override
-    public void before(BeforeJoinPoint point) throws Throwable {
+    public void before(BeforeJoinPoint point) {
         System.out.println(point.getMethod() + "开始执行");
     }
 
     @Override
-    public void after(AfterJoinPoint point) throws Throwable {
+    public void after(AfterJoinPoint point) {
         System.out.println(point.getMethod() + "结束执行");
 
     }

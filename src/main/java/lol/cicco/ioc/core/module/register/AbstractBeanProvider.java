@@ -2,9 +2,9 @@ package lol.cicco.ioc.core.module.register;
 
 import javassist.util.proxy.ProxyFactory;
 import lol.cicco.ioc.annotation.Inject;
-import lol.cicco.ioc.core.module.aop.AnnotationInterceptor;
-import lol.cicco.ioc.core.module.aop.InterceptorRegistry;
-import lol.cicco.ioc.core.module.aop.JoinPointImpl;
+import lol.cicco.ioc.core.module.interceptor.AnnotationInterceptor;
+import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
+import lol.cicco.ioc.core.module.interceptor.JoinPointImpl;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
 import lombok.SneakyThrows;
@@ -46,7 +46,7 @@ public abstract class AbstractBeanProvider implements BeanProvider {
             factory.setInterfaces(interfaceCls);
         }
 
-        factory.setUseCache(false); // 不需要缓存..
+        factory.setUseCache(proxyFactoryCache()); // 不需要缓存..
 
         Class<?>[] parameterTypes = getProxyParameterTypes();
         // 生成代理
@@ -121,6 +121,8 @@ public abstract class AbstractBeanProvider implements BeanProvider {
         }
         return params;
     }
+
+    public abstract boolean proxyFactoryCache();
 
     public abstract Class<?> superClass();
 

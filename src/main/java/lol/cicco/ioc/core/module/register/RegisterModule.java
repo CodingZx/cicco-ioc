@@ -6,12 +6,15 @@ import lol.cicco.ioc.annotation.InjectConstructor;
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
-import lol.cicco.ioc.core.module.aop.AnnotationInterceptor;
-import lol.cicco.ioc.core.module.aop.AopModule;
-import lol.cicco.ioc.core.module.aop.InterceptorRegistry;
+import lol.cicco.ioc.core.module.interceptor.AnnotationInterceptor;
+import lol.cicco.ioc.core.module.interceptor.InterceptorModule;
+import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
 import lol.cicco.ioc.core.module.beans.BeanModule;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
+import lol.cicco.ioc.core.module.property.PropertyHandler;
+import lol.cicco.ioc.core.module.property.PropertyModule;
+import lol.cicco.ioc.core.module.property.PropertyRegistry;
 import lol.cicco.ioc.util.ClassUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +29,14 @@ public class RegisterModule implements CiccoModule<Void> {
     public static final String REGISTER_MODULE_NAME = "_registerModule";
 
     private BeanModule beanModule;
-    private AopModule aopModule;
+    private InterceptorModule interceptorModule;
+    private PropertyModule propertyModule;
 
     @Override
     public void initModule(CiccoContext context) {
         this.beanModule = (BeanModule) context.getModule(BeanModule.BEAN_MODULE_NAME);
-        this.aopModule = (AopModule) context.getModule(AopModule.AOP_MODULE_NAME);
+        this.interceptorModule = (InterceptorModule) context.getModule(InterceptorModule.INTERCEPTOR_MODULE);
+        this.propertyModule = (PropertyModule) context.getModule(PropertyModule.PROPERTY_MODULE_NAME);
 
         registerBeans(context.getInitialize().getScanPackages());
         log.debug("init register module....");
@@ -49,7 +54,7 @@ public class RegisterModule implements CiccoModule<Void> {
 
     @Override
     public List<String> dependOn() {
-        return Arrays.asList(BeanModule.BEAN_MODULE_NAME, AopModule.AOP_MODULE_NAME);
+        return Arrays.asList(BeanModule.BEAN_MODULE_NAME, InterceptorModule.INTERCEPTOR_MODULE, PropertyModule.PROPERTY_MODULE_NAME);
     }
 
     private void registerBeans(Set<String> packages) {
@@ -101,13 +106,15 @@ public class RegisterModule implements CiccoModule<Void> {
             }
         }
         analyzeBeanTypes(allRegister);
-        // 注册至AOP
-        registerAopInterceptor();
+        // 注册至Interceptor
+        registerInterceptor();
+        // 注册至PropertyHandler
+        registerPropertyHandler();
     }
 
     @SneakyThrows
     private void analyzeBeanTypes(List<AnalyzeBeanDefine> allRegister) {
-        InterceptorRegistry interceptorRegistry = aopModule.getModuleProcessor();
+        InterceptorRegistry interceptorRegistry = interceptorModule.getModuleProcessor();
         BeanRegistry beanRegistry = beanModule.getModuleProcessor();
 
         // 等待注册的Bean信息
@@ -212,8 +219,8 @@ public class RegisterModule implements CiccoModule<Void> {
         throw new RegisterException("[" + bean.toString() + "] 拥有多个构造函数....无法初始化...");
     }
 
-    private void registerAopInterceptor() {
-        InterceptorRegistry interceptorRegistry = aopModule.getModuleProcessor();
+    private void registerInterceptor() {
+        InterceptorRegistry interceptorRegistry = interceptorModule.getModuleProcessor();
 
         Set<BeanProvider> interceptorProviders = beanModule.getModuleProcessor().getNullableBeans(AnnotationInterceptor.class);
         if (interceptorProviders == null) {
@@ -221,6 +228,17 @@ public class RegisterModule implements CiccoModule<Void> {
         }
         for (BeanProvider provider : interceptorProviders) {
             interceptorRegistry.register((AnnotationInterceptor<?>) provider.getObject());
+        }
+    }
+
+    private void registerPropertyHandler() {
+        PropertyRegistry registry = propertyModule.getModuleProcessor();
+        Set<BeanProvider> propertyBeanProvider = beanModule.getModuleProcessor().getNullableBeans(PropertyHandler.class);
+        if(propertyBeanProvider == null) {
+            return;
+        }
+        for(BeanProvider provider : propertyBeanProvider) {
+            registry.registerHandler((PropertyHandler<?>) provider.getObject());
         }
     }
 

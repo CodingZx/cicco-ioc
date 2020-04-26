@@ -1,6 +1,6 @@
 package lol.cicco.ioc.core.module.register;
 
-import lol.cicco.ioc.core.module.aop.InterceptorRegistry;
+import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
 import lombok.SneakyThrows;
@@ -27,6 +27,11 @@ class MethodSingleBeanProvider extends AbstractBeanProvider {
         originObj = methodBeanDefine.getDefineMethod().invoke(provider.getObject(), dependBeans);
 
         proxyTarget = createProxy();
+    }
+
+    @Override
+    public boolean proxyFactoryCache() {
+        return false;
     }
 
     @Override

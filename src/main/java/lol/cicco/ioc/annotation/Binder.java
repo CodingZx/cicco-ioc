@@ -23,4 +23,9 @@ public @interface Binder {
      * 是否指定注入属性可以运行时刷新, Property注解中refresh为true时失效
      */
     boolean refresh() default false;
+
+    /**
+     * 不存在属性值是否注入Null
+     */
+    boolean noValueToNull() default false;
 }

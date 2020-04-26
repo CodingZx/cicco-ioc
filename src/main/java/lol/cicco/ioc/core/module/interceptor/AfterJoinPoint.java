@@ -1,4 +1,4 @@
-package lol.cicco.ioc.core.module.aop;
+package lol.cicco.ioc.core.module.interceptor;
 
 /**
  * Interceptor.after参数

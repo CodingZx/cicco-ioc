@@ -13,7 +13,7 @@ public class StringPropertyHandler extends GeneralPropertyHandler<String> {
     }
 
     @Override
-    public String covertProperty(String propertyName, String propertyValue) {
+    public String covertNonNullProperty(String propertyName, String propertyValue) {
         return propertyValue;
     }
 

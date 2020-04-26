@@ -1,10 +1,9 @@
 package lol.cicco.ioc.core;
 
-import lol.cicco.ioc.core.module.aop.AopModule;
 import lol.cicco.ioc.core.module.beans.BeanModule;
 import lol.cicco.ioc.core.module.binder.BinderModule;
 import lol.cicco.ioc.core.module.inject.InjectModule;
-import lol.cicco.ioc.core.module.property.PropertyHandler;
+import lol.cicco.ioc.core.module.interceptor.InterceptorModule;
 import lol.cicco.ioc.core.module.property.PropertyModule;
 import lol.cicco.ioc.core.module.register.RegisterModule;
 import lombok.extern.slf4j.Slf4j;
@@ -17,19 +16,16 @@ public class DefaultInitialize implements Initialize {
     private final Set<String> scanPackages;
     private final Set<String> loadPropertyFiles;
 
-    private final Set<PropertyHandler<?>> propertyHandlers;
-
     private final Map<String, CiccoModule<?>> ciccoModules;
 
     public DefaultInitialize() {
         scanPackages = new LinkedHashSet<>();
         loadPropertyFiles = new LinkedHashSet<>();
-        propertyHandlers = new LinkedHashSet<>();
         ciccoModules = new LinkedHashMap<>();
 
         // 初始化默认模块
         registerModule(new PropertyModule());
-        registerModule(new AopModule());
+        registerModule(new InterceptorModule());
         registerModule(new BeanModule());
         registerModule(new RegisterModule());
         registerModule(new InjectModule());
@@ -58,15 +54,6 @@ public class DefaultInitialize implements Initialize {
                 loadPropertyFiles.add("/" + propertyName);
             }
         }
-        return this;
-    }
-
-    /**
-     * 设置属性转换器
-     */
-    @Override
-    public Initialize registerPropertyHandler(PropertyHandler<?> propertyHandler) {
-        propertyHandlers.add(propertyHandler);
         return this;
     }
 
@@ -113,11 +100,4 @@ public class DefaultInitialize implements Initialize {
         return this.loadPropertyFiles;
     }
 
-    /**
-     * 获得已设置的属性转换器
-     */
-    @Override
-    public Set<PropertyHandler<?>> getPropertyHandlers() {
-        return this.propertyHandlers;
-    }
 }

@@ -32,7 +32,6 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
 
         Initialize initialize = context.getInitialize();
         loadProperties(initialize.getLoadPropertyFiles());
-        registerHandler(initialize.getPropertyHandlers());
 
         log.debug("init property module....");
     }

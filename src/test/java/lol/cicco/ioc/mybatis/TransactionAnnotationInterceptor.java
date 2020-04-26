@@ -1,10 +1,10 @@
 package lol.cicco.ioc.mybatis;
 
 import lol.cicco.ioc.annotation.Registration;
-import lol.cicco.ioc.core.module.aop.AfterJoinPoint;
-import lol.cicco.ioc.core.module.aop.BeforeJoinPoint;
-import lol.cicco.ioc.core.module.aop.AnnotationInterceptor;
-import lol.cicco.ioc.core.module.aop.ThrowJoinPoint;
+import lol.cicco.ioc.core.module.interceptor.AfterJoinPoint;
+import lol.cicco.ioc.core.module.interceptor.BeforeJoinPoint;
+import lol.cicco.ioc.core.module.interceptor.AnnotationInterceptor;
+import lol.cicco.ioc.core.module.interceptor.ThrowJoinPoint;
 import org.apache.ibatis.session.SqlSession;
 
 @Registration
@@ -16,19 +16,19 @@ public class TransactionAnnotationInterceptor implements AnnotationInterceptor<T
     }
 
     @Override
-    public void before(BeforeJoinPoint point) throws Throwable {
+    public void before(BeforeJoinPoint point) {
         MybatisConstants.init();
     }
 
     @Override
-    public void after(AfterJoinPoint point) throws Throwable {
+    public void after(AfterJoinPoint point) {
         SqlSession sqlSession = MybatisConstants.getSession();
         sqlSession.commit();
         MybatisConstants.clear();
     }
 
     @Override
-    public void throwException(ThrowJoinPoint point) throws Throwable {
+    public void throwException(ThrowJoinPoint point) {
         SqlSession sqlSession = MybatisConstants.getSession();
         sqlSession.rollback();
         MybatisConstants.clear();

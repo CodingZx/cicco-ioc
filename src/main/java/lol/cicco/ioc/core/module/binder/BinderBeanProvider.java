@@ -62,25 +62,27 @@ public class BinderBeanProvider implements BeanProvider {
         registerListener(oldObj);
 
         if (oldObj == proxyTarget) {
-            setProperty(proxyTarget, refreshBinderMap);
+            injectProperty(proxyTarget, refreshBinderMap);
         } else {
             proxyTarget = oldObj;
-            setProperty(proxyTarget, allBinderMap);
+            injectProperty(proxyTarget, allBinderMap);
         }
         return proxyTarget;
     }
 
     @SneakyThrows
-    private void setProperty(Object target, Map<Field, Binder> binderMap) {
+    private void injectProperty(Object target, Map<Field, Binder> binderMap) {
         String prefix = this.property == null ? "" : this.property.prefix().trim();
 
         for (Field field : binderMap.keySet()) {
             Binder fieldBinder = binderMap.get(field);
             String propertyName = prefix;
             String defValue = null;
+            boolean noValueToNull = false;
             if (fieldBinder != null) {
                 propertyName += fieldBinder.value().trim();
                 defValue = getDefaultValue(fieldBinder);
+                noValueToNull = fieldBinder.noValueToNull();
             } else {
                 propertyName = propertyName + "." + field.getName();
             }
@@ -90,7 +92,7 @@ public class BinderBeanProvider implements BeanProvider {
             }
             Object propertyValue = propertyRegistry.convertValue(propertyName, defValue, field.getType());
 
-            if (propertyValue == null && this.property == null) {
+            if (!noValueToNull && propertyValue == null && this.property == null) {
                 throw new PropertyConvertException("Property [" + propertyName + "] 未配置, 请检查对应配置文件...");
             }
             field.set(target, propertyValue);
@@ -118,15 +120,17 @@ public class BinderBeanProvider implements BeanProvider {
 
             String propertyName = prefix;
             String defValue = null;
+            boolean noValueToNull = false;
             if (fieldBinder != null) {
                 propertyName += fieldBinder.value().trim();
                 defValue = getDefaultValue(fieldBinder);
+                noValueToNull = fieldBinder.noValueToNull();
             } else {
                 propertyName = propertyName + "." + field.getName();
             }
 
             // 注册属性监听器
-            BinderPropertyChangeListener changeListener = new BinderPropertyChangeListener(target, field, propertyName, defValue, propertyRegistry);
+            BinderPropertyChangeListener changeListener = new BinderPropertyChangeListener(noValueToNull, target, field, propertyName, defValue, propertyRegistry);
             propertyRegistry.registerPropertyListener(changeListener);
             REGISTER_LISTENERS.add(changeListener);
         }

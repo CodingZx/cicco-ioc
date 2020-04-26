@@ -1,20 +1,9 @@
 package lol.cicco.ioc.core;
 
-import lol.cicco.ioc.core.module.property.PropertyHandler;
-
 import java.util.Map;
 import java.util.Set;
 
 public interface Initialize {
-    /**
-     * 设置属性转换器
-     */
-    Initialize registerPropertyHandler(PropertyHandler<?> propertyHandler);
-
-    /**
-     * 获得已设置的属性转换器
-     */
-    Set<PropertyHandler<?>> getPropertyHandlers();
 
     /**
      * 设置IOC加载配置文件

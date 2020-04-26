@@ -10,7 +10,7 @@ public class EnumPropertyHandler<T extends Enum<T>> extends GeneralPropertyHandl
     }
 
     @Override
-    public Enum<T> covertProperty(String propertyName, String propertyValue) {
+    public Enum<T> covertNonNullProperty(String propertyName, String propertyValue) {
         return Enum.valueOf(clsType, propertyValue);
     }
 }

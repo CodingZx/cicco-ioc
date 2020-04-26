@@ -1,4 +1,4 @@
-package lol.cicco.ioc.core.module.aop;
+package lol.cicco.ioc.core.module.interceptor;
 
 import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class AopModule implements CiccoModule<InterceptorRegistry>, InterceptorRegistry {
-    public static final String AOP_MODULE_NAME = "_aopModule";
+public class InterceptorModule implements CiccoModule<InterceptorRegistry>, InterceptorRegistry {
+    public static final String INTERCEPTOR_MODULE = "_interceptorModule";
 
     private final Map<String, AnnotationInterceptor<?>> interceptorMap = new LinkedHashMap<>();
 
@@ -22,7 +22,7 @@ public class AopModule implements CiccoModule<InterceptorRegistry>, InterceptorR
 
     @Override
     public String getModuleName() {
-        return AOP_MODULE_NAME;
+        return INTERCEPTOR_MODULE;
     }
 
     @Override

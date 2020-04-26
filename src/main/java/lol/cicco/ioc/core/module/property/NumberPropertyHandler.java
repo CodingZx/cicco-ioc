@@ -14,70 +14,70 @@ public class NumberPropertyHandler {
     static {
         handlers.add(new GeneralPropertyHandler<Integer>(Integer.TYPE) {
             @Override
-            public Integer covertProperty(String propertyName, String propertyValue) {
+            public Integer covertNonNullProperty(String propertyName, String propertyValue) {
                 return Integer.parseInt(propertyValue);
             }
         });
 
         handlers.add(new GeneralPropertyHandler<Byte>(Byte.TYPE) {
             @Override
-            public Byte covertProperty(String propertyName, String propertyValue) {
+            public Byte covertNonNullProperty(String propertyName, String propertyValue) {
                 return Byte.parseByte(propertyValue);
             }
         });
 
         handlers.add(new GeneralPropertyHandler<Short>(Short.TYPE) {
             @Override
-            public Short covertProperty(String propertyName, String propertyValue) {
+            public Short covertNonNullProperty(String propertyName, String propertyValue) {
                 return Short.parseShort(propertyValue);
             }
         });
 
         handlers.add(new GeneralPropertyHandler<Long>(Long.TYPE) {
             @Override
-            public Long covertProperty(String propertyName, String propertyValue) {
+            public Long covertNonNullProperty(String propertyName, String propertyValue) {
                 return Long.parseLong(propertyValue);
             }
         });
 
         handlers.add(new GeneralPropertyHandler<Double>(Double.TYPE) {
             @Override
-            public Double covertProperty(String propertyName, String propertyValue) {
+            public Double covertNonNullProperty(String propertyName, String propertyValue) {
                 return Double.parseDouble(propertyValue);
             }
         });
 
         handlers.add(new GeneralPropertyHandler<Float>(Float.TYPE) {
             @Override
-            public Float covertProperty(String propertyName, String propertyValue) {
+            public Float covertNonNullProperty(String propertyName, String propertyValue) {
                 return Float.parseFloat(propertyValue);
             }
         });
 
         handlers.add(new GeneralPropertyHandler<AtomicInteger>(AtomicInteger.class) {
             @Override
-            public AtomicInteger covertProperty(String propertyName, String propertyValue) {
+            public AtomicInteger covertNonNullProperty(String propertyName, String propertyValue) {
                 return new AtomicInteger(Integer.parseInt(propertyValue));
             }
         });
 
         handlers.add(new GeneralPropertyHandler<AtomicLong>(AtomicLong.class) {
             @Override
-            public AtomicLong covertProperty(String propertyName, String propertyValue) {
+            public AtomicLong covertNonNullProperty(String propertyName, String propertyValue) {
                 return new AtomicLong(Long.parseLong(propertyValue));
             }
         });
 
         handlers.add(new GeneralPropertyHandler<BigDecimal>(BigDecimal.class) {
             @Override
-            public BigDecimal covertProperty(String propertyName, String propertyValue) {
+            public BigDecimal covertNonNullProperty(String propertyName, String propertyValue) {
                 return BigDecimal.valueOf(Double.parseDouble(propertyValue));
             }
         });
 
         handlers.add(new GeneralPropertyHandler<BigInteger>(BigInteger.class) {
             @Override
-            public BigInteger covertProperty(String propertyName, String propertyValue) {
+            public BigInteger covertNonNullProperty(String propertyName, String propertyValue) {
                 return BigInteger.valueOf(Long.parseLong(propertyValue));
             }
         });

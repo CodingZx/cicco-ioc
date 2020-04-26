@@ -15,7 +15,7 @@ public class UUIDPropertyHandler extends GeneralPropertyHandler<UUID> {
     }
 
     @Override
-    public UUID covertProperty(String propertyName, String propertyValue) {
+    public UUID covertNonNullProperty(String propertyName, String propertyValue) {
         return UUID.fromString(propertyValue);
     }
 }

@@ -17,12 +17,15 @@ public abstract class GeneralPropertyHandler<T> implements PropertyHandler<T> {
 
     @Override
     public T convert(String propertyName, String propertyValue) throws PropertyConvertException {
+        if(propertyValue == null) {
+            return null;
+        }
         try {
-            return covertProperty(propertyName, propertyValue);
+            return covertNonNullProperty(propertyName, propertyValue);
         } catch (Exception e) {
             throw new PropertyConvertException("Property [" + propertyName + "] 无法转换为" + getType().getTypeName() + ". PropertyValue: [" + propertyValue + "]");
         }
     }
 
-    public abstract T covertProperty(String propertyName, String propertyValue);
+    public abstract T covertNonNullProperty(String propertyName, String propertyValue);
 }

@@ -8,7 +8,6 @@
 IOC.initialize()
     .scanBasePackages("lol.cicco.ioc.bean") // 设置扫描包 扫描包中所有注册至IOC的Class信息存放至BeanRegistry
     .loadProperties("app.prop","prop/app1.prop") // 加载配置文件中属性键值至PropertyRegistry中
-    .registerPropertyHandler(new LocalDateTimeBinderHandler()) // 注册属性转换器 Binder注入时使用.
     .registerModule(new MybatisModule()) // 注册自定义模块 
     .done(); // 初始化完成 根据初始化配置进行IOC初始化
 ```
@@ -76,8 +75,48 @@ public class TestBean2 {
     // 此例中 如果使用IOC.setProperty("a.text","改变值")修改绑定属性值, 则已使用对象的此字段自动更改为"改变值"
     @Binder(value = "a.text", defaultValue = "默认文本", refresh = true)
     private String showAText;
+    // 可以使用IOC.setProperty("test.enum", "THREE")
+    // 也可以将配置属性放至Property文件中, 在IOC.initialize()中加载配置文件进行初始化
+    // noValueToNull若为true , 则属性不存在时且没有默认值时注入Null 
+    // noValueToNull若为false , 则属性不存在时且没有默认值时抛出异常
+    @Binder(value = "test.enum", noValueToNull = true)
+    private TestEnum testEnum; 
 }
 ```
+- 增加类型处理器
+```java
+// 定义枚举
+public enum TestEnum {
+    ONE,
+    TWO,
+    THREE,
+    ;
+}
+// 使用枚举处理器
+@Registration
+public class TestEnumHandler extends EnumPropertyHandler<TestEnum> {
+    public TestEnumHandler() {
+        super(TestEnum.class);
+    }
+}
+
+// 注册LocalDateTime类型转换器
+// 针对同一种类型的转换器可以注册多个, 会按顺序尝试转换, 如果全都转换失败才会抛出异常
+@Registration // 类型转换器一定要注册至IOC!!!!!
+public class LocalDateTimeBinderHandler extends GeneralPropertyHandler<LocalDateTime> {
+
+    public LocalDateTimeBinderHandler() {
+        super(LocalDateTime.class);
+    }
+
+    @Override
+    public LocalDateTime covertProperty(String propertyName, String propertyValue) {
+        return LocalDateTime.parse(propertyValue, DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss"));
+    }
+}
+
+```
+
 
 #### 使用AOP
 - 编写自定义注解拦截器

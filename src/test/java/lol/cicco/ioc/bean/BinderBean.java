@@ -2,6 +2,7 @@ package lol.cicco.ioc.bean;
 
 import lol.cicco.ioc.annotation.Binder;
 import lol.cicco.ioc.annotation.Registration;
+import lol.cicco.ioc.binder.TestEnum;
 import lombok.Getter;
 
 import java.time.*;
@@ -24,6 +25,10 @@ public class BinderBean {
     @Getter
     @Binder(value = "test-fk-value", defaultValue = "10", refresh = true)
     private long value;
+
+    @Getter
+    @Binder(value = "test.enum", noValueToNull = true)
+    private TestEnum testEnum;
 
     public void print() {
         System.out.println("year:" + year);

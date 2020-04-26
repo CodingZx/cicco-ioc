@@ -7,8 +7,6 @@ import lol.cicco.ioc.bean.TestBean2;
 import lol.cicco.ioc.bean.TestBeanByConstructor;
 import lol.cicco.ioc.binder.TestEnum;
 import lol.cicco.ioc.core.IOC;
-import lol.cicco.ioc.core.LocalDateTimeBinderHandler;
-import lol.cicco.ioc.core.module.property.EnumPropertyHandler;
 import lol.cicco.ioc.mybatis.MybatisModule;
 import lol.cicco.ioc.service.TestBeanService;
 import org.junit.AfterClass;
@@ -21,14 +19,13 @@ public class IOCTest {
         IOC.initialize()
                 .scanBasePackages("lol.cicco.ioc.bean")
                 .scanBasePackages("lol.cicco.ioc.aop")
+                .scanBasePackages("lol.cicco.ioc.binder")
                 .scanBasePackages("lol.cicco.ioc.mybatis")
                 .scanBasePackages("lol.cicco.ioc.service")
                 .loadProperties("app.prop")
                 .loadProperties("prop/app1.prop")
                 .loadProperties("prop/app2.prop")
                 .loadProperties("mybatis.prop")
-                .registerPropertyHandler(new LocalDateTimeBinderHandler())
-                .registerPropertyHandler(new EnumPropertyHandler<>(TestEnum.class))
                 .registerModule(new MybatisModule())
                 .done()
         ;
@@ -90,7 +87,9 @@ public class IOCTest {
         binderBean.print();
 
         TestEnum testEnum = IOC.getProperty("test.enum", TestEnum.class);
-        Assert.assertEquals(testEnum, TestEnum.THREE);
+//        Assert.assertEquals(testEnum, TestEnum.THREE);
+        Assert.assertNull(testEnum);
+        Assert.assertNull(binderBean.getTestEnum());
 
         System.out.println(binderBean.getClass().getName());
         BinderBean binderBean2 = IOC.getBeanByType(BinderBean.class);
@@ -117,7 +116,7 @@ public class IOCTest {
 
         new Thread(() -> {
 
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 1; i++) {
                 for (int v = 0; v < 6; v++) {
                     int size = 1024 * 1024 * 1024;
                     byte[] bytes = new byte[size];
@@ -129,7 +128,7 @@ public class IOCTest {
 
                 TestBean bb = IOC.getBeanByType(TestBean.class);
                 try {
-                    Thread.sleep(6000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

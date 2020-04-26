@@ -11,49 +11,49 @@ public class Java8TimePropertyHandler {
     static {
         handlers.add(new GeneralPropertyHandler<LocalDate>(LocalDate.class) {
             @Override
-            public LocalDate covertProperty(String propertyName, String propertyValue) {
+            public LocalDate covertNonNullProperty(String propertyName, String propertyValue) {
                 return LocalDate.parse(propertyValue);
             }
         });
 
         handlers.add(new GeneralPropertyHandler<LocalDateTime>(LocalDateTime.class) {
             @Override
-            public LocalDateTime covertProperty(String propertyName, String propertyValue) {
+            public LocalDateTime covertNonNullProperty(String propertyName, String propertyValue) {
                 return LocalDateTime.parse(propertyValue);
             }
         });
 
         handlers.add(new GeneralPropertyHandler<LocalTime>(LocalTime.class) {
             @Override
-            public LocalTime covertProperty(String propertyName, String propertyValue) {
+            public LocalTime covertNonNullProperty(String propertyName, String propertyValue) {
                 return LocalTime.parse(propertyValue);
             }
         });
 
         handlers.add(new GeneralPropertyHandler<Year>(Year.class) {
             @Override
-            public Year covertProperty(String propertyName, String propertyValue) {
+            public Year covertNonNullProperty(String propertyName, String propertyValue) {
                 return Year.of(Integer.parseInt(propertyValue));
             }
         });
 
         handlers.add(new GeneralPropertyHandler<Month>(Month.class) {
             @Override
-            public Month covertProperty(String propertyName, String propertyValue) {
+            public Month covertNonNullProperty(String propertyName, String propertyValue) {
                 return Month.of(Integer.parseInt(propertyValue));
             }
         });
 
         handlers.add(new GeneralPropertyHandler<MonthDay>(MonthDay.class) {
             @Override
-            public MonthDay covertProperty(String propertyName, String propertyValue) {
+            public MonthDay covertNonNullProperty(String propertyName, String propertyValue) {
                 return MonthDay.parse(propertyValue);
             }
         });
 
         handlers.add(new GeneralPropertyHandler<YearMonth>(YearMonth.class) {
             @Override
-            public YearMonth covertProperty(String propertyName, String propertyValue) {
+            public YearMonth covertNonNullProperty(String propertyName, String propertyValue) {
                 return YearMonth.parse(propertyValue);
             }
         });
