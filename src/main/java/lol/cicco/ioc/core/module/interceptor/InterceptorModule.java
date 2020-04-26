@@ -17,7 +17,7 @@ public class InterceptorModule implements CiccoModule<InterceptorRegistry>, Inte
 
     @Override
     public void initModule(CiccoContext context) {
-        log.debug("init aop module.....");
+        log.debug("init interceptor module.....");
     }
 
     @Override
@@ -38,7 +38,7 @@ public class InterceptorModule implements CiccoModule<InterceptorRegistry>, Inte
 
     @Override
     public void register(AnnotationInterceptor<?> annotationInterceptor) {
-        log.debug("aopProcessor register [{}]", annotationInterceptor.getAnnotation().getName());
+        log.debug("InterceptorRegistry register [{}]", annotationInterceptor.getAnnotation().getName());
         interceptorMap.put(annotationInterceptor.getAnnotation().getName(), annotationInterceptor);
     }
 
