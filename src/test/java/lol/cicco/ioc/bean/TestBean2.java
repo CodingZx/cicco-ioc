@@ -13,7 +13,7 @@ public class TestBean2 {
     @Inject(byName = "testBean1111")
     private TestBean testBean;
 
-    @Binder("a.text")
+    @Binder(value = "a.text", defaultValue = "defaultText", refresh = false)
     private String showAText;
 
     @Binder("b.num")
