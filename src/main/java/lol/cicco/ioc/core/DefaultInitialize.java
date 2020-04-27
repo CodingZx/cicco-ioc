@@ -2,7 +2,6 @@ package lol.cicco.ioc.core;
 
 import lol.cicco.ioc.core.module.beans.BeanModule;
 import lol.cicco.ioc.core.module.binder.BinderModule;
-import lol.cicco.ioc.core.module.condition.ConditionRegistryImpl;
 import lol.cicco.ioc.core.module.inject.InjectModule;
 import lol.cicco.ioc.core.module.interceptor.InterceptorModule;
 import lol.cicco.ioc.core.module.property.PropertyModule;
@@ -31,7 +30,6 @@ public class DefaultInitialize implements Initialize {
         registerModule(new RegisterModule());
         registerModule(new InjectModule());
         registerModule(new BinderModule());
-        registerModule(new ConditionRegistryImpl());
     }
 
     /**
