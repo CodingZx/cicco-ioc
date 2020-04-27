@@ -7,6 +7,7 @@ import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
 import lol.cicco.ioc.core.module.property.PropertyModule;
 import lol.cicco.ioc.core.module.property.PropertyRegistry;
+import lol.cicco.ioc.core.module.register.RegisterModule;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
@@ -41,7 +42,7 @@ public class BinderModule implements CiccoModule<Void> {
 
     @Override
     public List<String> dependOn() {
-        return Arrays.asList(BeanModule.BEAN_MODULE_NAME, PropertyModule.PROPERTY_MODULE_NAME);
+        return Arrays.asList(BeanModule.BEAN_MODULE_NAME, RegisterModule.REGISTER_MODULE_NAME, PropertyModule.PROPERTY_MODULE_NAME);
     }
 
     private void doBinder() {

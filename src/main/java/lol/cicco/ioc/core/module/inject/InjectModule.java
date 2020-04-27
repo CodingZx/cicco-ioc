@@ -5,6 +5,7 @@ import lol.cicco.ioc.core.CiccoModule;
 import lol.cicco.ioc.core.module.beans.BeanModule;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
+import lol.cicco.ioc.core.module.binder.BinderModule;
 import lol.cicco.ioc.core.module.register.RegisterModule;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ public class InjectModule implements CiccoModule<Void> {
 
     @Override
     public List<String> dependOn() {
-        return Arrays.asList(BeanModule.BEAN_MODULE_NAME, RegisterModule.REGISTER_MODULE_NAME);
+        return Arrays.asList(BeanModule.BEAN_MODULE_NAME, RegisterModule.REGISTER_MODULE_NAME, BinderModule.BINDER_MODULE_NAME);
     }
 
     @SneakyThrows
