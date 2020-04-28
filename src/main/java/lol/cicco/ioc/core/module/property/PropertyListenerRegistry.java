@@ -13,7 +13,7 @@ class PropertyListenerRegistry {
     private static final Map<String, Queue<InlinePropertyListener>> objectListeners = new LinkedHashMap<>();
 
     private static class InlinePropertyListener {
-        private OnChangeFunc processor;
+        private Runnable processor;
         private String listenerSign;
     }
 
@@ -47,7 +47,7 @@ class PropertyListenerRegistry {
             Queue<InlinePropertyListener> objects = objectListeners.get(propertyName);
             if(objects != null && !objects.isEmpty()) {
                 for (InlinePropertyListener listener : objects) {
-                    listener.processor.onChange();
+                    listener.processor.run();
                 }
             }
         }
