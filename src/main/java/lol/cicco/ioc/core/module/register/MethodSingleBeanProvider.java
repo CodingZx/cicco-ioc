@@ -10,11 +10,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-class MethodSingleBeanProvider extends AbstractBeanProvider {
+class MethodSingleBeanProvider extends AbstractBeanProvider implements InitializeBeanProvider {
 
     private final boolean interfaceDefine;
     private final Object originObj;
-    private final Object proxyTarget;
+    private Object proxyTarget;
 
     @SneakyThrows
     MethodSingleBeanProvider(InterceptorRegistry interceptorRegistry, BeanRegistry beanRegistry, AnalyzeMethodBeanDefine methodBeanDefine) {
@@ -25,8 +25,6 @@ class MethodSingleBeanProvider extends AbstractBeanProvider {
         Object[] dependBeans = getParams(methodBeanDefine.getParameterTypes(), methodBeanDefine.getParameterAnnotations());
         // invoke 执行后拿到方法生成的原始类对象
         originObj = methodBeanDefine.getDefineMethod().invoke(provider.getObject(), dependBeans);
-
-        proxyTarget = createProxy();
     }
 
     @Override
@@ -62,7 +60,9 @@ class MethodSingleBeanProvider extends AbstractBeanProvider {
     }
 
     @Override
+    @SneakyThrows
     public Object getObject() {
+        initialize();
         return proxyTarget;
     }
 
@@ -87,5 +87,23 @@ class MethodSingleBeanProvider extends AbstractBeanProvider {
             methodMap.put(method, annotationSet.toArray(new Annotation[0]));
         }
         return methodMap;
+    }
+
+    @Override
+    public void initialize() throws Exception {
+        if(proxyTarget != null) {
+            return;
+        }
+        if(depends.contains(this)) {
+            throw new RegisterException("检测到循环依赖... 请检查[" + beanType().getName() + "]依赖情况..");
+        }
+        depends.add(this);
+        proxyTarget = createProxy();
+        depends.remove(this);
+    }
+
+    @Override
+    public BeanProvider getBeanProvider() {
+        return this;
     }
 }

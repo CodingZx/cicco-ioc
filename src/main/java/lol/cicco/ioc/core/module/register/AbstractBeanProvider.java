@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class AbstractBeanProvider implements BeanProvider {
+    protected final Set<Object> depends = new LinkedHashSet<>();
 
     protected final Class<?> originCls;
     protected final BeanRegistry beanRegistry;

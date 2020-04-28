@@ -1,18 +1,18 @@
 package lol.cicco.ioc.core.module.register;
 
 import javassist.Modifier;
-import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.annotation.InjectConstructor;
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
 import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 
 @Slf4j
 class RegisterProcessor {
@@ -58,86 +58,33 @@ class RegisterProcessor {
             }
         }
 
-        // 开始扫描依赖
-        scanDepends(analyzeBeanDefines);
+        registerBeanProvider(analyzeBeanDefines);
     }
 
-    @SneakyThrows
-    private void scanDepends(List<AnalyzeBeanDefine> analyzeBeanDefines) {
-        // 等待注册的Bean信息
-        Map<String, AnalyzeBeanDefine> beans = new LinkedHashMap<>();
-        Map<Class<?>, List<String>> types = new LinkedHashMap<>();
-
-        for (AnalyzeBeanDefine define : analyzeBeanDefines) {
-            if(beans.containsKey(define.getBeanName())) {
-                throw new IllegalStateException("BeanName[" + define.getBeanName() + "] 被重复定义, 对应Class ["+define.getBeanType().getName()+", "+beans.get(define.getBeanName()).getBeanType().getName()+"]..");
-            }
-            beans.put(define.getBeanName(), define);
-            for (Class<?> cls : define.getCastClasses()) {
-                List<String> typeClassList = types.getOrDefault(cls, new LinkedList<>());
-                typeClassList.add(define.getBeanName());
-                types.put(cls, typeClassList);
-            }
-        }
-
-        List<AnalyzeBeanDefine> waitInitQueue = new LinkedList<>();
-
-        for (AnalyzeBeanDefine define : analyzeBeanDefines) {
-            // 等待分析队列
-            LinkedList<AnalyzeBeanDefine> waitAnalyzeDepends = new LinkedList<>();
-            // 待初始化栈
-            LinkedList<AnalyzeBeanDefine> registerStack = new LinkedList<>();
-            waitAnalyzeDepends.add(define);
-
-            while (!waitAnalyzeDepends.isEmpty()) {
-                AnalyzeBeanDefine type = waitAnalyzeDepends.removeFirst();
-
-                if (waitInitQueue.contains(type)) {
-                    continue; // 已经放入初始化队列
-                }
-                if (registerStack.contains(type)) {
-                    throw new RegisterException("检测到循环依赖... 请检查[" + type.getBeanType().getName() + "]依赖情况..");
-                }
-
-                Annotation[][] parameterAnnotations = type.getParameterAnnotations();
-                Class<?>[] parameterTypes = type.getParameterTypes();
-                for (int i = 0; i < parameterTypes.length; i++) {
-                    List<String> dependType = types.get(parameterTypes[i]);
-                    Inject injectAnnotation = parameterAnnotations[i] == null ? null : (Inject) Arrays.stream(parameterAnnotations[i]).filter(a -> a.annotationType().equals(Inject.class)).findFirst().orElse(null);
-
-                    boolean require;
-                    String injectName = null;
-                    if (injectAnnotation == null) {
-                        require = true;
-                    } else {
-                        require = injectAnnotation.required();
-                        injectName = injectAnnotation.byName().trim();
-                    }
-                    if (dependType == null) {
-                        if (require) {
-                            throw new RegisterException("Class[" + type.getBeanType().getName() + "] 未找到注入类型[" + parameterTypes[i].getName() + "], 请检查构造参数是否正确..");
-                        }
-                    } else {
-                        if ((injectName == null || injectName.equals("")) && dependType.size() != 1) {
-                            throw new RegisterException("Class[" + type.getBeanType().getName() + "] 找到多个注入类型[" + parameterTypes[i].getName() + "], 请确认是否需要使用@Inject(byName=\"...\")指定名称注入..");
-                        }
-                        waitAnalyzeDepends.add(beans.get(dependType.get(0)));
-                    }
-                }
-                registerStack.push(type);
-            }
-            // 依赖树分析完毕..
-            while (!registerStack.isEmpty()) {
-                waitInitQueue.add(registerStack.pop());
-            }
-        }
-
-        for (AnalyzeBeanDefine define : waitInitQueue) {
-            log.debug("Bean[{}]注册至IOC.", define.getBeanType().toString());
-            if (define instanceof AnalyzeMethodBeanDefine) {
-                beanRegistry.register(define.getBeanType(), define.getBeanName(), new MethodSingleBeanProvider(interceptorRegistry, beanRegistry, (AnalyzeMethodBeanDefine) define), false);
+    private void registerBeanProvider(List<AnalyzeBeanDefine> analyzeBeanDefines) {
+        Queue<InitializeBeanProvider> waitInitializeProvider = new LinkedList<>();
+        for (AnalyzeBeanDefine beanDefine : analyzeBeanDefines) {
+            InitializeBeanProvider initializeBean;
+            if (beanDefine instanceof AnalyzeMethodBeanDefine) {
+                initializeBean = new MethodSingleBeanProvider(interceptorRegistry, beanRegistry, (AnalyzeMethodBeanDefine) beanDefine);
             } else {
-                beanRegistry.register(define.getBeanType(), define.getBeanName(), new SingleBeanProvider(interceptorRegistry, beanRegistry, define), false);
+                initializeBean = new SingleBeanProvider(interceptorRegistry, beanRegistry, beanDefine);
+            }
+            // 校验BeanName是否重复
+            if (beanRegistry.containsBean(beanDefine.getBeanName())) {
+                throw new IllegalStateException("BeanName[" + beanDefine.getBeanName() + "] 被重复定义, 对应Class [" + beanDefine.getBeanType().getName() + ", " + beanRegistry.getNullableBean(beanDefine.getBeanName()).beanType().getName() + "]..");
+            }
+
+            log.debug("Bean[{}]注册至IOC..", beanDefine.getBeanType().toString());
+            beanRegistry.register(beanDefine.getBeanType(), beanDefine.getBeanName(), initializeBean.getBeanProvider());
+            waitInitializeProvider.add(initializeBean); // 放入待初始化队列
+        }
+
+        for (InitializeBeanProvider bean : waitInitializeProvider) {
+            try {
+                bean.initialize();
+            } catch (Exception e) {
+                throw new RegisterException("初始化异常, 异常信息: " + e.getMessage(), e);
             }
         }
     }
