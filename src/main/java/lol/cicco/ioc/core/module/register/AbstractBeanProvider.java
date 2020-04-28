@@ -2,11 +2,11 @@ package lol.cicco.ioc.core.module.register;
 
 import javassist.util.proxy.ProxyFactory;
 import lol.cicco.ioc.annotation.Inject;
+import lol.cicco.ioc.core.module.beans.BeanProvider;
+import lol.cicco.ioc.core.module.beans.BeanRegistry;
 import lol.cicco.ioc.core.module.interceptor.AnnotationInterceptor;
 import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
 import lol.cicco.ioc.core.module.interceptor.JoinPointImpl;
-import lol.cicco.ioc.core.module.beans.BeanProvider;
-import lol.cicco.ioc.core.module.beans.BeanRegistry;
 import lombok.SneakyThrows;
 
 import java.lang.annotation.Annotation;
@@ -39,11 +39,11 @@ public abstract class AbstractBeanProvider implements BeanProvider {
 
         ProxyFactory factory = new ProxyFactory();
         Class<?> superCls = superClass();
-        if(superCls != null) {
+        if (superCls != null) {
             factory.setSuperclass(superCls);
         }
         Class<?>[] interfaceCls = interfaceClass();
-        if(interfaceCls != null && interfaceCls.length != 0) {
+        if (interfaceCls != null && interfaceCls.length != 0) {
             factory.setInterfaces(interfaceCls);
         }
 

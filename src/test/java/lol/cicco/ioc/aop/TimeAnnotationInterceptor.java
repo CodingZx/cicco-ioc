@@ -2,8 +2,8 @@ package lol.cicco.ioc.aop;
 
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.module.interceptor.AfterJoinPoint;
-import lol.cicco.ioc.core.module.interceptor.BeforeJoinPoint;
 import lol.cicco.ioc.core.module.interceptor.AnnotationInterceptor;
+import lol.cicco.ioc.core.module.interceptor.BeforeJoinPoint;
 
 @Registration
 public class TimeAnnotationInterceptor implements AnnotationInterceptor<SystemClock> {

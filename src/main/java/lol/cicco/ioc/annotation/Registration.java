@@ -8,7 +8,7 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
-@Target({TYPE,METHOD})
+@Target({TYPE, METHOD})
 public @interface Registration {
 
     /**

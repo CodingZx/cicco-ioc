@@ -76,11 +76,11 @@ class SingleBeanProvider extends AbstractBeanProvider implements InitializeBeanP
 
     @Override
     public void initialize() throws Exception {
-        if(targetObject != null) {
+        if (targetObject != null) {
             // 已经初始化过
             return;
         }
-        if(depends.contains(this)) {
+        if (depends.contains(this)) {
             throw new RegisterException("检测到循环依赖... 请检查[" + beanType().getName() + "]依赖情况..");
         }
         depends.add(this);

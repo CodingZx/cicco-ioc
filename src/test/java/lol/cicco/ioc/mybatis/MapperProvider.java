@@ -27,7 +27,7 @@ public class MapperProvider implements BeanProvider {
     @Override
     @SneakyThrows
     public Object getObject() {
-        if(target != null) {
+        if (target != null) {
             return target;
         }
         ProxyFactory factory = new ProxyFactory();

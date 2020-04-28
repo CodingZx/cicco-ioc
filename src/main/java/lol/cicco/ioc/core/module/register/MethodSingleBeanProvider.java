@@ -1,8 +1,8 @@
 package lol.cicco.ioc.core.module.register;
 
-import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
+import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
 import lombok.SneakyThrows;
 
 import java.lang.annotation.Annotation;
@@ -91,10 +91,10 @@ class MethodSingleBeanProvider extends AbstractBeanProvider implements Initializ
 
     @Override
     public void initialize() throws Exception {
-        if(proxyTarget != null) {
+        if (proxyTarget != null) {
             return;
         }
-        if(depends.contains(this)) {
+        if (depends.contains(this)) {
             throw new RegisterException("检测到循环依赖... 请检查[" + beanType().getName() + "]依赖情况..");
         }
         depends.add(this);

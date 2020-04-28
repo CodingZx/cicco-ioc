@@ -103,8 +103,9 @@ public class IOCTest {
         Assert.assertEquals(20, binderBean2.getValue());
         Assert.assertEquals(20, binderBean3.getValue());
     }
+
     @AfterClass
-    public static void afterClass(){
+    public static void afterClass() {
 
         System.gc();
     }

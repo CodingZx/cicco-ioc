@@ -70,10 +70,10 @@ public class RegisterModule implements CiccoModule<Void> {
     private void registerPropertyHandler() {
         PropertyRegistry registry = propertyModule.getModuleProcessor();
         Set<BeanProvider> propertyBeanProvider = beanRegistry.getNullableBeans(PropertyHandler.class);
-        if(propertyBeanProvider == null) {
+        if (propertyBeanProvider == null) {
             return;
         }
-        for(BeanProvider provider : propertyBeanProvider) {
+        for (BeanProvider provider : propertyBeanProvider) {
             registry.registerHandler((PropertyHandler<?>) provider.getObject());
         }
     }

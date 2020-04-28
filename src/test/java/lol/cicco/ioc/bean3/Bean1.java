@@ -10,7 +10,7 @@ public class Bean1 {
     @Getter
     private NoRegister noRegister;
 
-    public Bean1(@Inject(required = false) NoRegister noRegister){
+    public Bean1(@Inject(required = false) NoRegister noRegister) {
         this.noRegister = noRegister;
     }
 }

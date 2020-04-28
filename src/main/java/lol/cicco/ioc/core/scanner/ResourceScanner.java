@@ -3,7 +3,6 @@ package lol.cicco.ioc.core.scanner;
 import lol.cicco.ioc.core.CiccoConstants;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;

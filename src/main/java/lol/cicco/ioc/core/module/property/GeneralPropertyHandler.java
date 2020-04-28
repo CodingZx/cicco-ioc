@@ -17,7 +17,7 @@ public abstract class GeneralPropertyHandler<T> implements PropertyHandler<T> {
 
     @Override
     public T convert(String propertyName, String propertyValue) throws PropertyConvertException {
-        if(propertyValue == null) {
+        if (propertyValue == null) {
             return null;
         }
         try {

@@ -20,7 +20,7 @@ class PropertyListenerRegistry {
     void register(PropertyChangeListener listener) {
         synchronized (objectListeners) {
             Queue<InlinePropertyListener> objects = objectListeners.getOrDefault(listener.propertyName(), new ConcurrentLinkedQueue<>());
-            if(objects.stream().noneMatch(a-> listener.listenerSign().equals(a.listenerSign))) {
+            if (objects.stream().noneMatch(a -> listener.listenerSign().equals(a.listenerSign))) {
                 InlinePropertyListener propertyListener = new InlinePropertyListener();
                 propertyListener.processor = listener::onChange;
                 propertyListener.listenerSign = listener.listenerSign();
@@ -35,7 +35,7 @@ class PropertyListenerRegistry {
         synchronized (objectListeners) {
             Queue<InlinePropertyListener> objects = objectListeners.get(propertyName);
             boolean removeFlag = objects.removeIf(inlinePropertyListener -> inlinePropertyListener.listenerSign.equals(sign));
-            if(removeFlag) {
+            if (removeFlag) {
                 log.debug("Property[{}] Listener[{}]被移除..", propertyName, sign);
             }
         }
@@ -45,7 +45,7 @@ class PropertyListenerRegistry {
         synchronized (objectListeners) {
             log.debug("onChange:[{}]....", propertyName);
             Queue<InlinePropertyListener> objects = objectListeners.get(propertyName);
-            if(objects != null && !objects.isEmpty()) {
+            if (objects != null && !objects.isEmpty()) {
                 for (InlinePropertyListener listener : objects) {
                     listener.processor.run();
                 }

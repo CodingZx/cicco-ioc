@@ -34,7 +34,7 @@ public class IOCTestThrow {
     }
 
     @Test(expected = RegisterException.class)
-    public void noRegister(){
+    public void noRegister() {
         IOC.initialize()
                 .scanBasePackages("lol.cicco.ioc.bean3")
                 .done()
@@ -46,7 +46,7 @@ public class IOCTestThrow {
 
     @Test
     public void testInjectConstructor() {
-        try{
+        try {
             IOC.initialize()
                     .scanBasePackages("lol.cicco.ioc.inject")
                     .done()
@@ -67,7 +67,6 @@ public class IOCTestThrow {
         var bean = IOC.getBeanByType(TestSingleConstructor.class);
         Assert.assertNotNull(bean.getInject());
     }
-
 
 
     @Test

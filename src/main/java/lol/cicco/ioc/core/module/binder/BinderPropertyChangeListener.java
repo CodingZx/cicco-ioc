@@ -1,6 +1,5 @@
 package lol.cicco.ioc.core.module.binder;
 
-import lol.cicco.ioc.annotation.Binder;
 import lol.cicco.ioc.core.module.property.PropertyChangeListener;
 import lol.cicco.ioc.core.module.property.PropertyRegistry;
 import lombok.Getter;
@@ -45,18 +44,18 @@ class BinderPropertyChangeListener implements PropertyChangeListener {
     @Override
     public void onChange() {
         Object object = binderReference.get();
-        if(object == null) {
+        if (object == null) {
             // 对象已经被垃圾回收.. 移除属性监听器...
             removeListener();
             return;
         }
-        if(!field.canAccess(object)) {
+        if (!field.canAccess(object)) {
             field.setAccessible(true);
         }
 
         Object propertyValue = registry.convertValue(listenerPropertyName, defaultValue, fieldType);
         try {
-            if(propertyValue == null && !noValueToNull) {
+            if (propertyValue == null && !noValueToNull) {
                 log.warn("Property [{}] 属性值为Null", propertyName());
             } else {
                 field.set(object, propertyValue);
