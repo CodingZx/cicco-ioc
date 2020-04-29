@@ -18,6 +18,7 @@ IOC.initialize()
 - 定义Bean
 ```java
 // Class定义
+@ConditionalOnMissBeanType(TestBean2.class) // 此注解表明当TestBean2类型Bean不存在时, 生成此Bean 
 @Registration(name = "testBean2") // 此注解表明注册至Bean管理器
 public class TestBean2 {
     //设置注入Bean实例, byName不为空时根据BeanName注入对应实例 
@@ -52,9 +53,7 @@ public class MethodDefineClass {
 
 // 定义接口
 public interface TestBeanInterface {
-    @SystemLog
     void run();
-    @SystemLog
     void aabbc();
 }
 ```
