@@ -1,6 +1,7 @@
 package lol.cicco.ioc.core.module.register;
 
 import lol.cicco.ioc.annotation.Registration;
+import lol.cicco.ioc.core.module.conditional.ConditionalBeanDefine;
 import lol.cicco.ioc.util.ClassUtils;
 import lombok.Data;
 
@@ -9,7 +10,7 @@ import java.lang.reflect.Executable;
 import java.util.Set;
 
 @Data
-class AnalyzeBeanDefine {
+class AnalyzeBeanDefine implements ConditionalBeanDefine {
     // bean类型
     private Class<?> beanType;
     // Bean名称
@@ -21,11 +22,20 @@ class AnalyzeBeanDefine {
     // 实现的类接口等
     private Set<Class<?>> castClasses;
 
-    public AnalyzeBeanDefine(Class<?> beanType, Registration registration, Executable executable) {
+    // Bean定义时的注解信息
+    private Annotation[] registerAnnotations;
+
+    public AnalyzeBeanDefine(Class<?> beanType, Registration registration, Executable executable, Annotation[] registerAnnotations) {
         this.beanType = beanType;
         this.beanName = "".equals(registration.name().trim()) ? beanType.getName() : registration.name().trim();
         this.parameterTypes = executable.getParameterTypes();
         this.parameterAnnotations = executable.getParameterAnnotations();
         this.castClasses = ClassUtils.getClassTypes(beanType);
+        this.registerAnnotations = registerAnnotations;
+    }
+
+    @Override
+    public Annotation[] beanRegisterAnnotations() {
+        return registerAnnotations;
     }
 }

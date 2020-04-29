@@ -1,12 +1,11 @@
 package lol.cicco.ioc;
 
 import lol.cicco.ioc.aop.TimeAnnotationInterceptor;
-import lol.cicco.ioc.bean.BinderBean;
-import lol.cicco.ioc.bean.TestBean;
-import lol.cicco.ioc.bean.TestBean2;
-import lol.cicco.ioc.bean.TestBeanByConstructor;
+import lol.cicco.ioc.bean.*;
 import lol.cicco.ioc.binder.TestEnum;
+import lol.cicco.ioc.core.BeanNotFountException;
 import lol.cicco.ioc.core.IOC;
+import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.mybatis.MybatisModule;
 import lol.cicco.ioc.service.TestBeanService;
 import org.junit.AfterClass;
@@ -29,6 +28,21 @@ public class IOCTest {
                 .registerModule(new MybatisModule())
                 .done()
         ;
+    }
+
+    @Test
+    public void testCondition() {
+        String msg = "";
+        try {
+            TestInterface testInterface = IOC.getBeanByName("methodTestInterface");
+            testInterface.printTest();
+        }catch (BeanNotFountException e) {
+           msg = e.getMessage();
+        }
+        Assert.assertTrue(msg.contains("未注册至IOC"));
+
+        ConditionalBeanTest.ConditionBean conditionBean = IOC.getBeanByType(ConditionalBeanTest.ConditionBean.class);
+        conditionBean.test();
     }
 
     @Test

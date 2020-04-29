@@ -4,6 +4,7 @@ import javassist.Modifier;
 import lol.cicco.ioc.annotation.InjectConstructor;
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
+import lol.cicco.ioc.core.module.conditional.ConditionalRegistry;
 import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,10 +20,14 @@ class RegisterProcessor {
 
     private final BeanRegistry beanRegistry;
     private final InterceptorRegistry interceptorRegistry;
+    private final ConditionalRegistry conditionalRegistry;
 
-    public RegisterProcessor(BeanRegistry beanRegistry, InterceptorRegistry interceptorRegistry) {
+    private final Queue<InitializeBeanProvider> waitInitializeProviderQueue = new LinkedList<>();
+
+    public RegisterProcessor(BeanRegistry beanRegistry, InterceptorRegistry interceptorRegistry, ConditionalRegistry conditionalRegistry) {
         this.beanRegistry = beanRegistry;
         this.interceptorRegistry = interceptorRegistry;
+        this.conditionalRegistry = conditionalRegistry;
     }
 
     public void doRegister(Set<String> packages) {
@@ -45,7 +50,7 @@ class RegisterProcessor {
                 String beanName = "".equals(beanRegistration.name().trim()) ? type.getName() : beanRegistration.name().trim();
                 Constructor<?> constructor = analyzeBeanConstructor(type);
 
-                analyzeBeanDefines.add(new AnalyzeBeanDefine(type, beanRegistration, constructor));
+                analyzeBeanDefines.add(new AnalyzeBeanDefine(type, beanRegistration, constructor, type.getDeclaredAnnotations()));
 
                 for (Method method : type.getDeclaredMethods()) {
                     Registration methodRegistration = method.getDeclaredAnnotation(Registration.class);
@@ -53,40 +58,60 @@ class RegisterProcessor {
                         continue;
                     }
                     Class<?> methodBeanType = method.getReturnType();
-                    analyzeBeanDefines.add(new AnalyzeMethodBeanDefine(methodBeanType, methodRegistration, method, beanName));
+                    analyzeBeanDefines.add(new AnalyzeMethodBeanDefine(methodBeanType, methodRegistration, method, beanName, method.getDeclaredAnnotations()));
                 }
             }
         }
 
-        registerBeanProvider(analyzeBeanDefines);
+        registerAllBeanProvider(analyzeBeanDefines);
     }
 
-    private void registerBeanProvider(List<AnalyzeBeanDefine> analyzeBeanDefines) {
-        Queue<InitializeBeanProvider> waitInitializeProvider = new LinkedList<>();
-        for (AnalyzeBeanDefine beanDefine : analyzeBeanDefines) {
-            InitializeBeanProvider initializeBean;
-            if (beanDefine instanceof AnalyzeMethodBeanDefine) {
-                initializeBean = new MethodSingleBeanProvider(interceptorRegistry, beanRegistry, (AnalyzeMethodBeanDefine) beanDefine);
-            } else {
-                initializeBean = new SingleBeanProvider(interceptorRegistry, beanRegistry, beanDefine);
-            }
-            // 校验BeanName是否重复
-            if (beanRegistry.containsBean(beanDefine.getBeanName())) {
-                throw new IllegalStateException("BeanName[" + beanDefine.getBeanName() + "] 被重复定义, 对应Class [" + beanDefine.getBeanType().getName() + ", " + beanRegistry.getNullableBean(beanDefine.getBeanName()).beanType().getName() + "]..");
-            }
+    private void registerAllBeanProvider(List<AnalyzeBeanDefine> analyzeBeanDefines) {
+        Queue<AnalyzeBeanDefine> conditionalBeans = new LinkedList<>();
 
-            log.debug("Bean[{}]注册至IOC..", beanDefine.getBeanType().toString());
-            beanRegistry.register(beanDefine.getBeanType(), beanDefine.getBeanName(), initializeBean.getBeanProvider());
-            waitInitializeProvider.add(initializeBean); // 放入待初始化队列
+        for (AnalyzeBeanDefine beanDefine : analyzeBeanDefines) {
+            // 如果为Conditional Bean则先放起来 等其他类注册完毕后再进行判断
+            if(conditionalRegistry.hasConditionalAnnotation(beanDefine)) {
+                conditionalBeans.add(beanDefine);
+                continue;
+            }
+            // 注册
+            registerBeanProvider(beanDefine);
         }
 
-        for (InitializeBeanProvider bean : waitInitializeProvider) {
+        // 校验Conditional
+        while(!conditionalBeans.isEmpty()){
+            AnalyzeBeanDefine beanDefine = conditionalBeans.poll();
+            if(conditionalRegistry.checkConditional(beanDefine)) {
+                registerBeanProvider(beanDefine);
+            }
+        }
+
+        for (InitializeBeanProvider bean : waitInitializeProviderQueue) {
             try {
                 bean.initialize();
             } catch (Exception e) {
                 throw new RegisterException("初始化异常, 异常信息: " + e.getMessage(), e);
             }
         }
+    }
+
+    private void registerBeanProvider(AnalyzeBeanDefine beanDefine) {
+        InitializeBeanProvider initializeBean;
+        if (beanDefine instanceof AnalyzeMethodBeanDefine) {
+            initializeBean = new MethodSingleBeanProvider(interceptorRegistry, beanRegistry, (AnalyzeMethodBeanDefine) beanDefine);
+        } else {
+            initializeBean = new SingleBeanProvider(interceptorRegistry, beanRegistry, beanDefine);
+        }
+        // 校验BeanName是否重复
+        if (beanRegistry.containsBean(beanDefine.getBeanName())) {
+            throw new IllegalStateException("BeanName[" + beanDefine.getBeanName() + "] 被重复定义, 对应Class [" + beanDefine.getBeanType().getName() + ", " + beanRegistry.getNullableBean(beanDefine.getBeanName()).beanType().getName() + "]..");
+        }
+
+        log.debug("Bean[{}]注册至IOC..", beanDefine.getBeanType().toString());
+        beanRegistry.register(beanDefine.getBeanType(), beanDefine.getBeanName(), initializeBean.getBeanProvider());
+
+        waitInitializeProviderQueue.add(initializeBean); // 放入待初始化队列
     }
 
     /**

@@ -4,6 +4,7 @@ import lol.cicco.ioc.annotation.Registration;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 @Data
@@ -14,8 +15,8 @@ class AnalyzeMethodBeanDefine extends AnalyzeBeanDefine {
 
     private Method defineMethod;
 
-    public AnalyzeMethodBeanDefine(Class<?> beanType, Registration registration, Method defineMethod, String invokeBeanName) {
-        super(beanType, registration, defineMethod);
+    public AnalyzeMethodBeanDefine(Class<?> beanType, Registration registration, Method defineMethod, String invokeBeanName, Annotation[] registerBeanAnnotations) {
+        super(beanType, registration, defineMethod, registerBeanAnnotations);
         this.defineMethod = defineMethod;
         this.invokeBeanName = invokeBeanName;
     }
