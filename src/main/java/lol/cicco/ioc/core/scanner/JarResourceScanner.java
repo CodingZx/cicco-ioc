@@ -33,8 +33,9 @@ class JarResourceScanner implements ProtocolResourceScanner {
                 if (entryName.startsWith(packagePath)) {
                     // 将对应文件路径替换为全称
                     entryName = entryName.replace("/", ".");
+                    String suffix = entryName.lastIndexOf(".") == -1 ? "" : entryName.substring(entryName.lastIndexOf(".") + 1);
                     entryName = entryName.substring(0, entryName.lastIndexOf("."));
-                    allResources.add(ResourceMeta.of(entryName, url.toURI()));
+                    allResources.add(ResourceMeta.of(entryName + "." + suffix, url.toURI()));
                 }
             }
         } catch (ZipException | URISyntaxException e) {
