@@ -21,9 +21,11 @@ public class ConditionalModule implements CiccoModule<ConditionalRegistry>, Cond
     @Override
     public void initModule(CiccoContext context) {
         BeanModule beanModule = (BeanModule) context.getModule(BeanModule.BEAN_MODULE_NAME);
+        PropertyModule propertyModule = (PropertyModule) context.getModule(PropertyModule.PROPERTY_MODULE_NAME);
 
         // 注册默认处理器
         register(new OnMissBeanTypeProcessor(beanModule.getModuleProcessor()));
+        register(new OnPropertyProcessor(propertyModule.getModuleProcessor()));
 
         log.debug("init conditional module...");
     }
@@ -62,12 +64,11 @@ public class ConditionalModule implements CiccoModule<ConditionalRegistry>, Cond
 
     @Override
     public boolean checkConditional(ConditionalBeanDefine beanType) {
-        boolean flag = true;
         for (ConditionalProcessor<?> processor : registerMap.values()) {
             if (!processor.checkConditional(beanType)) {
-                flag = false;
+                return false;
             }
         }
-        return flag;
+        return true;
     }
 }

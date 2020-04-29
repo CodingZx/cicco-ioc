@@ -1,6 +1,7 @@
 package lol.cicco.ioc.bean;
 
 import lol.cicco.ioc.annotation.ConditionalOnMissBeanType;
+import lol.cicco.ioc.annotation.ConditionalOnProperty;
 import lol.cicco.ioc.annotation.Registration;
 
 @Registration
@@ -20,6 +21,7 @@ public class ConditionalBeanTest {
 
     @Registration(name = "conditionalBean")
     @ConditionalOnMissBeanType(ConditionBean.class)
+    @ConditionalOnProperty(name = "conditional.prop", havingValue = "test")
     public ConditionBean conditionBean(){
         return new ConditionBean();
     }
