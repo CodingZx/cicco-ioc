@@ -91,7 +91,7 @@ class RegisterProcessor {
             try {
                 bean.initialize();
             } catch (Exception e) {
-                throw new RegisterException("初始化异常, 异常信息: " + e.getMessage(), e);
+                throw new RegisterException("初始化异常", e);
             }
         }
     }
