@@ -149,6 +149,7 @@ public class BinderBeanProvider implements BeanProvider {
             public Thread newThread(Runnable runnable) {
                 counter.compareAndSet(Integer.MAX_VALUE, 0);
                 Thread thread = new Thread(runnable);
+                thread.setDaemon(true);
                 thread.setName("Schedule Thread-" + counter.addAndGet(1));
                 return thread;
             }
