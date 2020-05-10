@@ -6,6 +6,7 @@ import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
 import lol.cicco.ioc.core.module.conditional.ConditionalRegistry;
 import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
+import lol.cicco.ioc.core.module.scan.ResourceScanner;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Constructor;
@@ -21,18 +22,19 @@ class RegisterProcessor {
     private final BeanRegistry beanRegistry;
     private final InterceptorRegistry interceptorRegistry;
     private final ConditionalRegistry conditionalRegistry;
+    private final ResourceScanner resourceScanner;
 
-    private final Queue<InitializeBeanProvider> waitInitializeProviderQueue = new LinkedList<>();
 
-    public RegisterProcessor(BeanRegistry beanRegistry, InterceptorRegistry interceptorRegistry, ConditionalRegistry conditionalRegistry) {
+    public RegisterProcessor(BeanRegistry beanRegistry, InterceptorRegistry interceptorRegistry, ConditionalRegistry conditionalRegistry, ResourceScanner scanner) {
         this.beanRegistry = beanRegistry;
         this.interceptorRegistry = interceptorRegistry;
         this.conditionalRegistry = conditionalRegistry;
+        this.resourceScanner = scanner;
     }
 
     public void doRegister(Set<String> packages) {
         // 扫描Class
-        ClassResourceScanner scanner = new ClassResourceScanner();
+        ClassResourceScanner scanner = new ClassResourceScanner(resourceScanner);
 
         LinkedList<AnalyzeBeanDefine> analyzeBeanDefines = new LinkedList<>();
         for (String pkg : packages) {
@@ -67,6 +69,7 @@ class RegisterProcessor {
     }
 
     private void registerAllBeanProvider(List<AnalyzeBeanDefine> analyzeBeanDefines) {
+        Queue<InitializeBeanProvider> waitInitializeProviderQueue = new LinkedList<>();
         Queue<AnalyzeBeanDefine> conditionalBeans = new LinkedList<>();
 
         for (AnalyzeBeanDefine beanDefine : analyzeBeanDefines) {
@@ -76,14 +79,14 @@ class RegisterProcessor {
                 continue;
             }
             // 注册
-            registerBeanProvider(beanDefine);
+            waitInitializeProviderQueue.add(registerBeanProvider(beanDefine));
         }
 
         // 校验Conditional
         while(!conditionalBeans.isEmpty()){
             AnalyzeBeanDefine beanDefine = conditionalBeans.poll();
             if(conditionalRegistry.checkConditional(beanDefine)) {
-                registerBeanProvider(beanDefine);
+                waitInitializeProviderQueue.add(registerBeanProvider(beanDefine));
             }
         }
 
@@ -91,12 +94,12 @@ class RegisterProcessor {
             try {
                 bean.initialize();
             } catch (Exception e) {
-                throw new RegisterException("初始化异常", e);
+                throw new RegisterException("初始化异常: " + e.getMessage(), e);
             }
         }
     }
 
-    private void registerBeanProvider(AnalyzeBeanDefine beanDefine) {
+    private InitializeBeanProvider registerBeanProvider(AnalyzeBeanDefine beanDefine) {
         InitializeBeanProvider initializeBean;
         if (beanDefine instanceof AnalyzeMethodBeanDefine) {
             initializeBean = new MethodSingleBeanProvider(interceptorRegistry, beanRegistry, (AnalyzeMethodBeanDefine) beanDefine);
@@ -111,7 +114,7 @@ class RegisterProcessor {
         log.debug("Bean[{}]注册至IOC..", beanDefine.getBeanType().toString());
         beanRegistry.register(beanDefine.getBeanType(), beanDefine.getBeanName(), initializeBean.getBeanProvider());
 
-        waitInitializeProviderQueue.add(initializeBean); // 放入待初始化队列
+        return initializeBean;
     }
 
     /**

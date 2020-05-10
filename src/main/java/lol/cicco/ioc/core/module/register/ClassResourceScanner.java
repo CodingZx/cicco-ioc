@@ -1,21 +1,27 @@
 package lol.cicco.ioc.core.module.register;
 
 import lol.cicco.ioc.core.CiccoConstants;
-import lol.cicco.ioc.core.scanner.ResourceMeta;
-import lol.cicco.ioc.core.scanner.ResourceScanner;
+import lol.cicco.ioc.core.module.scan.ResourceMeta;
+import lol.cicco.ioc.core.module.scan.ResourceScanner;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Slf4j
-class ClassResourceScanner extends ResourceScanner {
+class ClassResourceScanner {
+
+    private final ResourceScanner scanner;
+
+    public ClassResourceScanner(ResourceScanner scanner) {
+        this.scanner = scanner;
+    }
 
     /**
      * 扫描指定路径下Class文件信息
      */
     public Set<ClassResourceMeta> scanClassMeta(String path, ClassLoader classLoader) {
-        Set<ResourceMeta> resourceMetas = super.doScan(path, classLoader);
+        Set<ResourceMeta> resourceMetas = scanner.doScan(path, classLoader);
 
         // 分析Class, 是否为需要注册至IOC
         Set<ClassResourceMeta> classDefinitions = new LinkedHashSet<>();

@@ -19,7 +19,13 @@ public interface CiccoModule<T> {
     T getModuleProcessor();
 
     /**
-     * 获取初始化顺序
+     * 定义依赖模块, 给定模块初始化后再执行初始化
      */
-    List<String> dependOn();
+    List<String> dependModule();
+
+    /**
+     * 保证此模块一定会在给定模块之前初始化
+     */
+    List<String> afterModule();
+
 }

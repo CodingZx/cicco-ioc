@@ -3,6 +3,7 @@ package lol.cicco.ioc.core.module.conditional;
 import java.lang.annotation.Annotation;
 
 public interface ConditionalRegistry {
+
     /**
      * 注册Conditional注解处理器
      */

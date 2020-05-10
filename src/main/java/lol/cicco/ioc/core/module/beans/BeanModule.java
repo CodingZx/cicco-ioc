@@ -2,6 +2,7 @@ package lol.cicco.ioc.core.module.beans;
 
 import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
+import lol.cicco.ioc.core.module.register.RegisterModule;
 import lol.cicco.ioc.util.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,8 +32,13 @@ public class BeanModule implements CiccoModule<BeanRegistry>, BeanRegistry {
     }
 
     @Override
-    public List<String> dependOn() {
+    public List<String> dependModule() {
         return null;
+    }
+
+    @Override
+    public List<String> afterModule() {
+        return Collections.singletonList(RegisterModule.REGISTER_MODULE_NAME);
     }
 
     @Override

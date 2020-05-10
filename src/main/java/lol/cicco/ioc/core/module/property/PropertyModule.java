@@ -5,6 +5,7 @@ import lol.cicco.ioc.core.CiccoModule;
 import lol.cicco.ioc.core.IOC;
 import lol.cicco.ioc.core.Initialize;
 import lol.cicco.ioc.core.module.beans.BeanModule;
+import lol.cicco.ioc.core.module.register.RegisterModule;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,7 +14,7 @@ import java.util.*;
 
 @Slf4j
 public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRegistry {
-    public static final String PROPERTY_MODULE_NAME = "PropertyModule";
+    public static final String PROPERTY_MODULE_NAME = "_propertyModule";
 
     // 属性转换器存在Map, 允许同一种类型对应多个转换器
     private final Map<Type, Collection<PropertyHandler<?>>> PROPERTY_HANDLERS = new LinkedHashMap<>();
@@ -47,8 +48,13 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
     }
 
     @Override
-    public List<String> dependOn() {
+    public List<String> dependModule() {
         return Collections.singletonList(BeanModule.BEAN_MODULE_NAME);
+    }
+
+    @Override
+    public List<String> afterModule() {
+        return Collections.singletonList(RegisterModule.REGISTER_MODULE_NAME);
     }
 
     @SneakyThrows

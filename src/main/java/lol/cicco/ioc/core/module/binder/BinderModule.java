@@ -41,8 +41,13 @@ public class BinderModule implements CiccoModule<Void> {
     }
 
     @Override
-    public List<String> dependOn() {
+    public List<String> dependModule() {
         return Arrays.asList(BeanModule.BEAN_MODULE_NAME, RegisterModule.REGISTER_MODULE_NAME, PropertyModule.PROPERTY_MODULE_NAME);
+    }
+
+    @Override
+    public List<String> afterModule() {
+        return null;
     }
 
     private void doBinder() {

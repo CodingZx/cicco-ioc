@@ -1,4 +1,4 @@
-package lol.cicco.ioc.core.scanner;
+package lol.cicco.ioc.core.module.scan;
 
 public class ResourceScanException extends RuntimeException {
 

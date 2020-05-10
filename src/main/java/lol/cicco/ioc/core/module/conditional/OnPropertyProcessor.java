@@ -1,6 +1,5 @@
 package lol.cicco.ioc.core.module.conditional;
 
-import lol.cicco.ioc.annotation.ConditionalOnProperty;
 import lol.cicco.ioc.core.module.property.PropertyRegistry;
 
 public class OnPropertyProcessor extends AbstractConditionalProcessor<ConditionalOnProperty> {

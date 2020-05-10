@@ -5,10 +5,13 @@ import lol.cicco.ioc.core.CiccoModule;
 import lol.cicco.ioc.core.module.beans.BeanModule;
 import lol.cicco.ioc.core.module.binder.BinderModule;
 import lol.cicco.ioc.core.module.register.RegisterModule;
+import lol.cicco.ioc.core.module.scan.ResourceScanner;
+import lol.cicco.ioc.core.module.scan.ScanModule;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -19,9 +22,10 @@ public class MybatisModule implements CiccoModule<Void> {
     public void initModule(CiccoContext context) {
         log.debug("init mybatis module...");
         BeanModule beanModule = (BeanModule) context.getModule(BeanModule.BEAN_MODULE_NAME);
+        ResourceScanner scanner = ((ScanModule) context.getModule(ScanModule.SCAN_MODULE_NAME)).getModuleProcessor();
 
         MybatisConfig config = (MybatisConfig) beanModule.getModuleProcessor().getNullableBean(MybatisConfig.class).getObject();
-        var factory = config.createSqlFactory();
+        var factory = config.createSqlFactory(scanner);
 
         MybatisConstants.factory = factory;
 
@@ -44,7 +48,12 @@ public class MybatisModule implements CiccoModule<Void> {
     }
 
     @Override
-    public List<String> dependOn() {
-        return Arrays.asList(BeanModule.BEAN_MODULE_NAME, BinderModule.BINDER_MODULE_NAME, RegisterModule.REGISTER_MODULE_NAME);
+    public List<String> dependModule() {
+        return Arrays.asList(BeanModule.BEAN_MODULE_NAME, RegisterModule.REGISTER_MODULE_NAME, ScanModule.SCAN_MODULE_NAME);
+    }
+
+    @Override
+    public List<String> afterModule() {
+        return null;
     }
 }

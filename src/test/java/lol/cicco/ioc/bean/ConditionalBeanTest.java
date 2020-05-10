@@ -1,7 +1,7 @@
 package lol.cicco.ioc.bean;
 
-import lol.cicco.ioc.annotation.ConditionalOnMissBeanType;
-import lol.cicco.ioc.annotation.ConditionalOnProperty;
+import lol.cicco.ioc.core.module.conditional.ConditionalOnMissBeanType;
+import lol.cicco.ioc.core.module.conditional.ConditionalOnProperty;
 import lol.cicco.ioc.annotation.Registration;
 
 @Registration
@@ -11,12 +11,7 @@ public class ConditionalBeanTest {
     @ConditionalOnMissBeanType(TestInterface.class)
     public TestInterface testBeanDefine() {
 
-        return new TestInterface() {
-            @Override
-            public void printTest() {
-                System.out.println("Method define testInterface....");
-            }
-        };
+        return () -> System.out.println("Method define testInterface....");
     }
 
     @Registration(name = "conditionalBean")

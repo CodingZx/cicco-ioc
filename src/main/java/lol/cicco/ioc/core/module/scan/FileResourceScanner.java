@@ -1,4 +1,4 @@
-package lol.cicco.ioc.core.scanner;
+package lol.cicco.ioc.core.module.scan;
 
 import lombok.extern.slf4j.Slf4j;
 

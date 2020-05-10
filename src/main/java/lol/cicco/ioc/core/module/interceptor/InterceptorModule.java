@@ -2,9 +2,12 @@ package lol.cicco.ioc.core.module.interceptor;
 
 import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
+import lol.cicco.ioc.core.module.beans.BeanModule;
+import lol.cicco.ioc.core.module.register.RegisterModule;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +34,13 @@ public class InterceptorModule implements CiccoModule<InterceptorRegistry>, Inte
     }
 
     @Override
-    public List<String> dependOn() {
-        return null;
+    public List<String> dependModule() {
+        return Collections.singletonList(BeanModule.BEAN_MODULE_NAME);
+    }
+
+    @Override
+    public List<String> afterModule() {
+        return Collections.singletonList(RegisterModule.REGISTER_MODULE_NAME);
     }
 
 

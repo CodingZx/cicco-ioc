@@ -7,6 +7,7 @@ import lol.cicco.ioc.core.module.inject.InjectModule;
 import lol.cicco.ioc.core.module.interceptor.InterceptorModule;
 import lol.cicco.ioc.core.module.property.PropertyModule;
 import lol.cicco.ioc.core.module.register.RegisterModule;
+import lol.cicco.ioc.core.module.scan.ScanModule;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -32,6 +33,7 @@ public class DefaultInitialize implements Initialize {
         registerModule(new InjectModule());
         registerModule(new BinderModule());
         registerModule(new ConditionalModule());
+        registerModule(new ScanModule());
     }
 
     /**

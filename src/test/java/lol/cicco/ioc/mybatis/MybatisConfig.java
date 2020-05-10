@@ -3,7 +3,8 @@ package lol.cicco.ioc.mybatis;
 import com.zaxxer.hikari.HikariDataSource;
 import lol.cicco.ioc.annotation.Inject;
 import lol.cicco.ioc.annotation.Registration;
-import lol.cicco.ioc.core.scanner.ResourceMeta;
+import lol.cicco.ioc.core.module.scan.ResourceMeta;
+import lol.cicco.ioc.core.module.scan.ResourceScanner;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
@@ -26,7 +27,7 @@ public class MybatisConfig {
     @Inject
     private MyBatisProperties myBatisProperties;
 
-    public SqlSessionFactory createSqlFactory() {
+    public SqlSessionFactory createSqlFactory(ResourceScanner scanner) {
         log.debug("开始创建MybatisSqlFactory.");
 
         Environment env = new Environment("default", new JdbcTransactionFactory(), configDataSource());
@@ -42,7 +43,7 @@ public class MybatisConfig {
         }
         if (isNullOrEmpty(myBatisProperties.getXmlLocation())) {
             log.debug("开始扫描xml");
-            Set<ResourceMeta> allFiles = new XmlResourceScanner().scanXml(myBatisProperties.getXmlLocation(), MybatisConfig.class.getClassLoader());
+            Set<ResourceMeta> allFiles = new XmlResourceScanner(scanner).scanXml(myBatisProperties.getXmlLocation(), MybatisConfig.class.getClassLoader());
             log.debug("扫描到所有xml");
             for (ResourceMeta path : allFiles) {
                 try {

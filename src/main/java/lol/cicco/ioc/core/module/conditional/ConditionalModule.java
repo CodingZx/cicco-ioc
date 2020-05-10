@@ -4,13 +4,11 @@ import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
 import lol.cicco.ioc.core.module.beans.BeanModule;
 import lol.cicco.ioc.core.module.property.PropertyModule;
+import lol.cicco.ioc.core.module.register.RegisterModule;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 public class ConditionalModule implements CiccoModule<ConditionalRegistry>, ConditionalRegistry {
@@ -41,8 +39,13 @@ public class ConditionalModule implements CiccoModule<ConditionalRegistry>, Cond
     }
 
     @Override
-    public List<String> dependOn() {
+    public List<String> dependModule() {
         return Arrays.asList(BeanModule.BEAN_MODULE_NAME, PropertyModule.PROPERTY_MODULE_NAME);
+    }
+
+    @Override
+    public List<String> afterModule() {
+        return Collections.singletonList(RegisterModule.REGISTER_MODULE_NAME);
     }
 
     @Override

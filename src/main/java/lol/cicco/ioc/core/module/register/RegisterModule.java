@@ -13,6 +13,8 @@ import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
 import lol.cicco.ioc.core.module.property.PropertyHandler;
 import lol.cicco.ioc.core.module.property.PropertyModule;
 import lol.cicco.ioc.core.module.property.PropertyRegistry;
+import lol.cicco.ioc.core.module.scan.ResourceScanner;
+import lol.cicco.ioc.core.module.scan.ScanModule;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
@@ -33,9 +35,10 @@ public class RegisterModule implements CiccoModule<Void> {
         this.interceptorRegistry = (InterceptorModule) context.getModule(InterceptorModule.INTERCEPTOR_MODULE).getModuleProcessor();
         this.propertyRegistry = (PropertyModule) context.getModule(PropertyModule.PROPERTY_MODULE_NAME).getModuleProcessor();
         ConditionalRegistry conditionalRegistry = (ConditionalModule) context.getModule(ConditionalModule.CONDITIONAL_MODULE_NAME).getModuleProcessor();
+        ResourceScanner resourceScanner = ((ScanModule) context.getModule(ScanModule.SCAN_MODULE_NAME)).getModuleProcessor();
 
         // 注册至BeanRegistry
-        RegisterProcessor processor = new RegisterProcessor(beanRegistry, interceptorRegistry, conditionalRegistry);
+        RegisterProcessor processor = new RegisterProcessor(beanRegistry, interceptorRegistry, conditionalRegistry, resourceScanner);
         processor.doRegister(context.getInitialize().getScanPackages());
 
         // 注册至Interceptor
@@ -56,8 +59,13 @@ public class RegisterModule implements CiccoModule<Void> {
     }
 
     @Override
-    public List<String> dependOn() {
-        return Arrays.asList(BeanModule.BEAN_MODULE_NAME, InterceptorModule.INTERCEPTOR_MODULE, PropertyModule.PROPERTY_MODULE_NAME, ConditionalModule.CONDITIONAL_MODULE_NAME);
+    public List<String> dependModule() {
+        return Arrays.asList(BeanModule.BEAN_MODULE_NAME, InterceptorModule.INTERCEPTOR_MODULE, PropertyModule.PROPERTY_MODULE_NAME, ConditionalModule.CONDITIONAL_MODULE_NAME, ScanModule.SCAN_MODULE_NAME);
+    }
+
+    @Override
+    public List<String> afterModule() {
+        return null;
     }
 
     private void registerInterceptor() {
