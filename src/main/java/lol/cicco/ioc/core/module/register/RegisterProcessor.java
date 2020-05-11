@@ -3,6 +3,7 @@ package lol.cicco.ioc.core.module.register;
 import javassist.Modifier;
 import lol.cicco.ioc.annotation.InjectConstructor;
 import lol.cicco.ioc.annotation.Registration;
+import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
 import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
 import lol.cicco.ioc.core.module.scan.ResourceScanner;
@@ -61,32 +62,17 @@ class RegisterProcessor {
             }
         }
 
-        registerAllBeanProvider(analyzeBeanDefines);
-    }
-
-    private void registerAllBeanProvider(List<AnalyzeBeanDefine> analyzeBeanDefines) {
-        Queue<InitializeBeanProvider> waitInitializeProviderQueue = new LinkedList<>();
-
-        for (AnalyzeBeanDefine beanDefine : analyzeBeanDefines) {
-            // 注册
-            waitInitializeProviderQueue.add(registerBeanProvider(beanDefine));
-        }
-
-        for (InitializeBeanProvider bean : waitInitializeProviderQueue) {
-            try {
-                bean.initialize();
-            } catch (Exception e) {
-                throw new RegisterException("初始化异常: " + e.getMessage(), e);
-            }
+        for(AnalyzeBeanDefine beanDefine : analyzeBeanDefines) {
+            registerBeanProvider(beanDefine);
         }
     }
 
-    private InitializeBeanProvider registerBeanProvider(AnalyzeBeanDefine beanDefine) {
-        InitializeBeanProvider initializeBean;
+    private void registerBeanProvider(AnalyzeBeanDefine beanDefine) {
+        BeanProvider beanProvider;
         if (beanDefine instanceof AnalyzeMethodBeanDefine) {
-            initializeBean = new MethodSingleBeanProvider(interceptorRegistry, beanRegistry, (AnalyzeMethodBeanDefine) beanDefine);
+            beanProvider = new MethodSingleBeanProvider(interceptorRegistry, beanRegistry, (AnalyzeMethodBeanDefine) beanDefine);
         } else {
-            initializeBean = new SingleBeanProvider(interceptorRegistry, beanRegistry, beanDefine);
+            beanProvider = new SingleBeanProvider(interceptorRegistry, beanRegistry, beanDefine);
         }
         // 校验BeanName是否重复
         if (beanRegistry.containsBean(beanDefine.getBeanName())) {
@@ -94,9 +80,7 @@ class RegisterProcessor {
         }
 
         log.debug("Bean[{}]注册至IOC..", beanDefine.getBeanType().toString());
-        beanRegistry.register(beanDefine.getBeanType(), beanDefine.getBeanName(), initializeBean.getBeanProvider());
-
-        return initializeBean;
+        beanRegistry.register(beanDefine.getBeanType(), beanDefine.getBeanName(), beanProvider);
     }
 
     /**

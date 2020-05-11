@@ -1,6 +1,5 @@
 package lol.cicco.ioc.core.module.register;
 
-import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
 import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
 import lombok.SneakyThrows;
@@ -10,7 +9,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-class SingleBeanProvider extends AbstractBeanProvider implements InitializeBeanProvider {
+class SingleBeanProvider extends AbstractBeanProvider {
 
     private final Class<?>[] parameterTypes;
     private final Annotation[][] parameterAnnotations;
@@ -75,7 +74,7 @@ class SingleBeanProvider extends AbstractBeanProvider implements InitializeBeanP
     }
 
     @Override
-    public void initialize() throws Exception {
+    public void initialize() {
         if (targetObject != null) {
             // 已经初始化过
             return;
@@ -88,8 +87,4 @@ class SingleBeanProvider extends AbstractBeanProvider implements InitializeBeanP
         depends.remove(this);
     }
 
-    @Override
-    public BeanProvider getBeanProvider() {
-        return this;
-    }
 }

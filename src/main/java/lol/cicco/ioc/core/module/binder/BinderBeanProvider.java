@@ -55,7 +55,13 @@ public class BinderBeanProvider implements BeanProvider {
             // 不需要进行binder注入.
             return beanProvider.getObject();
         }
+        initialize();
+        return proxyTarget;
+    }
 
+    @Override
+    public void initialize() {
+        beanProvider.initialize();
         // 执行延迟注入..
         Object oldObj = beanProvider.getObject();
         // 为当前对象添加监听器..
@@ -67,7 +73,6 @@ public class BinderBeanProvider implements BeanProvider {
             proxyTarget = oldObj;
             injectProperty(proxyTarget, allBinderMap);
         }
-        return proxyTarget;
     }
 
     @SneakyThrows
@@ -131,8 +136,9 @@ public class BinderBeanProvider implements BeanProvider {
 
             // 注册属性监听器
             BinderPropertyChangeListener changeListener = new BinderPropertyChangeListener(noValueToNull, target, field, propertyName, defValue, propertyRegistry);
-            propertyRegistry.registerPropertyListener(changeListener);
-            REGISTER_LISTENERS.add(changeListener);
+            if (propertyRegistry.registerPropertyListener(changeListener)) {
+                REGISTER_LISTENERS.add(changeListener);
+            }
         }
     }
 

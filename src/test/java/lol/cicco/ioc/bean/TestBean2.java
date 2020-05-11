@@ -13,13 +13,13 @@ public class TestBean2 {
     @Inject(byName = "testBean1111")
     private TestBean testBean;
 
-    @Binder(value = "a.text", defaultValue = "defaultText", refresh = false)
+    @Binder(value = "a.text", defaultValue = "defaultText")
     private String showAText;
 
     @Binder("b.num")
     private int b;
 
-    @Binder("test.enum")
+    @Binder(value = "test.enum", noValueToNull = true)
     private TestEnum testEnum;
 
     @Inject(required = false, byName = "noReg2")

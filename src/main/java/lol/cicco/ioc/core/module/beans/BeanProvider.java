@@ -5,4 +5,6 @@ public interface BeanProvider {
     Class<?> beanType();
 
     Object getObject();
+
+    void initialize();
 }

@@ -30,6 +30,13 @@ public class MapperProvider implements BeanProvider {
         if (target != null) {
             return target;
         }
+        initialize();
+        return target;
+    }
+
+    @Override
+    @SneakyThrows
+    public void initialize() {
         ProxyFactory factory = new ProxyFactory();
         factory.setUseCache(true);
         factory.setInterfaces(new Class[]{beanType});
@@ -51,6 +58,5 @@ public class MapperProvider implements BeanProvider {
             }
             return res;
         });
-        return target;
     }
 }

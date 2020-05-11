@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-class MethodSingleBeanProvider extends AbstractBeanProvider implements InitializeBeanProvider {
+class MethodSingleBeanProvider extends AbstractBeanProvider {
 
     private final boolean interfaceDefine;
     private final Object originObj;
@@ -90,7 +90,7 @@ class MethodSingleBeanProvider extends AbstractBeanProvider implements Initializ
     }
 
     @Override
-    public void initialize() throws Exception {
+    public void initialize() {
         if (proxyTarget != null) {
             return;
         }
@@ -100,10 +100,5 @@ class MethodSingleBeanProvider extends AbstractBeanProvider implements Initializ
         depends.add(this);
         proxyTarget = createProxy();
         depends.remove(this);
-    }
-
-    @Override
-    public BeanProvider getBeanProvider() {
-        return this;
     }
 }

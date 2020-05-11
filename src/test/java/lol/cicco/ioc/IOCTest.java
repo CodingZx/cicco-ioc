@@ -87,7 +87,6 @@ public class IOCTest {
 
         TestEnum testEnum = IOC.getProperty("test.enum", TestEnum.class);
 //        Assert.assertEquals(testEnum, TestEnum.THREE);
-        Assert.assertNull(testEnum);
         Assert.assertNull(binderBean.getTestEnum());
 
         System.out.println(binderBean.getClass().getName());

@@ -24,11 +24,17 @@ class InjectBeanProvider implements BeanProvider {
     }
 
     @Override
-    @SneakyThrows
     public Object getObject() {
+        initialize();
+        return targetObj;
+    }
+
+    @Override
+    @SneakyThrows
+    public void initialize() {
         Object oldObj = beanProvider.getObject();
         if (oldObj == targetObj) { // 相同代表同一个对象, 执行过注入
-            return targetObj;
+            return;
         }
         targetObj = oldObj;
         Field[] fields = beanProvider.beanType().getDeclaredFields();
@@ -58,6 +64,5 @@ class InjectBeanProvider implements BeanProvider {
                 field.set(targetObj, injectProvider.getObject());
             }
         }
-        return targetObj;
     }
 }

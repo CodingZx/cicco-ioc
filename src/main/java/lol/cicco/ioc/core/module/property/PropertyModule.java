@@ -173,8 +173,8 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
      * 注册属性监听器
      */
     @Override
-    public void registerPropertyListener(PropertyChangeListener listener) {
-        propertyListenerRegistry.register(listener);
+    public boolean registerPropertyListener(PropertyChangeListener listener) {
+        return propertyListenerRegistry.register(listener);
     }
 
     /**

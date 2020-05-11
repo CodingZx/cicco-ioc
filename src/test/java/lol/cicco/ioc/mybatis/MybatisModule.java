@@ -4,6 +4,7 @@ import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
 import lol.cicco.ioc.core.module.beans.BeanModule;
 import lol.cicco.ioc.core.module.binder.BinderModule;
+import lol.cicco.ioc.core.module.initialize.InitializeBeanModule;
 import lol.cicco.ioc.core.module.register.RegisterModule;
 import lol.cicco.ioc.core.module.scan.ResourceScanner;
 import lol.cicco.ioc.core.module.scan.ScanModule;
@@ -54,6 +55,6 @@ public class MybatisModule implements CiccoModule<Void> {
 
     @Override
     public List<String> afterModule() {
-        return null;
+        return Collections.singletonList(InitializeBeanModule.INIT_MODULE_NAME);
     }
 }

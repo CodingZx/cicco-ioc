@@ -17,7 +17,7 @@ class PropertyListenerRegistry {
         private String listenerSign;
     }
 
-    void register(PropertyChangeListener listener) {
+    boolean register(PropertyChangeListener listener) {
         synchronized (objectListeners) {
             Queue<InlinePropertyListener> objects = objectListeners.getOrDefault(listener.propertyName(), new ConcurrentLinkedQueue<>());
             if (objects.stream().noneMatch(a -> listener.listenerSign().equals(a.listenerSign))) {
@@ -27,8 +27,10 @@ class PropertyListenerRegistry {
                 objects.add(propertyListener);
                 log.debug("PropertyListener 监听属性[{}] sign:{}, 当前对象数量为:{}", listener.propertyName(), listener.listenerSign(), objects.size());
                 objectListeners.put(listener.propertyName(), objects);
+                return true;
             }
         }
+        return false;
     }
 
     void removeListener(String propertyName, String sign) {

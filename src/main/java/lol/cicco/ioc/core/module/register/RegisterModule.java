@@ -2,9 +2,11 @@ package lol.cicco.ioc.core.module.register;
 
 import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
+import lol.cicco.ioc.core.Initialize;
 import lol.cicco.ioc.core.module.beans.BeanModule;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
+import lol.cicco.ioc.core.module.initialize.InitializeBeanModule;
 import lol.cicco.ioc.core.module.interceptor.AnnotationInterceptor;
 import lol.cicco.ioc.core.module.interceptor.InterceptorModule;
 import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
@@ -16,6 +18,7 @@ import lol.cicco.ioc.core.module.scan.ScanModule;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -62,7 +65,7 @@ public class RegisterModule implements CiccoModule<Void> {
 
     @Override
     public List<String> afterModule() {
-        return null;
+        return Collections.singletonList(InitializeBeanModule.INIT_MODULE_NAME);
     }
 
     private void registerInterceptor() {
