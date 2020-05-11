@@ -22,7 +22,6 @@ class RegisterProcessor {
     private final InterceptorRegistry interceptorRegistry;
     private final ResourceScanner resourceScanner;
 
-
     public RegisterProcessor(BeanRegistry beanRegistry, InterceptorRegistry interceptorRegistry, ResourceScanner scanner) {
         this.beanRegistry = beanRegistry;
         this.interceptorRegistry = interceptorRegistry;
@@ -49,7 +48,7 @@ class RegisterProcessor {
                 String beanName = "".equals(beanRegistration.name().trim()) ? type.getName() : beanRegistration.name().trim();
                 Constructor<?> constructor = analyzeBeanConstructor(type);
 
-                analyzeBeanDefines.add(new AnalyzeBeanDefine(type, beanRegistration, constructor, type.getDeclaredAnnotations()));
+                analyzeBeanDefines.add(new AnalyzeBeanDefine(type, beanRegistration, constructor));
 
                 for (Method method : type.getDeclaredMethods()) {
                     Registration methodRegistration = method.getDeclaredAnnotation(Registration.class);
@@ -57,7 +56,7 @@ class RegisterProcessor {
                         continue;
                     }
                     Class<?> methodBeanType = method.getReturnType();
-                    analyzeBeanDefines.add(new AnalyzeMethodBeanDefine(methodBeanType, methodRegistration, method, beanName, method.getDeclaredAnnotations()));
+                    analyzeBeanDefines.add(new AnalyzeMethodBeanDefine(methodBeanType, methodRegistration, method, beanName));
                 }
             }
         }

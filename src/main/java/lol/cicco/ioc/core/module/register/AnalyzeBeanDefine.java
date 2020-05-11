@@ -22,15 +22,11 @@ class AnalyzeBeanDefine {
     // 实现的类接口等
     private Set<Class<?>> castClasses;
 
-    // Bean定义时的注解信息
-    private Annotation[] registerAnnotations;
-
-    public AnalyzeBeanDefine(Class<?> beanType, Registration registration, Executable executable, Annotation[] registerAnnotations) {
+    public AnalyzeBeanDefine(Class<?> beanType, Registration registration, Executable executable) {
         this.beanType = beanType;
         this.beanName = "".equals(registration.name().trim()) ? beanType.getName() : registration.name().trim();
         this.parameterTypes = executable.getParameterTypes();
         this.parameterAnnotations = executable.getParameterAnnotations();
         this.castClasses = ClassUtils.getClassTypes(beanType);
-        this.registerAnnotations = registerAnnotations;
     }
 }

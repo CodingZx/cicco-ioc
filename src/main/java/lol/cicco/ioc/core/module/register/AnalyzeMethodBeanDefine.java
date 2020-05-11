@@ -15,8 +15,8 @@ class AnalyzeMethodBeanDefine extends AnalyzeBeanDefine {
 
     private Method defineMethod;
 
-    public AnalyzeMethodBeanDefine(Class<?> beanType, Registration registration, Method defineMethod, String invokeBeanName, Annotation[] registerBeanAnnotations) {
-        super(beanType, registration, defineMethod, registerBeanAnnotations);
+    public AnalyzeMethodBeanDefine(Class<?> beanType, Registration registration, Method defineMethod, String invokeBeanName) {
+        super(beanType, registration, defineMethod);
         this.defineMethod = defineMethod;
         this.invokeBeanName = invokeBeanName;
     }

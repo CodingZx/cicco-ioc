@@ -20,9 +20,6 @@ public class CiccoContext {
         List<CiccoModule<?>> sortList = dependGraph.sort();
 
         for(CiccoModule<?> module : sortList) {
-            System.out.println(module.getModuleName());
-        }
-        for(CiccoModule<?> module : sortList) {
             module.initModule(this);
         }
     }
