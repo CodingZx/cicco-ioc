@@ -16,6 +16,7 @@ public class DefaultInitialize implements Initialize {
 
     private final Set<String> scanPackages;
     private final Set<String> loadPropertyFiles;
+    private final Set<String> loadYamlFiles;
 
     private final Map<String, CiccoModule<?>> ciccoModules;
 
@@ -23,6 +24,7 @@ public class DefaultInitialize implements Initialize {
         scanPackages = new LinkedHashSet<>();
         loadPropertyFiles = new LinkedHashSet<>();
         ciccoModules = new LinkedHashMap<>();
+        loadYamlFiles = new LinkedHashSet<>();
 
         // 初始化默认模块
         registerModule(new PropertyModule());
@@ -100,6 +102,24 @@ public class DefaultInitialize implements Initialize {
     @Override
     public Set<String> getLoadPropertyFiles() {
         return this.loadPropertyFiles;
+    }
+
+    @Override
+    public Initialize loadYaml(String... yamlFiles) {
+        for (String yamlPath : yamlFiles) {
+            yamlPath = yamlPath.trim();
+            if (yamlPath.startsWith("/")) {
+                loadYamlFiles.add(yamlPath);
+            } else {
+                loadYamlFiles.add("/" + yamlPath);
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public Set<String> getLoadYamlFiles() {
+        return loadYamlFiles;
     }
 
 }

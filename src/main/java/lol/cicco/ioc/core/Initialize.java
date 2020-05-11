@@ -16,6 +16,16 @@ public interface Initialize {
     Set<String> getLoadPropertyFiles();
 
     /**
+     * 设置IOC加载Yaml配置文件
+     */
+    Initialize loadYaml(String... yamlFiles);
+
+    /**
+     * 获得已加载的Yaml文件
+     */
+    Set<String> getLoadYamlFiles();
+
+    /**
      * 设置属性转换器
      */
     Initialize scanBasePackages(String... packages);

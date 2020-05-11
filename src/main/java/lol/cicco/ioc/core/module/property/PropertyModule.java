@@ -1,5 +1,8 @@
 package lol.cicco.ioc.core.module.property;
 
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
 import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
 import lol.cicco.ioc.core.IOC;
@@ -9,6 +12,9 @@ import lol.cicco.ioc.core.module.register.RegisterModule;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -33,6 +39,7 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
 
         Initialize initialize = context.getInitialize();
         loadProperties(initialize.getLoadPropertyFiles());
+        loadYamlFiles(initialize.getLoadYamlFiles());
 
         log.debug("init property module....");
     }
@@ -71,6 +78,23 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
             for (var key : properties.keySet()) {
                 var value = properties.getProperty(key.toString());
                 setProperty(key.toString(), value);
+            }
+        }
+    }
+
+    @SneakyThrows
+    private void loadYamlFiles(Set<String> loadYamlFiles) {
+        // 加载对应配置
+        for (String yamlFile : loadYamlFiles) {
+            var inputStream = IOC.class.getResourceAsStream(yamlFile);
+            if (inputStream == null) {
+                log.warn("[{}] 未找到对应文件....", yamlFile);
+                continue;
+            }
+            Map<String, String> properties = yml2Properties(inputStream);
+            for (var key : properties.keySet()) {
+                var value = properties.get(key);
+                setProperty(key, value);
             }
         }
     }
@@ -161,4 +185,43 @@ public class PropertyModule implements CiccoModule<PropertyRegistry>, PropertyRe
         propertyListenerRegistry.removeListener(propertyName, listenerSign);
     }
 
+    private static Map<String, String> yml2Properties(InputStream inputStream) throws IOException {
+        final String DOT = ".";
+        Map<String, String> values = new LinkedHashMap<>();
+        YAMLFactory yamlFactory = new YAMLFactory();
+        YAMLParser parser = yamlFactory.createParser(new InputStreamReader(inputStream));
+
+        StringBuilder key = new StringBuilder();
+        JsonToken token = parser.nextToken();
+        while (token != null) {
+            if (JsonToken.FIELD_NAME.equals(token)) {
+                if (key.length() > 0) {
+                    key.append(DOT);
+                }
+                key.append(parser.getCurrentName());
+
+                token = parser.nextToken();
+                if (JsonToken.START_OBJECT.equals(token)) {
+                    continue;
+                }
+                String value = parser.getText();
+                values.put(key.toString(), value);
+
+                int dotOffset = key.lastIndexOf(DOT);
+                if (dotOffset > 0) {
+                    key = new StringBuilder(key.substring(0, dotOffset));
+                }
+            } else if (JsonToken.END_OBJECT.equals(token)) {
+                int dotOffset = key.lastIndexOf(DOT);
+                if (dotOffset > 0) {
+                    key = new StringBuilder(key.substring(0, dotOffset));
+                } else {
+                    key = new StringBuilder();
+                }
+            }
+            token = parser.nextToken();
+        }
+        parser.close();
+        return values;
+    }
 }

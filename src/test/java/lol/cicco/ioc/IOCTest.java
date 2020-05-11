@@ -25,28 +25,13 @@ public class IOCTest {
                 .loadProperties("prop/app1.prop")
                 .loadProperties("prop/app2.prop")
                 .loadProperties("mybatis.prop")
+                .loadYaml("test.yml")
                 .registerModule(new MybatisModule())
                 .done()
         ;
     }
-
     @Test
-    public void testCondition() {
-        String msg = "";
-        try {
-            TestInterface testInterface = IOC.getBeanByName("methodTestInterface");
-            testInterface.printTest();
-        }catch (BeanNotFountException e) {
-           msg = e.getMessage();
-        }
-        Assert.assertTrue(msg.contains("未注册至IOC"));
-
-        ConditionalBeanTest.ConditionBean conditionBean = IOC.getBeanByType(ConditionalBeanTest.ConditionBean.class);
-        conditionBean.test();
-    }
-
-    @Test
-    public void testAop() throws Throwable {
+    public void testAop() {
         System.out.println("-------");
         IOC.setProperty("test.enum", "THREE");
         var time = new TimeAnnotationInterceptor();
@@ -116,6 +101,8 @@ public class IOCTest {
         Assert.assertEquals(20, binderBean.getValue());
         Assert.assertEquals(20, binderBean2.getValue());
         Assert.assertEquals(20, binderBean3.getValue());
+
+        Assert.assertEquals("1234", IOC.getProperty("aaa.bbb.ccc"));
     }
 
     @AfterClass

@@ -27,6 +27,7 @@
         <mybatis.version>3.5.4</mybatis.version>
         <hikaricp.version>3.4.2</hikaricp.version>
         <h2.version>1.4.200</h2.version>
+        <jackson.format.yaml>2.11.0</jackson.format.yaml>
     </properties>
 
     <dependencies>
@@ -40,6 +41,13 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>${javassist.version}</version>
+        </dependency>
+
+        <!-- yaml -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${jackson.format.yaml}</version>
         </dependency>
 
         <dependency>
