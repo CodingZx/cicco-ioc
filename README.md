@@ -8,6 +8,7 @@
 IOC.initialize()
     .scanBasePackages("lol.cicco.ioc.bean") // 设置扫描包 扫描包中所有注册至IOC的Class信息存放至BeanRegistry
     .loadProperties("app.prop","prop/app1.prop") // 加载配置文件中属性键值至PropertyRegistry中
+    .loadYaml("test.yml") // 加载Yaml文件属性值至PropertyRegistry
     .registerModule(new MybatisModule()) // 注册自定义模块 
     .done(); // 初始化完成 根据初始化配置进行IOC初始化
 ```
@@ -18,7 +19,6 @@ IOC.initialize()
 - 定义Bean
 ```java
 // Class定义
-@ConditionalOnMissBeanType(TestBean2.class) // 此注解表明当TestBean2类型Bean不存在时, 生成此Bean 
 @Registration(name = "testBean2") // 此注解表明注册至Bean管理器
 public class TestBean2 {
     //设置注入Bean实例, byName不为空时根据BeanName注入对应实例 
