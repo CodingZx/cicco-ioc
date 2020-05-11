@@ -2,11 +2,14 @@ package lol.cicco.ioc.core.module.initialize;
 
 import lol.cicco.ioc.core.CiccoContext;
 import lol.cicco.ioc.core.CiccoModule;
+import lol.cicco.ioc.core.Initialize;
 import lol.cicco.ioc.core.module.beans.BeanModule;
+import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
 import lol.cicco.ioc.core.module.binder.BinderModule;
 import lol.cicco.ioc.core.module.inject.InjectModule;
 import lol.cicco.ioc.core.module.register.RegisterModule;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
@@ -22,10 +25,25 @@ public class InitializeBeanModule implements CiccoModule<Void> {
         BeanRegistry beanRegistry = (BeanModule) context.getModule(BeanModule.BEAN_MODULE_NAME).getModuleProcessor();
 
         Set<String> beanNames = beanRegistry.getRegisterBeans();
-        for(String bean : beanNames) {
-            beanRegistry.getNullableBean(bean).initialize();
+        for(String beanName : beanNames) {
+            BeanProvider beanProvider = beanRegistry.getNullableBean(beanName);
+            beanProvider.initialize();
+
+            tryDoingAfterPropertySet(beanProvider.getObject());
         }
         log.debug("init initialize bean module....");
+    }
+
+    @SneakyThrows
+    private void tryDoingAfterPropertySet(Object bean) {
+        InitializingBean initializingBean;
+        try {
+            initializingBean = (InitializingBean) bean;
+        }catch (ClassCastException e) {
+            // 无法转换.. 未实现
+            return;
+        }
+        initializingBean.afterPropertySet();
     }
 
     @Override

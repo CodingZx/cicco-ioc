@@ -3,12 +3,13 @@ package lol.cicco.ioc.bean;
 import lol.cicco.ioc.annotation.Binder;
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.binder.TestEnum;
+import lol.cicco.ioc.core.module.initialize.InitializingBean;
 import lombok.Getter;
 
 import java.time.*;
 
 @Registration
-public class BinderBean {
+public class BinderBean implements InitializingBean {
 
     @Binder("binder.year")
     private Year year;
@@ -36,5 +37,10 @@ public class BinderBean {
         System.out.println("yearMonth:" + yearMonth);
         System.out.println("monthDay:" + monthDay);
         System.out.println("localDateTime:" + localDateTime);
+    }
+
+    @Override
+    public void afterPropertySet() throws Exception {
+        System.out.println("initialize bean.......................");
     }
 }
