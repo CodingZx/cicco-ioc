@@ -5,8 +5,6 @@ import lol.cicco.ioc.core.CiccoModule;
 import lol.cicco.ioc.core.module.beans.BeanModule;
 import lol.cicco.ioc.core.module.beans.BeanProvider;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
-import lol.cicco.ioc.core.module.conditional.ConditionalModule;
-import lol.cicco.ioc.core.module.conditional.ConditionalRegistry;
 import lol.cicco.ioc.core.module.interceptor.AnnotationInterceptor;
 import lol.cicco.ioc.core.module.interceptor.InterceptorModule;
 import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
@@ -34,11 +32,10 @@ public class RegisterModule implements CiccoModule<Void> {
         this.beanRegistry = (BeanModule) context.getModule(BeanModule.BEAN_MODULE_NAME).getModuleProcessor();
         this.interceptorRegistry = (InterceptorModule) context.getModule(InterceptorModule.INTERCEPTOR_MODULE).getModuleProcessor();
         this.propertyRegistry = (PropertyModule) context.getModule(PropertyModule.PROPERTY_MODULE_NAME).getModuleProcessor();
-        ConditionalRegistry conditionalRegistry = (ConditionalModule) context.getModule(ConditionalModule.CONDITIONAL_MODULE_NAME).getModuleProcessor();
         ResourceScanner resourceScanner = ((ScanModule) context.getModule(ScanModule.SCAN_MODULE_NAME)).getModuleProcessor();
 
         // 注册至BeanRegistry
-        RegisterProcessor processor = new RegisterProcessor(beanRegistry, interceptorRegistry, conditionalRegistry, resourceScanner);
+        RegisterProcessor processor = new RegisterProcessor(beanRegistry, interceptorRegistry, resourceScanner);
         processor.doRegister(context.getInitialize().getScanPackages());
 
         // 注册至Interceptor
@@ -60,7 +57,7 @@ public class RegisterModule implements CiccoModule<Void> {
 
     @Override
     public List<String> dependModule() {
-        return Arrays.asList(BeanModule.BEAN_MODULE_NAME, InterceptorModule.INTERCEPTOR_MODULE, PropertyModule.PROPERTY_MODULE_NAME, ConditionalModule.CONDITIONAL_MODULE_NAME, ScanModule.SCAN_MODULE_NAME);
+        return Arrays.asList(BeanModule.BEAN_MODULE_NAME, InterceptorModule.INTERCEPTOR_MODULE, PropertyModule.PROPERTY_MODULE_NAME, ScanModule.SCAN_MODULE_NAME);
     }
 
     @Override

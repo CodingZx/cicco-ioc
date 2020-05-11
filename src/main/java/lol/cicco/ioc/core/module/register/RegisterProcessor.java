@@ -4,7 +4,6 @@ import javassist.Modifier;
 import lol.cicco.ioc.annotation.InjectConstructor;
 import lol.cicco.ioc.annotation.Registration;
 import lol.cicco.ioc.core.module.beans.BeanRegistry;
-import lol.cicco.ioc.core.module.conditional.ConditionalRegistry;
 import lol.cicco.ioc.core.module.interceptor.InterceptorRegistry;
 import lol.cicco.ioc.core.module.scan.ResourceScanner;
 import lombok.extern.slf4j.Slf4j;
@@ -21,14 +20,12 @@ class RegisterProcessor {
 
     private final BeanRegistry beanRegistry;
     private final InterceptorRegistry interceptorRegistry;
-    private final ConditionalRegistry conditionalRegistry;
     private final ResourceScanner resourceScanner;
 
 
-    public RegisterProcessor(BeanRegistry beanRegistry, InterceptorRegistry interceptorRegistry, ConditionalRegistry conditionalRegistry, ResourceScanner scanner) {
+    public RegisterProcessor(BeanRegistry beanRegistry, InterceptorRegistry interceptorRegistry, ResourceScanner scanner) {
         this.beanRegistry = beanRegistry;
         this.interceptorRegistry = interceptorRegistry;
-        this.conditionalRegistry = conditionalRegistry;
         this.resourceScanner = scanner;
     }
 
@@ -70,24 +67,10 @@ class RegisterProcessor {
 
     private void registerAllBeanProvider(List<AnalyzeBeanDefine> analyzeBeanDefines) {
         Queue<InitializeBeanProvider> waitInitializeProviderQueue = new LinkedList<>();
-        Queue<AnalyzeBeanDefine> conditionalBeans = new LinkedList<>();
 
         for (AnalyzeBeanDefine beanDefine : analyzeBeanDefines) {
-            // 如果为Conditional Bean则先放起来 等其他类注册完毕后再进行判断
-            if(conditionalRegistry.hasConditionalAnnotation(beanDefine)) {
-                conditionalBeans.add(beanDefine);
-                continue;
-            }
             // 注册
             waitInitializeProviderQueue.add(registerBeanProvider(beanDefine));
-        }
-
-        // 校验Conditional
-        while(!conditionalBeans.isEmpty()){
-            AnalyzeBeanDefine beanDefine = conditionalBeans.poll();
-            if(conditionalRegistry.checkConditional(beanDefine)) {
-                waitInitializeProviderQueue.add(registerBeanProvider(beanDefine));
-            }
         }
 
         for (InitializeBeanProvider bean : waitInitializeProviderQueue) {

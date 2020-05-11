@@ -20,4 +20,5 @@ class AnalyzeMethodBeanDefine extends AnalyzeBeanDefine {
         this.defineMethod = defineMethod;
         this.invokeBeanName = invokeBeanName;
     }
+
 }
