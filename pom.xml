@@ -26,7 +26,7 @@
         <logback.version>1.2.3</logback.version>
         <mybatis.version>3.5.4</mybatis.version>
         <hikaricp.version>3.4.2</hikaricp.version>
-        <h2.version>1.4.200</h2.version>
+        <h2.version>2.1.210</h2.version>
         <jackson.format.yaml>2.11.0</jackson.format.yaml>
     </properties>
 
